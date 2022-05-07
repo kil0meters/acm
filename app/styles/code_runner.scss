@@ -1,0 +1,20 @@
+.code-runner-wrapper {
+    grid-area: code-runner;
+    text-align: right;
+}
+
+.run-code-button {
+    background-color: var(--green);
+    border: 4px solid var(--green-highlight);
+    user-select: none;
+    color: white;
+    cursor: pointer;
+    display: inline-block;
+    padding: 12px;
+    text-align: center;
+    width: 100px;
+
+    &:hover {
+	background-color: var(--green-highlight);
+    }
+}

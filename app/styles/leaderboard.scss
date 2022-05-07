@@ -1,0 +1,30 @@
+.leaderboard-wrapper {
+    display: grid;
+    max-width: 1200px;
+    margin: 12px auto;
+    display: grid;
+    gap: 8px;
+    font-size: 1.4em;
+    border: 2px solid var(--border);
+}
+
+.leaderboard-item {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    height: 150px;
+
+    border-bottom: 2px solid var(--border);
+
+    img {
+	max-height: 100%;
+    }
+}
+
+.name {
+    align-self: center;
+}
+
+.star-count {
+    align-self: center;
+}

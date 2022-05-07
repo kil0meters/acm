@@ -1,0 +1,27 @@
+.navbar-wrapper {
+    grid-area: navbar;
+    padding: 12px;
+    border-bottom: 2px solid var(--border);
+
+    & a {
+	color: var(--text);
+	text-decoration: none;
+	padding: 12px;
+
+	&:hover {
+	    text-decoration: underline;
+	}
+    }
+}
+
+.navbar-link {
+    vertical-align: middle;
+    margin-right: 12px;
+}
+
+.navbar-title {
+    vertical-align: middle;
+    font-size: 1.4em;
+    margin-right: 12px;
+    font-weight: bold;
+}

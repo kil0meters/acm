@@ -1,0 +1,51 @@
+.tests-wrapper {
+    border: 2px solid var(--border);
+    grid-area: tests;
+
+    font-size: 1.2em;
+
+}
+
+.hide-tests {
+    padding: 16px 12px;
+    background-color: var(--border);
+    display: block;
+    user-select: none;
+    cursor: pointer;
+    position: sticky;
+}
+
+.tests {
+    max-height: 500px;
+    padding: 8px;
+    display: grid;
+    gap: 8px;
+    overflow-y: auto;
+}
+
+.test {
+    padding: 12px;
+    border: 2px solid;
+    border-radius: 0;
+    text-decoration: none;
+    color: white;
+    overflow-y: auto;
+
+    &.success {
+	background-color: var(--green);
+	border-color: var(--green-highlight);
+
+	&:hover {
+	    background-color: var(--green-highlight);
+	}
+    }
+
+    &.failure {
+	background-color: var(--red);
+	border-color: var(--red-highlight);
+
+	&:hover {
+	    background-color: var(--red-highlight);
+	}
+    }
+}
