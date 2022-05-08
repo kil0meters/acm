@@ -1,2 +1,6 @@
 /target
 /dist
+.env
+db.sqlite
+db.sqlite-shm
+db.sqlite-wal

@@ -1,6 +1,6 @@
-use yew::prelude::*;
-use monaco::{yew::CodeEditor, api::CodeEditorOptions};
+use monaco::{api::CodeEditorOptions, yew::CodeEditor};
 use std::rc::Rc;
+use yew::prelude::*;
 
 use crate::components::Navbar;
 
@@ -66,16 +66,19 @@ fn description() -> Html {
 fn code_runner() -> Html {
     html! {
         <div class="code-runner-wrapper">
-            <a class="run-code-button">{ "Submit" }</a>
+            <a class="submit-button">{ "Submit" }</a>
         </div>
     }
 }
 
 #[function_component(Editor)]
 fn editor() -> Html {
-    let options = Rc::new(CodeEditorOptions::default()
-        .with_language("cpp".into())
-        .with_builtin_theme(monaco::sys::editor::BuiltinTheme::VsDark)).to_sys_options();
+    let options = Rc::new(
+        CodeEditorOptions::default()
+            .with_language("cpp".into())
+            .with_builtin_theme(monaco::sys::editor::BuiltinTheme::VsDark),
+    )
+    .to_sys_options();
 
     options.set_font_size(Some(18.0));
 
@@ -118,4 +121,3 @@ pub fn problem_view(props: &ProblemViewProps) -> Html {
         </ContextProvider<Problem>>
     }
 }
-

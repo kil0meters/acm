@@ -1,0 +1,40 @@
+.auth-wrapper {
+    max-width: 600px;
+    margin: 48px auto;
+    border: 2px solid var(--border);
+    padding: 12px;
+
+    h1 {
+	font-weight: bolder;
+	font-size: 1.8em;
+	margin-bottom: 12px;
+    }
+}
+
+.authorize-form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1.2em;
+}
+
+.authorize-form-input {
+    border: none;
+    outline: 2px solid var(--border);
+    padding: 8px;
+    display: block;
+    font-size: 1.1em;
+    width: 400px;
+    margin-bottom: 16px;
+
+    &:focus {
+	outline-width: 4px;
+    }
+
+    &:valid {
+	outline-color: var(--green);
+    }
+
+    &:not(:placeholder-shown):invalid {
+	outline-color: var(--red);
+    }
+}

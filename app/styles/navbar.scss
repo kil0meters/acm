@@ -1,6 +1,10 @@
 .navbar-wrapper {
     grid-area: navbar;
-    padding: 12px;
+    display: grid;
+    align-items: center;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "links signup";
+    padding: 8px;
     border-bottom: 2px solid var(--border);
 
     & a {
@@ -14,6 +18,14 @@
     }
 }
 
+.navbar-links {
+    grid-area: links;
+}
+
+.signup {
+    grid-area: signup;
+}
+
 .navbar-link {
     vertical-align: middle;
     margin-right: 12px;
@@ -24,4 +36,20 @@
     font-size: 1.4em;
     margin-right: 12px;
     font-weight: bold;
+}
+
+.signup-button {
+    background-color: var(--blue);
+    border: 2px solid var(--blue-highlight);
+    user-select: none;
+    color: white !important;
+    cursor: pointer;
+    font-weight: bold;
+    display: inline-block;
+    padding: 12px;
+    text-align: center;
+
+    &:hover, &:focus {
+	outline: 2px solid var(--blue-highlight);
+    }
 }
