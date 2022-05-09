@@ -10,7 +10,7 @@ use yew_router::prelude::*;
 mod components;
 mod views;
 
-use views::{HomeView, LeaderboardView, LoginView, ProblemView, SignupView};
+use views::{HomeView, LeaderboardView, LoginView, ProblemView, SignupView, ProblemEditorView};
 
 #[derive(Clone, Routable, PartialEq)]
 enum Route {
@@ -28,6 +28,9 @@ enum Route {
 
     #[at("/leaderboard")]
     Leaderboard,
+
+    #[at("/create-problem")]
+    ProblemEditor
 }
 
 fn switch(routes: &Route) -> Html {
@@ -37,6 +40,7 @@ fn switch(routes: &Route) -> Html {
         Route::Leaderboard => html! { <LeaderboardView /> },
         Route::Signup => html! { <SignupView /> },
         Route::Login => html! { <LoginView /> },
+        Route::ProblemEditor => html! { <ProblemEditorView /> }
     }
 }
 

@@ -1,0 +1,35 @@
+.markdown-editor {
+    grid-area: sidebar;
+    display: grid;
+    margin-bottom: 12px;
+    margin-left: 12px;
+    border: 2px solid var(--border);
+
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "top-bar"
+			 "content";
+}
+
+.problem-editor-wrapper {
+    display: grid;
+    gap: 12px;
+    max-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "navbar navbar"
+			 "sidebar content";
+}
+
+.top-row {
+    display: grid;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 2px solid var(--border);
+    height: 48px;
+
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "description button";
+}

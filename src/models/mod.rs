@@ -11,7 +11,6 @@ pub struct Session {
     pub token: String,
 }
 
-
 #[derive(Debug, Default, Deserialize, Serialize, Clone, PartialEq)]
 pub struct User {
     pub name: String,
@@ -23,7 +22,6 @@ pub struct User {
     pub auth: Auth,
     pub star_count: i64,
 }
-
 
 #[cfg(feature = "sqlx")]
 #[derive(Debug, Clone, Copy, Type, Deserialize, Serialize, PartialEq)]

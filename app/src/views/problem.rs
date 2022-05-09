@@ -66,7 +66,7 @@ fn description() -> Html {
 fn code_runner() -> Html {
     html! {
         <div class="code-runner-wrapper">
-            <a class="submit-button">{ "Submit" }</a>
+            <a class="button green">{ "Submit" }</a>
         </div>
     }
 }

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
-use yew::prelude::*;
 use wasm_bindgen_futures::spawn_local;
+use yew::prelude::*;
 
 use crate::components::Navbar;
 
@@ -27,20 +27,23 @@ pub fn leaderboard_view() -> Html {
     let data = use_state(|| Vec::<LeaderboardItemProps>::new());
 
     let data_tmp = data.clone();
-    use_effect_with_deps(move |_| {
-        spawn_local(async move {
-            let res = reqwest::get("http://127.0.0.1:8080/api/leaderboard")
-                .await
-                .unwrap()
-                .json::<Vec<LeaderboardItemProps>>()
-                .await
-                .unwrap();
+    use_effect_with_deps(
+        move |_| {
+            spawn_local(async move {
+                let res = reqwest::get("http://127.0.0.1:8080/api/leaderboard")
+                    .await
+                    .unwrap()
+                    .json::<Vec<LeaderboardItemProps>>()
+                    .await
+                    .unwrap();
 
-            data_tmp.set(res);
-        });
+                data_tmp.set(res);
+            });
 
-        || ()
-    }, ());
+            || ()
+        },
+        (),
+    );
 
     html! {
         <>
@@ -55,4 +58,3 @@ pub fn leaderboard_view() -> Html {
         </>
     }
 }
-

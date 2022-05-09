@@ -1,8 +1,8 @@
+use acm::models::forms::SignupForm;
 use log::info;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{FormData, HtmlFormElement};
 use yew::prelude::*;
-use acm::models::forms::SignupForm;
 
 use crate::components::Navbar;
 
@@ -76,7 +76,7 @@ pub fn signup_view() -> Html {
                            minlength="8"
                            maxlength="256" type="password"
                            required={ true } />
-                    <button class="submit-button" type="submit">{ "Sign up" }</button>
+                    <button class="button green" type="submit">{ "Sign up" }</button>
                 </form>
             </div>
         </>

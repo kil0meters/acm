@@ -1,0 +1,38 @@
+.button {
+    border: 2px solid;
+    user-select: none;
+    color: white !important;
+    cursor: pointer;
+    font-weight: bold;
+    display: inline-block;
+    padding: 12px;
+    text-align: center;
+
+    &.blue {
+	background-color: var(--blue);
+	border-color: var(--blue-highlight);
+
+	&:hover, &:focus {
+	    outline: 2px solid var(--blue-highlight);
+	}
+    }
+
+    &.green {
+	background-color: var(--green);
+	border-color: var(--green-highlight);
+
+	&:hover, &:focus {
+	    outline: 2px solid var(--green-highlight);
+	}
+    }
+
+    &.grey {
+	color: black !important;
+	background-color: var(--grey);
+	border-color: var(--grey-highlight);
+
+	&:hover, &:focus {
+	    outline: 2px solid var(--grey-highlight);
+	}
+    }
+}

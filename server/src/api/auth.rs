@@ -1,13 +1,16 @@
+use acm::models::{
+    forms::{LoginForm, SignupForm},
+    Auth, User,
+};
 use actix_web::{http::StatusCode, post, web::Json, HttpResponse, Responder};
+use jsonwebtoken::{EncodingKey, Header};
 use log::{error, info};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use validator::Validate;
-use jsonwebtoken::{Header, EncodingKey};
-use acm::models::{Auth, User, forms::{SignupForm, LoginForm}};
 
-use crate::state::AppState;
 use super::{api_error, api_success};
+use crate::state::AppState;
 
 fn hash_password(username: &str, password: &str) -> String {
     let salted_pass = format!("{}{}", username, password);
@@ -18,7 +21,6 @@ fn verify_password(username: &str, password: &str, user: &User) -> bool {
     let salted_pass = format!("{}{}", username, password);
     bcrypt::verify(&salted_pass, &user.password).unwrap()
 }
-
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
@@ -68,7 +70,12 @@ async fn login(form: Json<LoginForm>, state: AppState) -> impl Responder {
                 };
 
                 let key = state.jwt_private_key.as_bytes();
-                let token = jsonwebtoken::encode(&Header::default(), &claims, &EncodingKey::from_secret(key)).unwrap();
+                let token = jsonwebtoken::encode(
+                    &Header::default(),
+                    &claims,
+                    &EncodingKey::from_secret(key),
+                )
+                .unwrap();
 
                 api_success(json!({
                     "token": token,

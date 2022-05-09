@@ -6,16 +6,6 @@
     grid-template-areas: "links signup";
     padding: 8px;
     border-bottom: 2px solid var(--border);
-
-    & a {
-	color: var(--text);
-	text-decoration: none;
-	padding: 12px;
-
-	&:hover {
-	    text-decoration: underline;
-	}
-    }
 }
 
 .navbar-links {
@@ -29,6 +19,19 @@
 .navbar-link {
     vertical-align: middle;
     margin-right: 12px;
+    border: none;
+    background: none;
+    color: var(--text);
+    text-decoration: none;
+    padding: 12px;
+    background: none;
+    border: none;
+    font-size: 1.1em;
+    cursor: pointer;
+
+    &:hover {
+	text-decoration: underline;
+    }
 }
 
 .navbar-title {
@@ -36,20 +39,4 @@
     font-size: 1.4em;
     margin-right: 12px;
     font-weight: bold;
-}
-
-.signup-button {
-    background-color: var(--blue);
-    border: 2px solid var(--blue-highlight);
-    user-select: none;
-    color: white !important;
-    cursor: pointer;
-    font-weight: bold;
-    display: inline-block;
-    padding: 12px;
-    text-align: center;
-
-    &:hover, &:focus {
-	outline: 2px solid var(--blue-highlight);
-    }
 }

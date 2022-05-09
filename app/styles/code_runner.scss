@@ -2,20 +2,3 @@
     grid-area: code-runner;
     text-align: right;
 }
-
-.submit-button {
-    background-color: var(--green);
-    border: 2px solid var(--green-highlight);
-    user-select: none;
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-    display: inline-block;
-    padding: 12px;
-    text-align: center;
-    width: 100px;
-
-    &:hover, &:focus {
-	outline: 2px solid var(--green-highlight);
-    }
-}
