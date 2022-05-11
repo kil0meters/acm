@@ -13,7 +13,7 @@ pub fn navbar() -> Html {
         <div class="navbar-wrapper">
             <div class="navbar-links">
                 <Link<Route> classes="navbar-title navbar-link" to={Route::Home}> { "Chico ACM" }</Link<Route>>
-                <Link<Route> classes="navbar-link" to={Route::Home}>{ "Problems" }</Link<Route>>
+                <Link<Route> classes="navbar-link" to={Route::Problems}>{ "Problems" }</Link<Route>>
                 <Link<Route> classes="navbar-link" to={Route::Leaderboard}>{ "Leaderboard" }</Link<Route>>
 
                 // If logged in and of sufficient rank

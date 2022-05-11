@@ -27,7 +27,6 @@ pub fn signup_view() -> Html {
             };
 
             spawn_local(async move {
-                info!("Hello world");
                 let client = reqwest::Client::new();
                 client
                     .post("http://127.0.0.1:8080/api/signup")

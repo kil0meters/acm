@@ -1,0 +1,22 @@
+.modal {
+    position: fixed;
+
+    width: 100vw;
+    height: 100vh;
+
+    background-color: var(--modal-backdrop);
+
+    z-index: 999;
+}
+
+.modal-button {
+    position: fixed;
+    right: 12px;
+    top: 12px;
+}
+
+.modal-wrapper {
+    max-width: 500px;
+    margin: auto;
+    margin-top: 30vh;
+}

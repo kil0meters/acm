@@ -1,28 +1,38 @@
-use monaco::{api::CodeEditorOptions, yew::CodeEditor};
+use monaco::{
+    api::{CodeEditorOptions, TextModel},
+    yew::CodeEditor
+};
 use std::rc::Rc;
+use acm::models::{Problem, Session};
 use yew::prelude::*;
+use wasm_bindgen_futures::spawn_local;
 
 use crate::components::Navbar;
+
 
 #[derive(Clone, Debug, PartialEq, Properties)]
 struct TestProps {
     test_id: String,
     name: String,
+    problem_id: i64,
     is_error: bool,
 }
 
 #[function_component(Test)]
 fn test(props: &TestProps) -> Html {
-    let problem = use_context::<Problem>().unwrap();
-
     html! {
         <a class={classes!("test", if props.is_error { "failure" } else { "success" })}
-            href={format!("/problems/{}/tests/{}", problem.problem_id, props.test_id)}>{ props.name.clone() }</a>
+            href={format!("/problems/{}/tests/{}", props.problem_id, props.test_id)}>{ props.name.clone() }</a>
     }
 }
 
+#[derive(PartialEq, Properties)]
+struct TestsProps {
+    problem_id: i64,
+}
+
 #[function_component(Tests)]
-fn tests() -> Html {
+fn tests(props: &TestsProps) -> Html {
     let shown = use_state(|| false);
     let onclick = {
         let shown = shown.clone();
@@ -37,7 +47,7 @@ fn tests() -> Html {
                     {
                         (0..=100).into_iter().map(|test_number| {
                             html!{
-                                <Test name={format!("Test #{}", test_number)} test_id="asdf" is_error={if test_number % 3 == 0 { false } else {true} } />
+                                <Test problem_id={props.problem_id} name={format!("Test #{}", test_number)} test_id="asdf" is_error={if test_number % 3 == 0 { false } else {true} } />
                             }
                         }).collect::<Html>()
                     }
@@ -49,33 +59,71 @@ fn tests() -> Html {
     }
 }
 
+#[derive(Properties, PartialEq)]
+struct DescriptionProps {
+    title: String,
+    content: String,
+}
+
 #[function_component(Description)]
-fn description() -> Html {
+fn description(props: &DescriptionProps) -> Html {
+
+    let div = web_sys::window()
+        .unwrap()
+        .document()
+        .unwrap()
+        .create_element("div")
+        .unwrap();
+
+    div.set_inner_html(&markdown::to_html(&props.content));
+
     html! {
         <div class="description-wrapper">
-            <h1>{ "First K elements" }</h1>
+            <h1>{ props.title.clone() }</h1>
 
-            <p>
-                {"Return the first K elements of a vector."}
-            </p>
+            { Html::VRef(div.into()) }
         </div>
     }
 }
 
-#[function_component(CodeRunner)]
-fn code_runner() -> Html {
-    html! {
-        <div class="code-runner-wrapper">
-            <a class="button green">{ "Submit" }</a>
-        </div>
-    }
+#[derive(Clone, Debug, PartialEq, Properties)]
+pub struct ProblemViewProps {
+    pub id: i64,
 }
 
-#[function_component(Editor)]
-fn editor() -> Html {
+#[function_component(ProblemView)]
+pub fn problem_view(props: &ProblemViewProps) -> Html {
+    let id = props.id;
+
+    let ctx = use_context::<UseStateHandle<Option<Session>>>().unwrap();
+
+    let data = use_state(|| None);
+    let code = use_state(|| TextModel::create("", Some("cpp"), None).unwrap());
+
+    let data_tmp = data.clone();
+    let code_tmp = code.clone();
+    use_effect_with_deps(
+        move |_| {
+            spawn_local(async move {
+                let res = reqwest::get(format!("http://127.0.0.1:8080/api/problems/{}", id))
+                    .await
+                    .unwrap()
+                    .json::<Problem>()
+                    .await
+                    .unwrap();
+
+                (*code_tmp).set_value(&res.template);
+
+                data_tmp.set(Some(res));
+            });
+            || ()
+        },
+        (),
+    );
+
     let options = Rc::new(
         CodeEditorOptions::default()
-            .with_language("cpp".into())
+            .with_model((*code).clone())
             .with_builtin_theme(monaco::sys::editor::BuiltinTheme::VsDark),
     )
     .to_sys_options();
@@ -83,41 +131,26 @@ fn editor() -> Html {
     options.set_font_size(Some(18.0));
 
     html! {
-        <div class="editor-wrapper">
-            <CodeEditor options = {options}/>
-        </div>
-    }
-}
+        <div class="problem-wrapper">
+            <Navbar />
 
-#[derive(Clone, Debug, PartialEq)]
-struct Problem {
-    problem_id: String,
-}
-
-#[derive(Clone, Debug, PartialEq, Properties)]
-pub struct ProblemViewProps {
-    pub id: String,
-}
-
-#[function_component(ProblemView)]
-pub fn problem_view(props: &ProblemViewProps) -> Html {
-    let prop = use_state(|| Problem {
-        problem_id: props.id.clone(),
-    });
-
-    html! {
-        <ContextProvider<Problem> context={(*prop).clone()}>
-            <div class="problem-wrapper">
-                <Navbar />
+            if let Some(problem) = &*data {
                 <div class="sidebar-wrapper">
-                    <Tests />
-                    <Description />
+                    <Tests problem_id={id} />
+                    <Description title={ problem.title.clone() } content={ problem.description.clone() } />
                 </div>
                 <div class="content-wrapper">
-                    <CodeRunner />
-                    <Editor />
+                    <div class="code-runner-wrapper">
+                        <a class="button green">{ "Submit" }</a>
+                    </div>
+
+                    <div class="editor-wrapper">
+                        <CodeEditor options = {options}/>
+                    </div>
                 </div>
-            </div>
-        </ContextProvider<Problem>>
+            } else {
+                { "Loading..." }
+            }
+        </div>
     }
 }

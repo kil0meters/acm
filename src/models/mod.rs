@@ -23,17 +23,21 @@ pub struct User {
     pub star_count: i64,
 }
 
-#[cfg(feature = "sqlx")]
-#[derive(Debug, Clone, Copy, Type, Deserialize, Serialize, PartialEq)]
-#[sqlx(rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum Auth {
-    ADMIN,
-    OFFICER,
-    MEMBER,
+#[derive(Debug, Default, Deserialize, Serialize, Clone, PartialEq)]
+pub struct Problem {
+    pub id: i64,
+
+    pub title: String,
+    pub description: String,
+    pub runner: String,
+    pub template: String,
+
+    pub visible: bool,
 }
 
-#[cfg(not(feature = "sqlx"))]
 #[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq)]
+#[cfg_attr(feature = "sqlx", derive(Type))]
+#[cfg_attr(feature = "sqlx", sqlx(rename_all = "SCREAMING_SNAKE_CASE"))]
 pub enum Auth {
     ADMIN,
     OFFICER,

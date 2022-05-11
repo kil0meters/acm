@@ -1,0 +1,39 @@
+.problem-editor-wrapper {
+    display: grid;
+    gap: 12px;
+    max-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "navbar navbar"
+			 "sidebar content";
+}
+
+.problem-editor-content {
+    grid-area: content;
+    display: grid;
+    margin: 0 12px 12px 0;
+
+    grid-template-rows: 1fr auto;
+    grid-template-columns: 1fr;
+    grid-template-areas: "editor" "code-runner";
+    gap: 12px;
+}
+
+.problem-editor-main {
+    grid-area: editor;
+    border: 2px solid var(--border);
+}
+
+.problem-editor-sidebar {
+    grid-area: sidebar;
+
+    display: grid;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "title" "editor";
+    grid-gap: 12px;
+    margin-bottom: 12px;
+    margin-left: 12px;
+}

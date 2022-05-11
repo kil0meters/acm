@@ -1,8 +1,6 @@
 .markdown-editor {
-    grid-area: sidebar;
+    grid-area: editor;
     display: grid;
-    margin-bottom: 12px;
-    margin-left: 12px;
     border: 2px solid var(--border);
 
     grid-template-rows: auto 1fr;
@@ -10,17 +8,16 @@
 			 "content";
 }
 
-.problem-editor-wrapper {
-    display: grid;
-    gap: 12px;
-    max-height: 100vh;
-    height: 100vh;
-    overflow: hidden;
+.title-input {
+    font-weight: bold;
+    font-size: 1.4em;
+    border: 2px solid var(--border);
+    outline: none;
+    padding: 8px;
 
-    grid-template-columns: 1fr 2fr;
-    grid-template-rows: auto 1fr;
-    grid-template-areas: "navbar navbar"
-			 "sidebar content";
+    &:hover {
+        outline: 2px solid var(--border);
+    }
 }
 
 .top-row {

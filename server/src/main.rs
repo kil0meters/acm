@@ -1,40 +1,21 @@
 use actix_files::{Files, NamedFile};
 use actix_web::dev::{fn_service, ServiceRequest, ServiceResponse};
 use actix_web::{get, middleware::Logger, web, web::Json, App, HttpServer, Responder};
+use actix_web_httpauth::middleware::HttpAuthentication;
 use rand::{thread_rng, Rng};
 use serde::{Deserialize, Serialize};
 use state::State;
 
-use api::auth::{login, signup};
-use api::leaderboard::leaderboard;
+use api::{
+    leaderboard::leaderboard,
+    problems::{create_problem, problem, problem_list},
+    signup::{login, signup},
+};
 
 mod api;
 mod state;
 
 pub type SqlPool = sqlx::SqlitePool;
-
-#[derive(Debug, Deserialize, Serialize)]
-struct Problem {
-    id: String,
-    title: String,
-    description: String,
-}
-
-#[get("/problems")]
-async fn problems() -> impl Responder {
-    Json(vec![
-        Problem {
-            id: "0213f".to_string(),
-            title: "Least Disjoint Beautiful Pairs".to_string(),
-            description: "Let K be".to_string(),
-        },
-        Problem {
-            id: "0213f".to_string(),
-            title: "Least Disjoint Beautiful Pairs".to_string(),
-            description: "Let K be".to_string(),
-        },
-    ])
-}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -50,7 +31,14 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/api")
                     .service(leaderboard)
                     .service(login)
-                    .service(signup),
+                    .service(signup)
+                    .service(problem_list)
+                    .service(problem)
+                    .service(
+                        web::scope("/authorized")
+                            .wrap(HttpAuthentication::bearer(state::auth::validator))
+                            .service(create_problem),
+                    ),
             )
             .service(
                 Files::new("/", "./dist/")

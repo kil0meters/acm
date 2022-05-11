@@ -10,7 +10,15 @@ use yew_router::prelude::*;
 mod components;
 mod views;
 
-use views::{HomeView, LeaderboardView, LoginView, ProblemView, SignupView, ProblemEditorView};
+use views::{
+    HomeView,
+    LeaderboardView,
+    LoginView,
+    ProblemEditorView,
+    ProblemView,
+    ProblemListView,
+    SignupView
+};
 
 #[derive(Clone, Routable, PartialEq)]
 enum Route {
@@ -23,24 +31,28 @@ enum Route {
     #[at("/login")]
     Login,
 
-    #[at("/problem/:id")]
-    Problem { id: String },
+    #[at("/problems/:id")]
+    Problem { id: i64 },
+
+    #[at("/problems")]
+    Problems,
 
     #[at("/leaderboard")]
     Leaderboard,
 
     #[at("/create-problem")]
-    ProblemEditor
+    ProblemEditor,
 }
 
 fn switch(routes: &Route) -> Html {
     match routes {
         Route::Home => html! { <HomeView /> },
         Route::Problem { id } => html! { <ProblemView id={id.clone()} /> },
+        Route::Problems => html! { <ProblemListView /> },
         Route::Leaderboard => html! { <LeaderboardView /> },
         Route::Signup => html! { <SignupView /> },
         Route::Login => html! { <LoginView /> },
-        Route::ProblemEditor => html! { <ProblemEditorView /> }
+        Route::ProblemEditor => html! { <ProblemEditorView /> },
     }
 }
 

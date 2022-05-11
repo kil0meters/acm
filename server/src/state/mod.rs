@@ -1,6 +1,8 @@
 use crate::SqlPool;
 use std::sync::Arc;
 
+pub mod auth;
+pub mod problems;
 pub mod users;
 
 pub type AppStateRaw = std::sync::Arc<State>;
@@ -21,6 +23,4 @@ impl State {
             jwt_private_key: "supersecret".to_string(),
         })
     }
-
-    // pub async fn user_add() {}
 }

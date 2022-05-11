@@ -34,3 +34,11 @@ pub struct LoginForm {
     pub username: String,
     pub password: String,
 }
+
+#[derive(Deserialize, Serialize)]
+pub struct CreateProblemForm {
+    pub title: String,
+    pub description: String,
+    pub runner: String,
+    pub template: String,
+}
