@@ -1,14 +1,13 @@
+use acm::models::{Problem, Session};
 use monaco::{
     api::{CodeEditorOptions, TextModel},
-    yew::CodeEditor
+    yew::CodeEditor,
 };
 use std::rc::Rc;
-use acm::models::{Problem, Session};
-use yew::prelude::*;
 use wasm_bindgen_futures::spawn_local;
+use yew::prelude::*;
 
 use crate::components::Navbar;
-
 
 #[derive(Clone, Debug, PartialEq, Properties)]
 struct TestProps {
@@ -67,7 +66,6 @@ struct DescriptionProps {
 
 #[function_component(Description)]
 fn description(props: &DescriptionProps) -> Html {
-
     let div = web_sys::window()
         .unwrap()
         .document()
@@ -95,7 +93,7 @@ pub struct ProblemViewProps {
 pub fn problem_view(props: &ProblemViewProps) -> Html {
     let id = props.id;
 
-    let ctx = use_context::<UseStateHandle<Option<Session>>>().unwrap();
+    let _ctx = use_context::<UseStateHandle<Option<Session>>>().unwrap();
 
     let data = use_state(|| None);
     let code = use_state(|| TextModel::create("", Some("cpp"), None).unwrap());

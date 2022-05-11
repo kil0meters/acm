@@ -1,9 +1,8 @@
 use actix_files::{Files, NamedFile};
 use actix_web::dev::{fn_service, ServiceRequest, ServiceResponse};
-use actix_web::{get, middleware::Logger, web, web::Json, App, HttpServer, Responder};
+use actix_web::{middleware::Logger, web, App, HttpServer};
 use actix_web_httpauth::middleware::HttpAuthentication;
-use rand::{thread_rng, Rng};
-use serde::{Deserialize, Serialize};
+
 use state::State;
 
 use api::{

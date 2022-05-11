@@ -2,7 +2,7 @@ use acm::models::{
     forms::{LoginForm, SignupForm},
     User,
 };
-use actix_web::{http::StatusCode, post, web::Json, HttpResponse, Responder};
+use actix_web::{http::StatusCode, post, web::Json, Responder};
 use log::{error, info};
 use serde_json::json;
 use validator::Validate;

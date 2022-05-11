@@ -1,5 +1,5 @@
 use acm::models::{forms::LoginForm, Session};
-use log::info;
+
 use serde_json::Value;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{FormData, HtmlFormElement};

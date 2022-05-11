@@ -47,6 +47,6 @@ pub struct ProblemProps {
 pub async fn problem(id: Path<ProblemProps>, state: AppState) -> impl Responder {
     match state.problems_get_by_id(id.id).await {
         Some(problem) => api_success(problem),
-        None => api_error(StatusCode::NOT_FOUND, "problem not found")
+        None => api_error(StatusCode::NOT_FOUND, "problem not found"),
     }
 }

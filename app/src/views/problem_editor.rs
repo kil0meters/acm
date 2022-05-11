@@ -3,27 +3,19 @@ use monaco::{
     yew::CodeEditor,
 };
 
-use std::rc::Rc;
-use wasm_bindgen_futures::spawn_local;
-use yew::prelude::*;
-use yew_router::prelude::*;
 use reqwest::header::AUTHORIZATION;
 use serde_json::Value;
+use std::rc::Rc;
+use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
+use yew::prelude::*;
+use yew_router::prelude::*;
 
-use acm::models::{
-    forms::CreateProblemForm,
-    Session
-};
+use acm::models::{forms::CreateProblemForm, Session};
 
 use crate::{
+    components::{ErrorBox, Modal, Navbar, Tabbed},
     Route,
-    components::{
-        Navbar,
-        Tabbed,
-        Modal,
-        ErrorBox
-    }
 };
 
 #[derive(PartialEq, Properties)]
@@ -114,7 +106,11 @@ pub fn problem_editor_view() -> Html {
         let runner_text = runner_code.get_value();
         let template_text = template_code.get_value();
 
-        if title_text.is_empty() || description_text.is_empty() || runner_text.is_empty() || template_text.is_empty() {
+        if title_text.is_empty()
+            || description_text.is_empty()
+            || runner_text.is_empty()
+            || template_text.is_empty()
+        {
             error_tmp.set(Some("One or more required fields is empty.".to_string()));
 
             return;
@@ -144,11 +140,12 @@ pub fn problem_editor_view() -> Html {
                 .unwrap();
 
             if let Some(id) = res.get("id") {
-                history_tmp.push(Route::Problem { id: id.as_i64().unwrap() })
+                history_tmp.push(Route::Problem {
+                    id: id.as_i64().unwrap(),
+                })
             } else {
                 error_tmp.set(Some(res["str"].as_str().unwrap().to_string()))
             }
-
         });
     });
 

@@ -1,13 +1,10 @@
 use acm::models::Auth;
 use actix_web::{dev::ServiceRequest, HttpMessage, Result};
-use actix_web_httpauth::{
-    extractors::{
-        bearer::{BearerAuth, Config},
-        AuthenticationError,
-    },
-    middleware::HttpAuthentication,
+use actix_web_httpauth::extractors::{
+    bearer::{BearerAuth, Config},
+    AuthenticationError,
 };
-use jsonwebtoken::{EncodingKey, DecodingKey, Header};
+use jsonwebtoken::{DecodingKey, EncodingKey, Header};
 use log::info;
 use serde::{Deserialize, Serialize};
 
@@ -48,19 +45,13 @@ pub async fn validator(req: ServiceRequest, credentials: BearerAuth) -> Result<S
 impl State {
     fn validate_token(&self, token: &str) -> Option<Claims> {
         let key = self.jwt_private_key.as_bytes();
-        jsonwebtoken::decode::<Claims>(
-            token,
-            &DecodingKey::from_secret(key),
-            &Default::default()
-        ).ok().map(|e| e.claims)
+        jsonwebtoken::decode::<Claims>(token, &DecodingKey::from_secret(key), &Default::default())
+            .ok()
+            .map(|e| e.claims)
     }
 
     pub fn create_token(&self, claims: &Claims) -> String {
         let key = self.jwt_private_key.as_bytes();
-        jsonwebtoken::encode(
-            &Header::default(),
-            claims,
-            &EncodingKey::from_secret(key)
-        ).unwrap()
+        jsonwebtoken::encode(&Header::default(), claims, &EncodingKey::from_secret(key)).unwrap()
     }
 }

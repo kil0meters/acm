@@ -1,5 +1,5 @@
 use acm::models::forms::SignupForm;
-use log::info;
+
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{FormData, HtmlFormElement};
 use yew::prelude::*;

@@ -3,7 +3,7 @@
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 use acm::models::Session;
-use log::*;
+
 use yew::prelude::*;
 use yew_router::prelude::*;
 
@@ -11,13 +11,8 @@ mod components;
 mod views;
 
 use views::{
-    HomeView,
-    LeaderboardView,
-    LoginView,
-    ProblemEditorView,
-    ProblemView,
-    ProblemListView,
-    SignupView
+    HomeView, LeaderboardView, LoginView, ProblemEditorView, ProblemListView, ProblemView,
+    SignupView,
 };
 
 #[derive(Clone, Routable, PartialEq)]

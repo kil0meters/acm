@@ -1,7 +1,7 @@
+use acm::models::Problem;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_router::prelude::*;
-use acm::models::Problem;
 
 use crate::components::Navbar;
 use crate::Route;
@@ -13,7 +13,6 @@ struct ProblemListingProps {
 
 #[function_component(ProblemListing)]
 fn problem_listing(props: &ProblemListingProps) -> Html {
-
     let div = web_sys::window()
         .unwrap()
         .document()
