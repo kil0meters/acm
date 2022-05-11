@@ -73,7 +73,7 @@ fn tests_editor() -> Html {
 
 #[function_component(ProblemEditorView)]
 pub fn problem_editor_view() -> Html {
-    let title = use_state(|| String::new());
+    let title = use_mut_ref(|| String::new());
     let description = use_state(|| TextModel::create("", Some("markdown"), None).unwrap());
     let runner_code = use_state(|| TextModel::create("", Some("cpp"), None).unwrap());
     let template_code = use_state(|| TextModel::create("", Some("cpp"), None).unwrap());
@@ -101,7 +101,7 @@ pub fn problem_editor_view() -> Html {
     let description_tmp = description.clone();
     let error_tmp = error.clone();
     let create_problem = Callback::from(move |_| {
-        let title_text = (*title_tmp).clone();
+        let title_text = (*title_tmp).clone().into_inner();
         let description_text = description_tmp.get_value();
         let runner_text = runner_code.get_value();
         let template_text = template_code.get_value();
@@ -165,7 +165,7 @@ pub fn problem_editor_view() -> Html {
             <div class="problem-editor-sidebar">
                 <input class="title-input" oninput={Callback::from(move |e: InputEvent| {
                     let elm: HtmlInputElement = e.target_unchecked_into();
-                    title.set(elm.value());
+                    *title.borrow_mut() = elm.value();
                 })} />
                 <MarkdownEditor model={ (*description).clone() } />
             </div>
