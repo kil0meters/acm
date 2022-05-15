@@ -1,3 +1,5 @@
+//! The navigation bar at the top of each page.
+
 use acm::models::{Auth, Session, User};
 use yew::prelude::*;
 use yew_router::prelude::*;
@@ -23,6 +25,8 @@ pub fn navbar() -> Html {
                 }
             </div>
 
+            // If the user currently has no session, we simply display the signup/login buttons,
+            // otherwise we show links to logout or view their account.
             if (*ctx).is_none() {
                 <div class="signup">
                     <Link<Route> classes="button blue navbar-link" to={Route::Signup}>{ "Sign up" }</Link<Route>>

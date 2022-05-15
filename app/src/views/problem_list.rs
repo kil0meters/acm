@@ -1,3 +1,5 @@
+//! Shows the list of all visible problems.
+
 use acm::models::Problem;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
@@ -37,24 +39,26 @@ fn problem_listing(props: &ProblemListingProps) -> Html {
 pub fn problem_list_view() -> Html {
     let data = use_state(|| Vec::<Problem>::new());
 
-    let data_tmp = data.clone();
-    use_effect_with_deps(
-        move |_| {
-            spawn_local(async move {
-                let res = reqwest::get("http://127.0.0.1:8080/api/problems")
-                    .await
-                    .unwrap()
-                    .json::<Vec<Problem>>()
-                    .await
-                    .unwrap();
+    {
+        let data = data.clone();
+        use_effect_with_deps(
+            move |_| {
+                spawn_local(async move {
+                    let res = reqwest::get("http://127.0.0.1:8080/api/problems")
+                        .await
+                        .unwrap()
+                        .json::<Vec<Problem>>()
+                        .await
+                        .unwrap();
 
-                data_tmp.set(res);
-            });
+                    data.set(res);
+                });
 
-            || ()
-        },
-        (),
-    );
+                || ()
+            },
+            (),
+        );
+    }
 
     html! {
         <>

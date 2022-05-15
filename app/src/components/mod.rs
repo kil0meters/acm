@@ -1,3 +1,5 @@
+//! Shared components used throughout the application.
+
 pub mod error;
 pub mod modal;
 pub mod navbar;

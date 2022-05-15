@@ -1,3 +1,5 @@
+//! Toplevel views (pages) associated with Routes.
+
 pub mod home;
 pub mod leaderboard;
 pub mod login;

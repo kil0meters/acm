@@ -1,3 +1,5 @@
+//! A sign up page.
+
 use acm::models::forms::SignupForm;
 
 use wasm_bindgen_futures::spawn_local;
@@ -18,6 +20,9 @@ pub fn signup_view() -> Html {
             let name = form_data.get("name").as_string().unwrap();
             let username = form_data.get("username").as_string().unwrap();
             let password = form_data.get("password").as_string().unwrap();
+
+            // TODO: verify password
+            //
             // let verify_password = form_data.get("verify_password").as_string().unwrap();
 
             let signup_data = SignupForm {
@@ -26,6 +31,8 @@ pub fn signup_view() -> Html {
                 password,
             };
 
+            // TODO: We should probably automatically sign the user in after they've signed up, but
+            // what can you do.
             spawn_local(async move {
                 let client = reqwest::Client::new();
                 client

@@ -1,3 +1,7 @@
+//! A leaderboard view that shows the current standing of users in the club.
+//!
+//! Ideally this would be setup in a non-competitive manner.
+
 use serde::{Deserialize, Serialize};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
@@ -24,26 +28,33 @@ fn leaderboard_item(props: &LeaderboardItemProps) -> Html {
 
 #[function_component(LeaderboardView)]
 pub fn leaderboard_view() -> Html {
-    let data = use_state(|| Vec::<LeaderboardItemProps>::new());
+    let leaderboard_items = use_state(|| Vec::<LeaderboardItemProps>::new());
 
-    let data_tmp = data.clone();
-    use_effect_with_deps(
-        move |_| {
-            spawn_local(async move {
-                let res = reqwest::get("http://127.0.0.1:8080/api/leaderboard")
-                    .await
-                    .unwrap()
-                    .json::<Vec<LeaderboardItemProps>>()
-                    .await
-                    .unwrap();
+    {
+        let leaderboard_items = leaderboard_items.clone();
 
-                data_tmp.set(res);
-            });
+        // use_effect_with_deps with no arguments here makes the code within the closure executed
+        // exactly once, rather than each time the component is built. This is essential to avoid
+        // inappropriate fetches.
+        use_effect_with_deps(
+            move |_| {
+                spawn_local(async move {
+                    // TODO: Use relative pathing
+                    let res = reqwest::get("http://127.0.0.1:8080/api/leaderboard")
+                        .await
+                        .unwrap()
+                        .json::<Vec<LeaderboardItemProps>>()
+                        .await
+                        .unwrap();
 
-            || ()
-        },
-        (),
-    );
+                    leaderboard_items.set(res);
+                });
+
+                || ()
+            },
+            (),
+        );
+    }
 
     html! {
         <>
@@ -51,7 +62,13 @@ pub fn leaderboard_view() -> Html {
 
             <div class="leaderboard-wrapper">
             {
-                data.iter().map(|props| { html! { <LeaderboardItem name={props.name.clone()} username={props.username.clone()} star_count={props.star_count.clone()} /> } }).collect::<Html>()
+                leaderboard_items.iter().map(|props| {
+                    html! {
+                        <LeaderboardItem name={props.name.clone()}
+                                         username={props.username.clone()}
+                                         star_count={props.star_count.clone()} />
+                    }
+                }).collect::<Html>()
             }
             </div>
 

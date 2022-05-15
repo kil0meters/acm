@@ -1,3 +1,5 @@
+//! An editor view showing a single problem.
+
 use acm::models::{Problem, Session};
 use monaco::{
     api::{CodeEditorOptions, TextModel},
@@ -93,40 +95,38 @@ pub struct ProblemViewProps {
 pub fn problem_view(props: &ProblemViewProps) -> Html {
     let id = props.id;
 
-    let _ctx = use_context::<UseStateHandle<Option<Session>>>().unwrap();
+    // let ctx = use_context::<UseStateHandle<Option<Session>>>().unwrap();
 
     let data = use_state(|| None);
     let code = use_state(|| TextModel::create("", Some("cpp"), None).unwrap());
-
-    let data_tmp = data.clone();
-    let code_tmp = code.clone();
-    use_effect_with_deps(
-        move |_| {
-            spawn_local(async move {
-                let res = reqwest::get(format!("http://127.0.0.1:8080/api/problems/{}", id))
-                    .await
-                    .unwrap()
-                    .json::<Problem>()
-                    .await
-                    .unwrap();
-
-                (*code_tmp).set_value(&res.template);
-
-                data_tmp.set(Some(res));
-            });
-            || ()
-        },
-        (),
-    );
-
-    let options = Rc::new(
-        CodeEditorOptions::default()
-            .with_model((*code).clone())
-            .with_builtin_theme(monaco::sys::editor::BuiltinTheme::VsDark),
-    )
-    .to_sys_options();
+    let options =
+        Rc::new(CodeEditorOptions::default().with_model((*code).clone())).to_sys_options();
 
     options.set_font_size(Some(18.0));
+
+    {
+        let data = data.clone();
+        let code = code.clone();
+
+        use_effect_with_deps(
+            move |_| {
+                spawn_local(async move {
+                    let res = reqwest::get(format!("http://127.0.0.1:8080/api/problems/{}", id))
+                        .await
+                        .unwrap()
+                        .json::<Problem>()
+                        .await
+                        .unwrap();
+
+                    (*code).set_value(&res.template);
+
+                    data.set(Some(res));
+                });
+                || ()
+            },
+            (),
+        );
+    }
 
     html! {
         <div class="problem-wrapper">

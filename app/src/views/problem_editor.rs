@@ -1,3 +1,5 @@
+//! A view used by officers to create/edit problems.
+
 use monaco::{
     api::{CodeEditorOptions, TextModel},
     yew::CodeEditor,
@@ -97,67 +99,79 @@ pub fn problem_editor_view() -> Html {
         Rc::new(CodeEditorOptions::default().with_model((*template_code).clone())).to_sys_options();
     template_editor_options.set_font_size(Some(18.0));
 
-    let title_tmp = title.clone();
-    let description_tmp = description.clone();
-    let error_tmp = error.clone();
-    let create_problem = Callback::from(move |_| {
-        let title_text = (*title_tmp).clone().into_inner();
-        let description_text = description_tmp.get_value();
-        let runner_text = runner_code.get_value();
-        let template_text = template_code.get_value();
+    // This basically just takes all of the entered data by the user and submits that to the
+    // server, thereby creating a problem or an error.
+    let create_problem = {
+        let title = title.clone();
+        let description = description.clone();
+        let error = error.clone();
 
-        if title_text.is_empty()
-            || description_text.is_empty()
-            || runner_text.is_empty()
-            || template_text.is_empty()
-        {
-            error_tmp.set(Some("One or more required fields is empty.".to_string()));
+        Callback::from(move |_| {
+            let title_text = (*title).clone().into_inner();
+            let description_text = description.get_value();
+            let runner_text = runner_code.get_value();
+            let template_text = template_code.get_value();
 
-            return;
-        }
+            if title_text.is_empty()
+                || description_text.is_empty()
+                || runner_text.is_empty()
+                || template_text.is_empty()
+            {
+                error.set(Some("One or more required fields is empty.".to_string()));
 
-        let create_problem_data = CreateProblemForm {
-            title: title_text,
-            description: description_text,
-            runner: runner_text,
-            template: template_text,
-        };
-
-        let token_tmp = token.clone();
-        let error_tmp = error_tmp.clone();
-        let history_tmp = history.clone();
-        spawn_local(async move {
-            let client = reqwest::Client::new();
-            let res: Value = client
-                .post("http://127.0.0.1:8080/api/authorized/create-problem")
-                .header(AUTHORIZATION, &format!("Bearer {}", token_tmp))
-                .json(&create_problem_data)
-                .send()
-                .await
-                .unwrap()
-                .json()
-                .await
-                .unwrap();
-
-            if let Some(id) = res.get("id") {
-                history_tmp.push(Route::Problem {
-                    id: id.as_i64().unwrap(),
-                })
-            } else {
-                error_tmp.set(Some(res["str"].as_str().unwrap().to_string()))
+                return;
             }
-        });
-    });
 
-    let error_tmp = error.clone();
+            let create_problem_data = CreateProblemForm {
+                title: title_text,
+                description: description_text,
+                runner: runner_text,
+                template: template_text,
+            };
+
+            let token = token.clone();
+            let error = error.clone();
+            let history = history.clone();
+            spawn_local(async move {
+                let client = reqwest::Client::new();
+                let res: Value = client
+                    .post("http://127.0.0.1:8080/api/authorized/create-problem")
+                    .header(AUTHORIZATION, &format!("Bearer {}", token))
+                    .json(&create_problem_data)
+                    .send()
+                    .await
+                    .unwrap()
+                    .json()
+                    .await
+                    .unwrap();
+
+                if let Some(id) = res.get("id") {
+                    history.push(Route::Problem {
+                        id: id.as_i64().unwrap(),
+                    })
+                } else {
+                    error.set(Some(res["error"].as_str().unwrap().to_string()))
+                }
+            });
+        })
+    };
+
+    // Simple callback function to stop showing the error dialog. Ideally this would be handled on
+    // the side of the error dialog, but that didn't seem to be possible when I wrote this *shrug*
+    let clear_error = {
+        let error = error.clone();
+
+        Callback::from(move |_| {
+            error.set(None);
+        })
+    };
+
     html! {
         <div class="problem-editor-wrapper">
             <Navbar />
 
             if let Some(e) = &*error {
-                <Modal onclose = {Callback::from(move |_| {
-                    error_tmp.set(None);
-                })}>
+                <Modal onclose = { clear_error }>
                     <ErrorBox>{ e }</ErrorBox>
                 </Modal>
             }

@@ -1,9 +1,13 @@
+//! API endpoints relating to the leaderboard
+
 use acm::models::User;
 use actix_web::{get, web::Json, Responder};
 use rand::{thread_rng, Rng};
 
 #[get("/leaderboard")]
 async fn leaderboard() -> impl Responder {
+    // TODO: implement actual leaderboard logic. How do we want this to be implemented?
+
     let mut data = ["Miles", "Aidan", "Alex", "Evan", "Meher", "Kevin", "Reema"]
         .iter()
         .map(|name| User {

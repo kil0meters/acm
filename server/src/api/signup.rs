@@ -1,3 +1,5 @@
+//! API endpoints relating to user authentication
+
 use acm::models::{
     forms::{LoginForm, SignupForm},
     User,
@@ -10,17 +12,23 @@ use validator::Validate;
 use super::{api_error, api_success};
 use crate::state::{auth::Claims, AppState};
 
+// Returns the hash of a password
 fn hash_password(username: &str, password: &str) -> String {
+    // TODO: This is probably not very secure, should use a random salt stored in the database
+    // rather than the username for salt.
     let salted_pass = format!("{}{}", username, password);
     bcrypt::hash(salted_pass.as_bytes(), bcrypt::DEFAULT_COST).unwrap()
 }
 
+/// Verifies that a password matches a given hash
 fn verify_password(username: &str, password: &str, user: &User) -> bool {
     let salted_pass = format!("{}{}", username, password);
     bcrypt::verify(&salted_pass, &user.password).unwrap()
 }
 
-// Somehow this code started looking like Go. Curious.
+/// Signup form.
+///
+/// **AUTHORIZATION**: Any
 #[post("/signup")]
 async fn signup(form: Json<SignupForm>, state: AppState) -> impl Responder {
     let mut form = form.into_inner();
@@ -34,7 +42,7 @@ async fn signup(form: Json<SignupForm>, state: AppState) -> impl Responder {
     form.password = hash_password(&form.username, &form.password);
     let user = form.into();
 
-    match state.get_ref().user_add(&user).await {
+    match state.user_add(&user).await {
         Ok(_) => {
             info!("new user created: {:?}", user);
             api_success(user)
@@ -49,6 +57,9 @@ async fn signup(form: Json<SignupForm>, state: AppState) -> impl Responder {
     }
 }
 
+/// Login form.
+///
+/// **AUTHORIZATION**: Any
 #[post("/login")]
 async fn login(form: Json<LoginForm>, state: AppState) -> impl Responder {
     let form = form.into_inner();

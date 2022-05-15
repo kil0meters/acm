@@ -1,3 +1,5 @@
+//! A red error box component that takes in arbitrary children.
+
 use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]

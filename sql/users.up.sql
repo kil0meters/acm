@@ -6,7 +6,7 @@ create table users (
     -- MEMBER: Normal user
     auth text not null,
     name text not null,
-    username text not null,
+    username text unique not null,
 
     star_count integer default 0 not null,
     password char(65) not null,

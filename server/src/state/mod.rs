@@ -1,3 +1,9 @@
+//! This module deals with the state of the application (shocking, wow!).
+//!
+//! Rather than doing custom SQL queries inside the queries, we opt to define them as methods on
+//! the state object given to request handlers. This decoupling should make it easier to refactor
+//! the way the database handles data without altering the application logic significantly.
+
 use crate::SqlPool;
 use std::sync::Arc;
 

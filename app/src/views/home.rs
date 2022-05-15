@@ -1,3 +1,5 @@
+//! Some kind of landing page hopefully
+
 use yew::prelude::*;
 
 use crate::components::Navbar;

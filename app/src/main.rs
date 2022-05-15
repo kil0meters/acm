@@ -1,9 +1,12 @@
+//! # app
+//!
+//! This crate contains code for the frontend.
+
 // apparently this saves on bundle size or something
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 use acm::models::Session;
-
 use yew::prelude::*;
 use yew_router::prelude::*;
 
@@ -53,21 +56,25 @@ fn switch(routes: &Route) -> Html {
 
 #[function_component(App)]
 fn app() -> Html {
-    let ctx: UseStateHandle<Option<Session>> = use_state(|| None);
+    // We setup a state handle around a Session object so that we can update the session from
+    // anywhere else in the application. This typically occurs when the users signs out/in.
+    let state_context: UseStateHandle<Option<Session>> = use_state(|| None);
 
     let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
 
-    if let Some(session) = &*ctx {
+    // We check if we currently have a Session, saving it to local storage. Otherwise, we attempt
+    // to read an existing Session into local storage.
+    if let Some(session) = &*state_context {
         local_storage
             .set_item("session", &serde_json::to_string(session).unwrap())
             .unwrap();
     } else if let Some(session_str) = local_storage.get_item("session").unwrap() {
         let session = serde_json::from_str(&session_str).unwrap();
-        ctx.set(Some(session));
+        state_context.set(Some(session));
     }
 
     html! {
-        <ContextProvider<UseStateHandle<Option<Session>>> context={ctx.clone()}>
+        <ContextProvider<UseStateHandle<Option<Session>>> context={state_context.clone()}>
             <BrowserRouter>
                 <Switch<Route> render={Switch::render(switch)} />
             </BrowserRouter>
