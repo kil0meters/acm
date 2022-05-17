@@ -10,7 +10,9 @@ Currently, the project is laid out as follows:
 - `./app` — Code for the frontend
     - `./app/styles` — Currently stores all css styling for the website
 - `./server` — Code for the backend
+- `./ramiel` - Service for running tests
 - `./src` — Shared code between the frontend and backend, such as forms.
+- `./sql` - Database schemas
 
 ## Running
 
