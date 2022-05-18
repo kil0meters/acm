@@ -135,7 +135,7 @@ pub fn problem_editor_view() -> Html {
             spawn_local(async move {
                 let client = reqwest::Client::new();
                 let res: Value = client
-                    .post("http://127.0.0.1:8080/api/authorized/create-problem")
+                    .post("http://127.0.0.1:8080/api/create-problem")
                     .header(AUTHORIZATION, &format!("Bearer {}", token))
                     .json(&create_problem_data)
                     .send()

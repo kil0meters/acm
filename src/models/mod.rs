@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use sqlx::Type;
 
 pub mod forms;
+pub mod runner;
+pub mod test;
 
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
 pub struct Session {

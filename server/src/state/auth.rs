@@ -21,30 +21,23 @@ pub struct Claims {
 }
 
 /// Validates incoming requests, only allowing users with a valid JWT to proceed.
-///
-/// TODO: In the future, rather than having the "/authorized/" prefix to such endpoints, we should
-/// wrap everything in this middleware, and instead supply an Option<Claims> to ReqData.
 pub async fn validator(req: ServiceRequest, credentials: BearerAuth) -> Result<ServiceRequest> {
     let state = req.app_data::<AppState>().unwrap();
 
-    let config = req
-        .app_data::<Config>()
-        .map(|data| data.clone())
-        .unwrap_or_else(Default::default);
-
     match state.validate_token(credentials.token()) {
         Some(claims) => {
-            {
-                // Passes through the Claims the request can attest to so they can be used in the
-                // request by ReqData<Claims>.
-                let mut extensions = req.extensions_mut();
-                extensions.insert(claims);
-            }
-
-            Ok(req)
+            // Passes through the Claims the request can attest to so they can be used in the
+            // request by ReqData<Claims>.
+            let mut extensions = req.extensions_mut();
+            extensions.insert(Some(claims));
         }
-        None => Err(AuthenticationError::from(config).into()),
-    }
+        None => {
+            let mut extensions = req.extensions_mut();
+            extensions.insert(None::<Claims>);
+        }
+    };
+
+    Ok(req)
 }
 
 impl State {

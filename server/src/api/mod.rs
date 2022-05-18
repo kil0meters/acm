@@ -6,6 +6,7 @@ use serde_json::json;
 
 pub mod leaderboard;
 pub mod problems;
+pub mod run;
 pub mod signup;
 
 /// A utility function for easily returning an error in a consistent format

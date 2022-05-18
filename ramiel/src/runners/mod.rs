@@ -1,12 +1,13 @@
+use acm::models::{
+    runner::{RunnerError, RunnerResponse},
+    test::{Test, TestResult},
+};
 use async_trait::async_trait;
-use serde::{Deserialize, Serialize};
 use std::{
-    collections::BTreeSet,
     io::Write,
     process::{Command, Stdio},
-    time::{Duration, Instant},
+    time::Instant,
 };
-use thiserror::Error;
 
 mod gplusplus;
 
@@ -16,74 +17,12 @@ pub use gplusplus::GPlusPlus;
 pub trait Runner {
     async fn run_tests(
         &self,
-        project_name: &str,
+        problem_id: i64,
         runner_code: &str,
         test_code: &str,
         tests: Vec<Test>,
     ) -> Result<RunnerResponse, RunnerError>;
 }
-
-#[derive(Deserialize, Serialize)]
-pub struct RunnerResponse {
-    failed_tests: BTreeSet<TestResult>,
-    passed_tests: BTreeSet<TestResult>,
-}
-
-impl RunnerResponse {
-    fn new() -> Self {
-        Self {
-            failed_tests: BTreeSet::new(),
-            passed_tests: BTreeSet::new(),
-        }
-    }
-
-    fn insert(&mut self, test: TestResult) {
-        if test.output == test.expected_output {
-            self.passed_tests.insert(test);
-        } else {
-            self.failed_tests.insert(test);
-        }
-    }
-}
-
-#[derive(Deserialize, Serialize, Error, Debug)]
-pub enum RunnerError {
-    #[error("line {line}:\n{message}")]
-    CompilationError { line: u64, message: String },
-
-    #[error("encountered a runtime error")]
-    RuntimeError(String),
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct Test {
-    index: u64,
-    input: String,
-    expected_output: String,
-}
-
-impl Test {
-    fn make_result(self, output: String, time: Duration) -> TestResult {
-        TestResult {
-            index: self.index,
-            input: self.input,
-            expected_output: self.expected_output,
-            output,
-            time,
-        }
-    }
-}
-
-#[derive(Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord)]
-pub struct TestResult {
-    index: u64,
-    input: String,
-    expected_output: String,
-    output: String,
-    time: Duration,
-}
-
-impl TestResult {}
 
 /// Runs a command with a specified input, returning a RuntimeError if the process returns an
 /// error, otherwise returns the output and the duration

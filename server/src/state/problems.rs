@@ -22,6 +22,18 @@ impl State {
             .await?
             .id;
 
+        for test in &problem.tests {
+            sqlx::query!(
+                r#"INSERT INTO tests (problem_id, test_number, input, expected_output) VALUES (?, ?, ?, ?)"#,
+                id,
+                test.index,
+                test.input,
+                test.expected_output
+            )
+            .execute(&self.conn)
+            .await?;
+        }
+
         Ok(id)
     }
 
@@ -40,7 +52,7 @@ impl State {
     }
 
     /// Searches the database for a problem with a given id, returning None if not found.
-    pub async fn problems_get_by_id(&self, id: u32) -> Option<Problem> {
+    pub async fn problems_get_by_id(&self, id: i64) -> Option<Problem> {
         sqlx::query_as!(
             Problem,
             r#"SELECT id, title, description, runner, template, visible FROM problems WHERE id = ?"#,

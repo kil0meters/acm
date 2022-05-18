@@ -1,9 +1,9 @@
+use super::{run_test_timed, Runner, RunnerError, RunnerResponse};
+use acm::models::test::Test;
 use async_trait::async_trait;
-use std::fs::{File, self};
-use std::io::{Write, Stderr, Stdout};
-use std::process::{Command, ExitStatus, Stdio};
-
-use super::*;
+use std::fs::{self, File};
+use std::io::Write;
+use std::process::Command;
 
 pub struct GPlusPlus {}
 
@@ -17,16 +17,16 @@ impl GPlusPlus {
 impl Runner for GPlusPlus {
     async fn run_tests(
         &self,
-        project_name: &str,
+        problem_id: i64,
         runner_code: &str,
         implementation_code: &str,
         tests: Vec<Test>,
     ) -> Result<RunnerResponse, RunnerError> {
-        let runner_filename = &format!("/tmp/{project_name}/runner.cpp");
-        let implementation_filename = &format!("/tmp/{project_name}/implementation.cpp");
-        let executable_filename = &format!("/tmp/{project_name}/{project_name}");
+        let runner_filename = &format!("/tmp/{problem_id}/runner.cpp");
+        let implementation_filename = &format!("/tmp/{problem_id}/implementation.cpp");
+        let executable_filename = &format!("/tmp/{problem_id}/{problem_id}");
 
-        fs::create_dir_all(&format!("/tmp/{project_name}")).unwrap();
+        fs::create_dir_all(&format!("/tmp/{problem_id}")).unwrap();
 
         File::create(runner_filename)
             .unwrap()
@@ -48,7 +48,8 @@ impl Runner for GPlusPlus {
                 executable_filename,
             ])
             .current_dir("/tmp")
-            .output().unwrap();
+            .output()
+            .unwrap();
 
         if output.status.success() {
             run_tests(executable_filename, tests)

@@ -3,7 +3,7 @@ create table tests (
     problem_id integer not null,
     test_number integer not null,
     input text not null,
-    output text not null,
+    expected_output text not null,
 
     foreign key (problem_id) references problems(id)
 );
