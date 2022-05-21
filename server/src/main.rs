@@ -4,7 +4,6 @@ use acm::SERVER_URL;
 use actix_files::{Files, NamedFile};
 use actix_web::dev::{fn_service, ServiceRequest, ServiceResponse};
 use actix_web::{middleware::Logger, web, App, HttpServer};
-use actix_web_httpauth::middleware::HttpAuthentication;
 use reqwest::Client;
 
 use api::{
@@ -36,7 +35,6 @@ async fn main() -> std::io::Result<()> {
             .service(
                 // The entire api is scoped behind "/api/" to avoid collisions with regular pages.
                 web::scope("/api")
-                    .wrap(HttpAuthentication::bearer(state::auth::validator))
                     .service(leaderboard)
                     .service(login)
                     .service(signup)

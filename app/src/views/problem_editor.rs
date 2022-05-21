@@ -1,9 +1,6 @@
 //! A view used by officers to create/edit problems.
 
-use monaco::{
-    api::{CodeEditorOptions, TextModel},
-    yew::CodeEditor,
-};
+use monaco::api::{CodeEditorOptions, TextModel};
 
 use reqwest::header::AUTHORIZATION;
 use serde_json::Value;
@@ -16,7 +13,7 @@ use yew_router::prelude::*;
 use acm::models::{forms::CreateProblemForm, Session};
 
 use crate::{
-    components::{ErrorBox, Modal, Navbar, Tabbed},
+    components::{ErrorBox, Modal, Navbar, Tabbed, TestsEditor},
     Route,
 };
 
@@ -58,17 +55,9 @@ fn markdown_editor(props: &MarkdownEditorProps) -> Html {
                 if *preview {
                     { Html::VRef(div.into()) }
                 } else {
-                    <CodeEditor options = {options} />
+                    // <CodeEditor options = {options} />
                 }
             </div>
-        </div>
-    }
-}
-
-#[function_component(TestsEditor)]
-fn tests_editor() -> Html {
-    html! {
-        <div>
         </div>
     }
 }
@@ -80,7 +69,7 @@ pub fn problem_editor_view() -> Html {
     let runner_code = use_state(|| TextModel::create("", Some("cpp"), None).unwrap());
     let template_code = use_state(|| TextModel::create("", Some("cpp"), None).unwrap());
 
-    let history = use_history().unwrap();
+    let navigator = use_navigator().unwrap();
     let ctx = use_context::<UseStateHandle<Option<Session>>>().unwrap();
 
     let token = if let Some(session) = (*ctx).as_ref() {
@@ -127,11 +116,13 @@ pub fn problem_editor_view() -> Html {
                 description: description_text,
                 runner: runner_text,
                 template: template_text,
+
+                tests: vec![],
             };
 
             let token = token.clone();
             let error = error.clone();
-            let history = history.clone();
+            let navigator = navigator.clone();
             spawn_local(async move {
                 let client = reqwest::Client::new();
                 let res: Value = client
@@ -146,7 +137,7 @@ pub fn problem_editor_view() -> Html {
                     .unwrap();
 
                 if let Some(id) = res.get("id") {
-                    history.push(Route::Problem {
+                    navigator.push(&Route::Problem {
                         id: id.as_i64().unwrap(),
                     })
                 } else {
@@ -186,9 +177,11 @@ pub fn problem_editor_view() -> Html {
 
             <div class="problem-editor-content">
                 <Tabbed class="problem-editor-main" titles={ vec!["runner", "template", "tests"] }>
-                    <div><CodeEditor options = { runner_editor_options } /></div>
-                    <div><CodeEditor options = { template_editor_options } /></div>
                     <div></div>
+                    <div></div>
+                    // <div><CodeEditor options = { runner_editor_options } /></div>
+                    // <div><CodeEditor options = { template_editor_options } /></div>
+                    <div><TestsEditor /></div>
                 </Tabbed>
 
                 <div class="code-runner-wrapper">

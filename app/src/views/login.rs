@@ -16,7 +16,7 @@ use crate::{
 #[function_component(LoginView)]
 pub fn login_view() -> Html {
     let ctx = use_context::<UseStateHandle<Option<Session>>>().unwrap();
-    let history = use_history().unwrap();
+    let navigator = use_navigator().unwrap();
     let error = use_state(|| None);
 
     // This is code that's executed whenever the submit button is pressed. We read the values of
@@ -35,7 +35,7 @@ pub fn login_view() -> Html {
             let login_data = LoginForm { username, password };
 
             let ctx = ctx.clone();
-            let history = history.clone();
+            let navigator = navigator.clone();
             let error = error.clone();
 
             // This version of yew doesn't have builtin handling for async, we use this function
@@ -57,7 +57,7 @@ pub fn login_view() -> Html {
                 match serde_json::from_value::<Session>(res.clone()) {
                     Ok(session) => {
                         ctx.set(Some(session));
-                        history.push(Route::Home);
+                        navigator.push(&Route::Home);
                     }
                     Err(_) => {
                         error.set(Some(

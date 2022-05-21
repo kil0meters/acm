@@ -1,10 +1,7 @@
 //! An editor view showing a single problem.
 
 use acm::models::{Problem, Session};
-use monaco::{
-    api::{CodeEditorOptions, TextModel},
-    yew::CodeEditor,
-};
+use monaco::api::{CodeEditorOptions, TextModel};
 use std::rc::Rc;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
@@ -143,7 +140,7 @@ pub fn problem_view(props: &ProblemViewProps) -> Html {
                     </div>
 
                     <div class="editor-wrapper">
-                        <CodeEditor options = {options}/>
+                        // <CodeEditor options = {options}/>
                     </div>
                 </div>
             } else {

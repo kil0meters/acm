@@ -5,7 +5,7 @@ use actix_web::{
     get,
     http::StatusCode,
     post,
-    web::{Json, Path, ReqData},
+    web::{Json, Path},
     Responder,
 };
 use serde_json::json;
@@ -20,11 +20,13 @@ use crate::state::{auth::Claims, AppState};
 pub async fn create_problem(
     form: Json<CreateProblemForm>,
     state: AppState,
-    claims: ReqData<Option<Claims>>,
+    claims: Option<Claims>,
 ) -> impl Responder {
     // convert Option<Claims> into Option<Auth>
-    //
     // TODO: perhaps validator should offer this automatically?
+
+    log::info!("{claims:?}");
+
     match claims.as_ref().map(|v| v.auth) {
         Some(Auth::ADMIN | Auth::OFFICER) => match state.problem_add(&form).await {
             Ok(id) => api_success(json!({ "id": id })),

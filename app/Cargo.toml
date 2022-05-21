@@ -7,7 +7,7 @@ version = "0.1.0"
 acm = { path = ".." }
 log = "0.4"
 markdown = "0.3"
-monaco = { git = "https://github.com/siku2/rust-monaco", features = ["yew-components"] }
+monaco = { git = "https://github.com/siku2/rust-monaco" }
 reqwest = { version = "0.11", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -16,5 +16,6 @@ wasm-bindgen-futures = "0.4"
 wasm-logger = "0.2"
 web-sys = { version = "0.3", features = ["HtmlFormElement"] }
 wee_alloc = "0.4"
-yew = "0.19"
-yew-router = "0.16"
+yew = { git = "https://github.com/yewstack/yew.git", features = ["csr"] }
+yewdux = { git = "https://github.com/intendednull/yewdux.git" }
+yew-router = { git = "https://github.com/yewstack/yew.git" }

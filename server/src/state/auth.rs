@@ -1,11 +1,11 @@
 //! Handles authentication
 
 use acm::models::Auth;
-use actix_web::{dev::ServiceRequest, HttpMessage, Result};
-use actix_web_httpauth::extractors::{
-    bearer::{BearerAuth, Config},
-    AuthenticationError,
+use actix_web::{
+    dev::Payload,
+    Error, Result, FromRequest, HttpRequest, error::ErrorNotFound,
 };
+use std::future::{Ready, self};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 
@@ -20,24 +20,31 @@ pub struct Claims {
     pub auth: Auth,
 }
 
-/// Validates incoming requests, only allowing users with a valid JWT to proceed.
-pub async fn validator(req: ServiceRequest, credentials: BearerAuth) -> Result<ServiceRequest> {
-    let state = req.app_data::<AppState>().unwrap();
+impl FromRequest for Claims {
+    type Error = Error;
+    type Future = Ready<Result<Self, Error>>;
 
-    match state.validate_token(credentials.token()) {
-        Some(claims) => {
-            // Passes through the Claims the request can attest to so they can be used in the
-            // request by ReqData<Claims>.
-            let mut extensions = req.extensions_mut();
-            extensions.insert(Some(claims));
-        }
-        None => {
-            let mut extensions = req.extensions_mut();
-            extensions.insert(None::<Claims>);
-        }
-    };
+    fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
+        let headers = req.headers();
 
-    Ok(req)
+        if let Some(auth_string) = headers.get("Authorization") {
+            let token = auth_string.to_str().unwrap().to_string();
+            let token = token.trim_start_matches("Bearer ");
+
+            let state = req.app_data::<AppState>().unwrap();
+
+            match state.validate_token(token) {
+                Some(claims) => {
+                    future::ready(Ok(claims))
+                }
+                None => {
+                    future::ready(Err(ErrorNotFound("Invalid credentials")))
+                }
+            }
+        } else {
+            future::ready(Err(ErrorNotFound("wowee")))
+        }
+    }
 }
 
 impl State {
