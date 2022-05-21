@@ -26,6 +26,15 @@
 	}
     }
 
+    &.red {
+	background-color: var(--red);
+	border-color: var(--red-highlight);
+
+	&:hover, &:focus {
+	    outline: 2px solid var(--red-highlight);
+	}
+    }
+
     &.grey {
 	color: black !important;
 	background-color: var(--grey);

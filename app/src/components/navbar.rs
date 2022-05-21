@@ -2,14 +2,19 @@
 
 use acm::models::{Auth, Session, User};
 use yew::prelude::*;
+use yewdux::prelude::*;
 use yew_router::prelude::*;
 
-use crate::Route;
+use crate::{Route, state::State};
 
 #[function_component]
 pub fn Navbar() -> Html {
-    let ctx = use_context::<UseStateHandle<Option<Session>>>().unwrap();
-    let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
+    let session = use_selector(|state: &State| state.session.clone());
+    let dispatch = Dispatch::<State>::new();
+
+    let logout = dispatch.reduce_mut_callback(|state| {
+        state.session = None;
+    });
 
     html! {
         <div class="navbar-wrapper">
@@ -20,14 +25,14 @@ pub fn Navbar() -> Html {
 
                 // If logged in and of sufficient rank
                 // this is awful.
-                if let Some(Session { user: User { auth: Auth::OFFICER | Auth::ADMIN, .. }, ..}) = *ctx {
+                if let Some(Session { user: User { auth: Auth::OFFICER | Auth::ADMIN, .. }, ..}) = &*session {
                     <Link<Route> classes="navbar-link" to={Route::ProblemEditor}>{ "Create Problem" }</Link<Route>>
                 }
             </div>
 
             // If the user currently has no session, we simply display the signup/login buttons,
             // otherwise we show links to logout or view their account.
-            if (*ctx).is_none() {
+            if (session).is_none() {
                 <div class="signup">
                     <Link<Route> classes="button blue navbar-link" to={Route::Signup}>{ "Sign up" }</Link<Route>>
                     <Link<Route> classes="navbar-link" to={Route::Login}>{ "Login" }</Link<Route>>
@@ -35,10 +40,7 @@ pub fn Navbar() -> Html {
             } else {
                 <div class="signup">
                     <Link<Route> classes="button blue navbar-link" to={Route::Signup}>{ "Account" }</Link<Route>>
-                    <button class="navbar-link" onclick={Callback::from(move |_| {
-                        local_storage.remove_item("session").unwrap();
-                        ctx.set(None);
-                    })}>{ "Logout" }</button>
+                    <button class="navbar-link" onclick={logout}>{ "Logout" }</button>
                 </div>
             }
         </div>

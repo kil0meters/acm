@@ -1,21 +1,15 @@
 .problem-editor-wrapper {
     display: grid;
     gap: 12px;
-    max-height: 100vh;
-    height: 100vh;
-    overflow: hidden;
-
     grid-template-columns: 1fr 2fr;
-    grid-template-rows: auto 1fr;
-    grid-template-areas: "navbar navbar"
-			 "sidebar content";
+    overflow: hidden;
 }
 
 .problem-editor-content {
-    grid-area: content;
-    display: grid;
     margin: 0 12px 12px 0;
+    overflow: hidden;
 
+    display: grid;
     grid-template-rows: 1fr auto;
     grid-template-columns: 1fr;
     grid-template-areas: "editor" "code-runner";
@@ -25,11 +19,11 @@
 .problem-editor-main {
     grid-area: editor;
     border: 2px solid var(--border);
+    overflow: hidden;
 }
 
 .problem-editor-sidebar {
-    grid-area: sidebar;
-
+    overflow: hidden;
     display: grid;
     grid-template-rows: auto 1fr;
     grid-template-areas: "title" "editor";

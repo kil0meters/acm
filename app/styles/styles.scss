@@ -21,6 +21,14 @@ body {
 	margin: 0;
 }
 
+.container {
+	display: grid;
+	gap: 12px;
+	grid-template-rows: auto 1fr;
+	height: 100vh;
+	width: 100vw;
+}
+
 @import "navbar.scss";
 @import "tests.scss";
 @import "description.scss";
@@ -35,18 +43,15 @@ body {
 @import "components/markdown-editor.scss";
 @import "components/tabbed.scss";
 @import "components/modal.scss";
+@import "components/tests-editor.scss";
 
 .problem-wrapper {
     display: grid;
     gap: 12px;
-    max-height: 100vh;
-    height: 100vh;
     overflow: hidden;
 
     grid-template-columns: 500px auto;
-    grid-template-rows: auto 1fr;
-    grid-template-areas: "navbar navbar"
-			 "sidebar content";
+    grid-template-areas: "sidebar content";
 }
 
 .sidebar-wrapper {

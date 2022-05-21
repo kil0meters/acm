@@ -92,8 +92,6 @@ pub struct ProblemViewProps {
 pub fn ProblemView(props: &ProblemViewProps) -> Html {
     let id = props.id;
 
-    // let ctx = use_context::<UseStateHandle<Option<Session>>>().unwrap();
-
     let data = use_state(|| None);
     let code = use_state(|| TextModel::create("", Some("cpp"), None).unwrap());
     let options =
@@ -127,26 +125,28 @@ pub fn ProblemView(props: &ProblemViewProps) -> Html {
     }
 
     html! {
-        <div class="problem-wrapper">
+        <div class="container">
             <Navbar />
 
-            if let Some(problem) = &*data {
-                <div class="sidebar-wrapper">
-                    <Tests problem_id={id} />
-                    <Description title={ problem.title.clone() } content={ problem.description.clone() } />
-                </div>
-                <div class="content-wrapper">
-                    <div class="code-runner-wrapper">
-                        <a class="button green">{ "Submit" }</a>
+            <div class="problem-wrapper">
+                if let Some(problem) = &*data {
+                    <div class="sidebar-wrapper">
+                        <Tests problem_id={id} />
+                        <Description title={ problem.title.clone() } content={ problem.description.clone() } />
                     </div>
+                    <div class="content-wrapper">
+                        <div class="code-runner-wrapper">
+                            <a class="button green">{ "Submit" }</a>
+                        </div>
 
-                    <div class="editor-wrapper">
-                        <CodeEditor options = {options}/>
+                        <div class="editor-wrapper">
+                            <CodeEditor options = {options}/>
+                        </div>
                     </div>
-                </div>
-            } else {
-                { "Loading..." }
-            }
+                } else {
+                    { "Loading..." }
+                }
+            </div>
         </div>
     }
 }

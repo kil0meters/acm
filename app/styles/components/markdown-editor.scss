@@ -1,11 +1,14 @@
 .markdown-editor {
     grid-area: editor;
+    overflow: hidden;
     display: grid;
     border: 2px solid var(--border);
-
     grid-template-rows: auto 1fr;
-    grid-template-areas: "top-bar"
-			 "content";
+}
+
+.markdown-preview {
+    overflow-y: auto;
+    padding: 12px;
 }
 
 .title-input {

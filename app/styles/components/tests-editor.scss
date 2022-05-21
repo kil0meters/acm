@@ -1,0 +1,33 @@
+.tests-editor {
+    max-height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    gap: 12px;
+    background-color: var(--grey);
+    overflow-y: auto;
+
+    textarea {
+	font-size: 18px;
+	resize: none;
+    }
+}
+
+.tests-buttons button {
+    margin-right: 12px;
+}
+
+.test-editor-col {
+    display: grid;
+    // grid-auto-flow: row;
+    grid-template-rows: 24px auto;
+    gap: 8px;
+}
+
+.test-editor {
+    display: grid;
+    grid-auto-flow: column;
+    gap: 12px;
+    height: 200px;
+}

@@ -57,29 +57,10 @@ fn switch(routes: Route) -> Html {
 
 #[function_component(App)]
 fn app() -> Html {
-    // We setup a state handle around a Session object so that we can update the session from
-    // anywhere else in the application. This typically occurs when the users signs out/in.
-    let state_context: UseStateHandle<Option<Session>> = use_state(|| None);
-
-    let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
-
-    // We check if we currently have a Session, saving it to local storage. Otherwise, we attempt
-    // to read an existing Session into local storage.
-    if let Some(session) = &*state_context {
-        local_storage
-            .set_item("session", &serde_json::to_string(session).unwrap())
-            .unwrap();
-    } else if let Some(session_str) = local_storage.get_item("session").unwrap() {
-        let session = serde_json::from_str(&session_str).unwrap();
-        state_context.set(Some(session));
-    }
-
     html! {
-        <ContextProvider<UseStateHandle<Option<Session>>> context={state_context.clone()}>
-            <BrowserRouter>
-                <Switch<Route> render={switch} />
-            </BrowserRouter>
-        </ContextProvider<UseStateHandle<Option<Session>>>>
+        <BrowserRouter>
+            <Switch<Route> render={switch} />
+        </BrowserRouter>
     }
 }
 

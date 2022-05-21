@@ -7,17 +7,18 @@ use wasm_bindgen_futures::spawn_local;
 use web_sys::{FormData, HtmlFormElement};
 use yew::prelude::*;
 use yew_router::prelude::*;
+use yewdux::prelude::*;
 
 use crate::{
     components::{ErrorBox, Navbar},
-    Route,
+    Route, state::State,
 };
 
 #[function_component]
 pub fn LoginView() -> Html {
-    let ctx = use_context::<UseStateHandle<Option<Session>>>().unwrap();
     let navigator = use_navigator().unwrap();
     let error = use_state(|| None);
+    let dispatch = Dispatch::<State>::new();
 
     // This is code that's executed whenever the submit button is pressed. We read the values of
     // the form, then submit a request to the server, updating the session if successful.
@@ -34,7 +35,7 @@ pub fn LoginView() -> Html {
 
             let login_data = LoginForm { username, password };
 
-            let ctx = ctx.clone();
+            let dispatch = dispatch.clone();
             let navigator = navigator.clone();
             let error = error.clone();
 
@@ -56,7 +57,7 @@ pub fn LoginView() -> Html {
 
                 match serde_json::from_value::<Session>(res.clone()) {
                     Ok(session) => {
-                        ctx.set(Some(session));
+                        dispatch.reduce_mut(move |state| state.session = Some(session));
                         navigator.push(&Route::Home);
                     }
                     Err(_) => {
