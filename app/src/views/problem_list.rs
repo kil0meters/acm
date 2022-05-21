@@ -13,8 +13,8 @@ struct ProblemListingProps {
     problem: Problem,
 }
 
-#[function_component(ProblemListing)]
-fn problem_listing(props: &ProblemListingProps) -> Html {
+#[function_component]
+fn ProblemListing(props: &ProblemListingProps) -> Html {
     let div = web_sys::window()
         .unwrap()
         .document()
@@ -35,8 +35,8 @@ fn problem_listing(props: &ProblemListingProps) -> Html {
     }
 }
 
-#[function_component(ProblemListView)]
-pub fn problem_list_view() -> Html {
+#[function_component]
+pub fn ProblemListView() -> Html {
     let data = use_state(|| Vec::<Problem>::new());
 
     {

@@ -8,8 +8,8 @@ use yew::prelude::*;
 
 use crate::components::Navbar;
 
-#[function_component(SignupView)]
-pub fn signup_view() -> Html {
+#[function_component]
+pub fn SignupView() -> Html {
     let submit_form = {
         Callback::from(move |e: FocusEvent| {
             e.prevent_default();

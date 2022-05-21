@@ -16,8 +16,8 @@ struct TestProps {
     is_error: bool,
 }
 
-#[function_component(Test)]
-fn test(props: &TestProps) -> Html {
+#[function_component]
+fn Test(props: &TestProps) -> Html {
     html! {
         <a class={classes!("test", if props.is_error { "failure" } else { "success" })}
             href={format!("/problems/{}/tests/{}", props.problem_id, props.test_id)}>{ props.name.clone() }</a>
@@ -29,8 +29,8 @@ struct TestsProps {
     problem_id: i64,
 }
 
-#[function_component(Tests)]
-fn tests(props: &TestsProps) -> Html {
+#[function_component]
+fn Tests(props: &TestsProps) -> Html {
     let shown = use_state(|| false);
     let onclick = {
         let shown = shown.clone();
@@ -63,8 +63,8 @@ struct DescriptionProps {
     content: String,
 }
 
-#[function_component(Description)]
-fn description(props: &DescriptionProps) -> Html {
+#[function_component]
+fn Description(props: &DescriptionProps) -> Html {
     let div = web_sys::window()
         .unwrap()
         .document()
@@ -88,8 +88,8 @@ pub struct ProblemViewProps {
     pub id: i64,
 }
 
-#[function_component(ProblemView)]
-pub fn problem_view(props: &ProblemViewProps) -> Html {
+#[function_component]
+pub fn ProblemView(props: &ProblemViewProps) -> Html {
     let id = props.id;
 
     // let ctx = use_context::<UseStateHandle<Option<Session>>>().unwrap();

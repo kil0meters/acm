@@ -4,8 +4,8 @@ use yew::prelude::*;
 
 use crate::components::Navbar;
 
-#[function_component(HomeView)]
-pub fn home_view() -> Html {
+#[function_component]
+pub fn HomeView() -> Html {
     html! {
         <Navbar />
     }

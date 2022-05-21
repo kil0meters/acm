@@ -10,8 +10,8 @@ pub struct ModalProps {
     pub onclose: Callback<()>,
 }
 
-#[function_component(Modal)]
-pub fn modal(props: &ModalProps) -> Html {
+#[function_component]
+pub fn Modal(props: &ModalProps) -> Html {
     let shown = use_state(|| true);
 
     let onclose = props.onclose.clone();

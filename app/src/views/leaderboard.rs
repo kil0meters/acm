@@ -15,8 +15,8 @@ pub struct LeaderboardItemProps {
     star_count: i32,
 }
 
-#[function_component(LeaderboardItem)]
-fn leaderboard_item(props: &LeaderboardItemProps) -> Html {
+#[function_component]
+fn LeaderboardItem(props: &LeaderboardItemProps) -> Html {
     html! {
         <div class="leaderboard-item">
             <img class="profile-picture" src="https://via.placeholder.com/512" />
@@ -26,8 +26,8 @@ fn leaderboard_item(props: &LeaderboardItemProps) -> Html {
     }
 }
 
-#[function_component(LeaderboardView)]
-pub fn leaderboard_view() -> Html {
+#[function_component]
+pub fn LeaderboardView() -> Html {
     let leaderboard_items = use_state(|| Vec::<LeaderboardItemProps>::new());
 
     {

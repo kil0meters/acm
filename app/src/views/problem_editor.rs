@@ -22,14 +22,15 @@ struct MarkdownEditorProps {
     model: TextModel,
 }
 
-#[function_component(MarkdownEditor)]
-fn markdown_editor(props: &MarkdownEditorProps) -> Html {
+#[function_component]
+fn MarkdownEditor(props: &MarkdownEditorProps) -> Html {
     let preview = use_state(|| false);
 
     let options =
         Rc::new(CodeEditorOptions::default().with_model((props.model).clone())).to_sys_options();
 
     options.set_font_size(Some(18.0));
+    options.set_automatic_layout(Some(true));
 
     let div = web_sys::window()
         .unwrap()
@@ -62,8 +63,8 @@ fn markdown_editor(props: &MarkdownEditorProps) -> Html {
     }
 }
 
-#[function_component(ProblemEditorView)]
-pub fn problem_editor_view() -> Html {
+#[function_component]
+pub fn ProblemEditorView() -> Html {
     let title = use_mut_ref(|| String::new());
     let description = use_state(|| TextModel::create("", Some("markdown"), None).unwrap());
     let runner_code = use_state(|| TextModel::create("", Some("cpp"), None).unwrap());

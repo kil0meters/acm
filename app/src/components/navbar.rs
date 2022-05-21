@@ -6,8 +6,8 @@ use yew_router::prelude::*;
 
 use crate::Route;
 
-#[function_component(Navbar)]
-pub fn navbar() -> Html {
+#[function_component]
+pub fn Navbar() -> Html {
     let ctx = use_context::<UseStateHandle<Option<Session>>>().unwrap();
     let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
 

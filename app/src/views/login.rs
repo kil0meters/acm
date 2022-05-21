@@ -13,8 +13,8 @@ use crate::{
     Route,
 };
 
-#[function_component(LoginView)]
-pub fn login_view() -> Html {
+#[function_component]
+pub fn LoginView() -> Html {
     let ctx = use_context::<UseStateHandle<Option<Session>>>().unwrap();
     let navigator = use_navigator().unwrap();
     let error = use_state(|| None);

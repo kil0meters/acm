@@ -11,8 +11,8 @@ pub struct TabbedProps {
     pub class: Classes,
 }
 
-#[function_component(Tabbed)]
-pub fn tabbed(props: &TabbedProps) -> Html {
+#[function_component]
+pub fn Tabbed(props: &TabbedProps) -> Html {
     let focused_window = use_state(|| 0);
 
     let focused_window_n = *focused_window;

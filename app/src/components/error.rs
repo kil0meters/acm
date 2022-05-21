@@ -8,8 +8,8 @@ pub struct ErrorBoxProps {
     pub children: Children,
 }
 
-#[function_component(ErrorBox)]
-pub fn error_box(props: &ErrorBoxProps) -> Html {
+#[function_component]
+pub fn ErrorBox(props: &ErrorBoxProps) -> Html {
     html! {
         <div class="error">
             <h2>{ "error." }</h2>
