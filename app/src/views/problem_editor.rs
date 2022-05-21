@@ -13,7 +13,7 @@ use yew_router::prelude::*;
 use acm::models::{forms::CreateProblemForm, Session};
 
 use crate::{
-    components::{ErrorBox, Modal, Navbar, Tabbed, TestsEditor},
+    components::{CodeEditor, ErrorBox, Modal, Navbar, Tabbed, TestsEditor},
     Route,
 };
 
@@ -55,7 +55,7 @@ fn markdown_editor(props: &MarkdownEditorProps) -> Html {
                 if *preview {
                     { Html::VRef(div.into()) }
                 } else {
-                    // <CodeEditor options = {options} />
+                    <CodeEditor options = {options} />
                 }
             </div>
         </div>
@@ -82,11 +82,14 @@ pub fn problem_editor_view() -> Html {
 
     let runner_editor_options =
         Rc::new(CodeEditorOptions::default().with_model((*runner_code).clone())).to_sys_options();
+
     runner_editor_options.set_font_size(Some(18.0));
+    runner_editor_options.set_automatic_layout(Some(true));
 
     let template_editor_options =
         Rc::new(CodeEditorOptions::default().with_model((*template_code).clone())).to_sys_options();
     template_editor_options.set_font_size(Some(18.0));
+    template_editor_options.set_automatic_layout(Some(true));
 
     // This basically just takes all of the entered data by the user and submits that to the
     // server, thereby creating a problem or an error.
@@ -177,10 +180,8 @@ pub fn problem_editor_view() -> Html {
 
             <div class="problem-editor-content">
                 <Tabbed class="problem-editor-main" titles={ vec!["runner", "template", "tests"] }>
-                    <div></div>
-                    <div></div>
-                    // <div><CodeEditor options = { runner_editor_options } /></div>
-                    // <div><CodeEditor options = { template_editor_options } /></div>
+                    <div><CodeEditor options = { runner_editor_options } /></div>
+                    <div><CodeEditor options = { template_editor_options } /></div>
                     <div><TestsEditor /></div>
                 </Tabbed>
 

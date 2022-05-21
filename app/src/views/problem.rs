@@ -6,7 +6,7 @@ use std::rc::Rc;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 
-use crate::components::Navbar;
+use crate::components::{CodeEditor, Navbar};
 
 #[derive(Clone, Debug, PartialEq, Properties)]
 struct TestProps {
@@ -100,6 +100,7 @@ pub fn problem_view(props: &ProblemViewProps) -> Html {
         Rc::new(CodeEditorOptions::default().with_model((*code).clone())).to_sys_options();
 
     options.set_font_size(Some(18.0));
+    options.set_automatic_layout(Some(true));
 
     {
         let data = data.clone();
@@ -140,7 +141,7 @@ pub fn problem_view(props: &ProblemViewProps) -> Html {
                     </div>
 
                     <div class="editor-wrapper">
-                        // <CodeEditor options = {options}/>
+                        <CodeEditor options = {options}/>
                     </div>
                 </div>
             } else {
