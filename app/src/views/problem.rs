@@ -1,15 +1,21 @@
 //! An editor view showing a single problem.
 
-use acm::models::{test::Test, Problem, Session};
+use acm::models::{
+    forms::RunTestsForm,
+    test::{Test, TestResult},
+    Problem,
+};
 use gloo_net::http::Request;
 use monaco::api::{CodeEditorOptions, TextModel};
-use serde::Serializer;
-use std::rc::Rc;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew::suspense::{use_future, Suspense};
+use yewdux::prelude::*;
 
-use crate::components::{CodeEditor, Navbar};
+use std::rc::Rc;
+
+use crate::components::{CodeEditor, ErrorBox, Modal, Navbar};
+use crate::state::State;
 
 #[derive(Clone, Debug, PartialEq, Properties)]
 struct TestEntryProps {
@@ -18,8 +24,100 @@ struct TestEntryProps {
 
 #[function_component]
 fn TestEntry(props: &TestEntryProps) -> Html {
+    let modal_shown = use_state(|| false);
+
+    let show_modal = {
+        let modal_shown = modal_shown.clone();
+
+        Callback::from(move |_| {
+            modal_shown.set(true);
+        })
+    };
+
+    let hide_modal = {
+        let modal_shown = modal_shown.clone();
+
+        Callback::from(move |_| {
+            modal_shown.set(false);
+        })
+    };
+
     html! {
-        <a class="test success" href="/tmp">{ format!("Test #{}", props.test.index) }</a>
+        <>
+            <button class="button grey" onclick={show_modal}>{ format!("Test #{}", props.test.index) }</button>
+
+            if *modal_shown {
+                <Modal onclose={hide_modal}>
+                    <div class="modal-view">
+                        <h1>{ "Test #" } { props.test.index }</h1>
+
+                        <pre>
+                            <code>{ &props.test.input }</code>
+                        </pre>
+
+                        <pre>
+                            <code>{ &props.test.expected_output }</code>
+                        </pre>
+                    </div>
+                </Modal>
+            }
+        </>
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Properties)]
+struct TestResultEntryProps {
+    result: TestResult,
+    failed: bool,
+}
+
+#[function_component]
+fn TestResultEntry(props: &TestResultEntryProps) -> Html {
+    let modal_shown = use_state(|| false);
+
+    let show_modal = {
+        let modal_shown = modal_shown.clone();
+
+        Callback::from(move |_| {
+            modal_shown.set(true);
+        })
+    };
+
+    let hide_modal = {
+        let modal_shown = modal_shown.clone();
+
+        Callback::from(move |_| {
+            modal_shown.set(false);
+        })
+    };
+
+    html! {
+        <>
+            <button class={
+                classes!("button", if props.failed { "red" } else { "green" } )
+            }
+            onclick={show_modal}>{ format!("Test #{}", props.result.index) }</button>
+
+            if *modal_shown {
+                <Modal onclose={hide_modal}>
+                    <div class="modal-view">
+                        <h1>{ "Test #" } { props.result.index }</h1>
+
+                        <pre>
+                            <code>{ &props.result.input }</code>
+                        </pre>
+
+                        <pre>
+                            <code>{ &props.result.expected_output }</code>
+                        </pre>
+
+                        <pre>
+                            <code>{ &props.result.output }</code>
+                        </pre>
+                    </div>
+                </Modal>
+            }
+        </>
     }
 }
 
@@ -30,13 +128,17 @@ struct TestsProps {
 
 #[function_component]
 fn Tests(props: &TestsProps) -> HtmlResult {
+    let problem_id = props.problem_id;
+
     let shown = use_state(|| false);
+    let test_results =
+        use_selector(move |state: &State| state.test_results.get(&problem_id).map(|x| x.clone()));
+
     let onclick = {
         let shown = shown.clone();
         Callback::from(move |_| shown.set(!*shown))
     };
 
-    let problem_id = props.problem_id;
     let tests = use_future(|| async move {
         Request::get(&format!("/api/problems/{}/tests", problem_id))
             .send()
@@ -45,16 +147,70 @@ fn Tests(props: &TestsProps) -> HtmlResult {
             .await
     })?;
 
-    let tests_html = match *tests {
-        Ok(ref tests) => tests
-            .into_iter()
-            .map(|t| {
-                html! {
-                    <TestEntry test={t.clone()} />
-                }
-            })
-            .collect::<Html>(),
-        Err(ref failure) => failure.to_string().into(),
+    // Render the contents of the test widget conditionally based on the current state.
+    //
+    // 1. If the most recent submission ran fine, we display the test results
+    //
+    // 1. If the most recent submission contains a compilation or runtime error, we display that at
+    //    the top of the message
+    //
+    // 2. If the user has not yet run code, we simply show all of the tested in a greyed out state.
+    let tests_html = match &*test_results {
+        Some(Ok(res)) => {
+            let failed_tests = html! {
+                <div class="failed-tests">
+                    <h3>{"Failed"}</h3>
+
+                    <div class="test-list">
+                    {
+                        res.failed_tests.iter()
+                        .map(|t| {
+                            html! {
+                                <TestResultEntry failed={true} result={t.clone()} />
+                            }
+                        })
+                        .collect::<Html>()
+                    }
+                    </div>
+                </div>
+            };
+
+            let passed_tests = html! {
+                <div class="passed-tests">
+                    <h3>{"Passed"}</h3>
+
+                    <div class="test-list">
+                    {
+                        res.passed_tests.iter()
+                        .map(|t| {
+                            html! {
+                                <TestResultEntry failed={false} result={t.clone()} />
+                            }
+                        })
+                        .collect::<Html>()
+                    }
+                    </div>
+                </div>
+            };
+
+            html! {<> {failed_tests} {passed_tests} </>}
+        }
+        Some(Err(e)) => html! {
+            html! {
+                <ErrorBox>{ e }</ErrorBox>
+            }
+        },
+        None => match *tests {
+            Ok(ref tests) => tests
+                .into_iter()
+                .map(|t| {
+                    html! {
+                        <TestEntry test={t.clone()} />
+                    }
+                })
+                .collect::<Html>(),
+            Err(ref failure) => failure.to_string().into(),
+        },
     };
 
     Ok(html! {
@@ -97,6 +253,45 @@ fn Description(props: &DescriptionProps) -> Html {
     }
 }
 
+#[derive(PartialEq, Properties)]
+struct ProblemEditorProps {
+    id: i64,
+
+    #[prop_or_default]
+    template: String,
+}
+
+#[function_component]
+fn ProblemEditor(props: &ProblemEditorProps) -> Html {
+    let id = props.id;
+    let dispatch = Dispatch::<State>::new();
+    let state = dispatch.get();
+
+    let code = {
+        if let Some(code) = state.problem_code.get(&id) {
+            code
+        } else {
+            &props.template
+        }
+    };
+
+    let code = TextModel::create(code, Some("cpp"), None).unwrap();
+    let options = Rc::new(CodeEditorOptions::default().with_model(code.clone())).to_sys_options();
+
+    options.set_font_size(Some(18.0));
+    options.set_automatic_layout(Some(true));
+
+    let onfocusout = dispatch.reduce_mut_callback(move |state| {
+        state.problem_code.insert(id, code.get_value());
+    });
+
+    html! {
+        <div class="editor-wrapper" {onfocusout}>
+            <CodeEditor options = {options}/>
+        </div>
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Properties)]
 pub struct ProblemViewProps {
     pub id: i64,
@@ -104,6 +299,8 @@ pub struct ProblemViewProps {
 
 #[function_component]
 fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
+    let dispatch = Dispatch::<State>::new();
+
     let id = props.id;
     let problem = use_future(|| async move {
         Request::get(&format!("/api/problems/{}", id))
@@ -113,15 +310,34 @@ fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
             .await
     })?;
 
+    let submit = {
+        Callback::from(move |_| {
+            let state = dispatch.get();
+
+            let form = RunTestsForm {
+                problem_id: id,
+                test_code: state.problem_code[&id].clone(),
+            };
+
+            let dispatch = dispatch.clone();
+            spawn_local(async move {
+                let res = Request::post("/api/run-tests")
+                    .json(&form)
+                    .unwrap()
+                    .send()
+                    .await
+                    .unwrap()
+                    .json()
+                    .await
+                    .unwrap();
+
+                dispatch.reduce_mut(|state| state.test_results.insert(id, res));
+            });
+        })
+    };
+
     match &*problem {
-        Ok(problem) => {
-            let code = TextModel::create(&problem.template, Some("cpp"), None).unwrap();
-            let options = Rc::new(CodeEditorOptions::default().with_model(code.clone())).to_sys_options();
-
-            options.set_font_size(Some(18.0));
-            options.set_automatic_layout(Some(true));
-
-            Ok(html! {
+        Ok(problem) => Ok(html! {
             <div class="problem-wrapper">
                 <div class="sidebar-wrapper">
                     <Suspense>
@@ -131,16 +347,13 @@ fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
                 </div>
                 <div class="content-wrapper">
                     <div class="code-runner-wrapper">
-                        <a class="button green">{ "Submit" }</a>
+                        <button class="button green" onclick={submit}>{ "Submit" }</button>
                     </div>
 
-                    <div class="editor-wrapper">
-                        <CodeEditor options = {options}/>
-                    </div>
+                    <ProblemEditor {id} template={ problem.template.clone() } />
                 </div>
             </div>
-            })
-        }
+        }),
         Err(e) => Ok(html! { e }),
     }
 }

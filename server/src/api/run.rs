@@ -9,7 +9,7 @@ use actix_web::{
     http::StatusCode,
     post,
     web::{Data, Json},
-    Responder,
+    HttpResponse, Responder,
 };
 use reqwest::Client;
 
@@ -29,30 +29,24 @@ pub async fn run_tests(
 
     match state.problems_get_by_id(form.problem_id).await {
         Some(problem) => {
-            // let tests = state.get_tests_for_problem(problem.id).await;
+            let tests = state.tests_get_for_problem_id(problem.id).await;
 
             let res = client
-                .post(&format!("{RAMIEL_URL}/run/g++"))
+                .post(&format!("http://{RAMIEL_URL}/run/g++"))
                 .json(&RunnerForm {
                     problem_id: problem.id,
                     runner_code: problem.runner,
                     test_code: form.test_code,
-                    tests: vec![],
+                    tests,
                 })
                 .send()
                 .await
                 // TODO: Handle error
                 .unwrap();
 
-            // TODO: Minor? inefficiency: simply pass through text rather than deserializing and
-            // serializing
-            if res.status().is_success() {
-                let res = res.json::<RunnerResponse>().await.unwrap();
-                api_success(res)
-            } else {
-                let res = res.json::<RunnerError>().await.unwrap();
-                api_success(res)
-            }
+            HttpResponse::Ok()
+                .content_type("application/json")
+                .body(res.text().await.unwrap_or_default())
         }
         None => api_error(StatusCode::NOT_FOUND, "problem not found"),
     }

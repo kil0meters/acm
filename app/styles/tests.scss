@@ -23,6 +23,11 @@
     overflow-y: auto;
 }
 
+.test-list {
+    display: grid;
+    gap: 8px;
+}
+
 .test {
     padding: 12px;
     border: 2px solid;

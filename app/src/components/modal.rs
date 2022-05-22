@@ -12,22 +12,15 @@ pub struct ModalProps {
 
 #[function_component]
 pub fn Modal(props: &ModalProps) -> Html {
-    let shown = use_state(|| true);
-
     let onclose = props.onclose.clone();
     html! {
-        if *shown {
-            <div class="modal">
-                <button class="button grey modal-button" onclick={Callback::from(move |_| {
-                    shown.set(false);
-                    onclose.emit(());
-                })}>{ "Close" }</button>
-                <div class="modal-wrapper">
-                    { for props.children.iter() }
-                </div>
+        <div class="modal">
+            <button class="button grey modal-button" onclick={Callback::from(move |_| {
+                onclose.emit(());
+            })}>{ "Close" }</button>
+            <div class="modal-wrapper">
+                { for props.children.iter() }
             </div>
-        } else {
-            <></>
-        }
+        </div>
     }
 }

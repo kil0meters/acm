@@ -20,10 +20,7 @@ async fn handle_runner(runner: impl Runner, form: RunnerForm) -> impl Responder 
         )
         .await;
 
-    match res {
-        Ok(res) => HttpResponse::Ok().json(&res),
-        Err(e) => HttpResponse::Ok().json(&e),
-    }
+    HttpResponse::Ok().json(&res)
 }
 
 #[post("/run/g++")]

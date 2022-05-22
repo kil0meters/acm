@@ -4,10 +4,10 @@ use thiserror::Error;
 
 use crate::models::test::TestResult;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, PartialEq, Clone, Default)]
 pub struct RunnerResponse {
-    failed_tests: BTreeSet<TestResult>,
-    passed_tests: BTreeSet<TestResult>,
+    pub failed_tests: BTreeSet<TestResult>,
+    pub passed_tests: BTreeSet<TestResult>,
 }
 
 impl RunnerResponse {
@@ -27,7 +27,7 @@ impl RunnerResponse {
     }
 }
 
-#[derive(Deserialize, Serialize, Error, Debug)]
+#[derive(Deserialize, Serialize, Error, Debug, Clone, PartialEq)]
 pub enum RunnerError {
     #[error("line {line}:\n{message}")]
     CompilationError { line: u64, message: String },

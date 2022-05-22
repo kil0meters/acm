@@ -54,6 +54,13 @@ body {
     grid-template-areas: "sidebar content";
 }
 
+h1, h2, h3, h4, h5 {
+    &:first-child {
+        margin-top: 0;
+	margin-bottom: 12px;
+    }
+}
+
 .sidebar-wrapper {
     grid-area: sidebar;
     margin-left: 12px;
