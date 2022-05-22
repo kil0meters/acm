@@ -1,7 +1,7 @@
 //! Queries involving problems
 
 use super::State;
-use acm::models::{forms::CreateProblemForm, Problem};
+use acm::models::{forms::CreateProblemForm, test::Test, Problem};
 
 impl State {
     /// Adds a problem to the database, returning the id of the problem or an error.
@@ -44,7 +44,7 @@ impl State {
 
         sqlx::query_as!(
             Problem,
-            r#"SELECT id, title, description, runner, template, visible FROM problems"#
+            r#"SELECT id, title, description, runner, template, visible FROM problems ORDER BY update_dt DESC"#
         )
         .fetch_all(&self.conn)
         .await
@@ -61,5 +61,17 @@ impl State {
         .fetch_one(&self.conn)
         .await
         .ok()
+    }
+
+    /// Receives all tests for a given problem
+    pub async fn tests_get_for_problem_id(&self, problem_id: i64) -> Vec<Test> {
+        sqlx::query_as!(
+            Test,
+            r#"SELECT test_number as [index], input, expected_output FROM tests WHERE problem_id = ?"#,
+            problem_id
+        )
+        .fetch_all(&self.conn)
+        .await
+        .unwrap_or_else(|_| vec![])
     }
 }

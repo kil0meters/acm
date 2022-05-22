@@ -2,6 +2,7 @@
 
 use acm::models::forms::SignupForm;
 
+use gloo_net::http::Request;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{FormData, HtmlFormElement};
 use yew::prelude::*;
@@ -34,10 +35,9 @@ pub fn SignupView() -> Html {
             // TODO: We should probably automatically sign the user in after they've signed up, but
             // what can you do.
             spawn_local(async move {
-                let client = reqwest::Client::new();
-                client
-                    .post("http://127.0.0.1:8080/api/signup")
+                Request::post("/api/signup")
                     .json(&signup_data)
+                    .unwrap()
                     .send()
                     .await
                     .unwrap();

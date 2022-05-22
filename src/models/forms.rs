@@ -36,13 +36,12 @@ pub struct LoginForm {
     pub password: String,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Default, Clone, PartialEq)]
 pub struct CreateProblemForm {
     pub title: String,
     pub description: String,
     pub runner: String,
     pub template: String,
-
     pub tests: Vec<Test>,
 }
 

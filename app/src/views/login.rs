@@ -2,6 +2,7 @@
 
 use acm::models::{forms::LoginForm, Session};
 
+use gloo_net::http::Request;
 use serde_json::Value;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{FormData, HtmlFormElement};
@@ -11,7 +12,8 @@ use yewdux::prelude::*;
 
 use crate::{
     components::{ErrorBox, Navbar},
-    Route, state::State,
+    state::State,
+    Route,
 };
 
 #[function_component]
@@ -42,15 +44,13 @@ pub fn LoginView() -> Html {
             // This version of yew doesn't have builtin handling for async, we use this function
             // that waits for a future using Javascript's event loop.
             spawn_local(async move {
-                let client = reqwest::Client::new();
-
                 // You might think this code is ugly, but it actually makes quite a bit of sense:
-                let res: Value = client
-                    .post("http://127.0.0.1:8080/api/login") // Submit a post request
+                let res: Value = Request::post("/api/login")
                     .json(&login_data) // Attach a JSON object to the request
+                    .unwrap() // Ignore parsing errors
                     .send() // Send the request
                     .await // Wait for the future to establish
-                    .unwrap() // Ignore errors (TODO: Don't ignore errors)
+                    .unwrap() // Ignore request errors (TODO: Don't ignore errors)
                     .json() // Parse the response body into JSON
                     .await // Wait for THAT future
                     .unwrap(); // Ignore any parsing errors

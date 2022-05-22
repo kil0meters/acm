@@ -8,7 +8,7 @@ use reqwest::Client;
 
 use api::{
     leaderboard::leaderboard,
-    problems::{create_problem, problem, problem_list},
+    problems::{create_problem, problem, problem_list, problem_tests},
     run::run_tests,
     signup::{login, signup},
 };
@@ -40,6 +40,7 @@ async fn main() -> std::io::Result<()> {
                     .service(signup)
                     .service(problem_list)
                     .service(problem)
+                    .service(problem_tests)
                     .service(create_problem)
                     .service(run_tests),
             )

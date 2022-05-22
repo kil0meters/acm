@@ -1,13 +1,10 @@
 //! Handles authentication
 
 use acm::models::Auth;
-use actix_web::{
-    dev::Payload,
-    Error, Result, FromRequest, HttpRequest, error::ErrorNotFound,
-};
-use std::future::{Ready, self};
+use actix_web::{dev::Payload, error::ErrorNotFound, Error, FromRequest, HttpRequest, Result};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
+use std::future::{self, Ready};
 
 use crate::state::AppState;
 
@@ -34,12 +31,8 @@ impl FromRequest for Claims {
             let state = req.app_data::<AppState>().unwrap();
 
             match state.validate_token(token) {
-                Some(claims) => {
-                    future::ready(Ok(claims))
-                }
-                None => {
-                    future::ready(Err(ErrorNotFound("Invalid credentials")))
-                }
+                Some(claims) => future::ready(Ok(claims)),
+                None => future::ready(Err(ErrorNotFound("Invalid credentials"))),
             }
         } else {
             future::ready(Err(ErrorNotFound("wowee")))

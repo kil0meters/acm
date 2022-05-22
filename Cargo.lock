@@ -280,10 +280,10 @@ name = "app"
 version = "0.1.0"
 dependencies = [
  "acm",
+ "gloo-net",
  "log",
  "markdown",
  "monaco",
- "reqwest",
  "serde",
  "serde_json",
  "wasm-bindgen",

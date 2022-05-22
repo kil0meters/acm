@@ -2,6 +2,7 @@
 //!
 //! Ideally this would be setup in a non-competitive manner.
 
+use gloo_net::http::Request;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
@@ -39,8 +40,8 @@ pub fn LeaderboardView() -> Html {
         use_effect_with_deps(
             move |_| {
                 spawn_local(async move {
-                    // TODO: Use relative pathing
-                    let res = reqwest::get("http://127.0.0.1:8080/api/leaderboard")
+                    let res = Request::get("http://127.0.0.1:8080/api/leaderboard")
+                        .send()
                         .await
                         .unwrap()
                         .json::<Vec<LeaderboardItemProps>>()

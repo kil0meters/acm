@@ -2,10 +2,10 @@
 
 use acm::models::{Auth, Session, User};
 use yew::prelude::*;
-use yewdux::prelude::*;
 use yew_router::prelude::*;
+use yewdux::prelude::*;
 
-use crate::{Route, state::State};
+use crate::{state::State, Route};
 
 #[function_component]
 pub fn Navbar() -> Html {

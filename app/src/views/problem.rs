@@ -1,26 +1,25 @@
 //! An editor view showing a single problem.
 
-use acm::models::{Problem, Session};
+use acm::models::{test::Test, Problem, Session};
+use gloo_net::http::Request;
 use monaco::api::{CodeEditorOptions, TextModel};
+use serde::Serializer;
 use std::rc::Rc;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
+use yew::suspense::{use_future, Suspense};
 
 use crate::components::{CodeEditor, Navbar};
 
 #[derive(Clone, Debug, PartialEq, Properties)]
-struct TestProps {
-    test_id: String,
-    name: String,
-    problem_id: i64,
-    is_error: bool,
+struct TestEntryProps {
+    test: Test,
 }
 
 #[function_component]
-fn Test(props: &TestProps) -> Html {
+fn TestEntry(props: &TestEntryProps) -> Html {
     html! {
-        <a class={classes!("test", if props.is_error { "failure" } else { "success" })}
-            href={format!("/problems/{}/tests/{}", props.problem_id, props.test_id)}>{ props.name.clone() }</a>
+        <a class="test success" href="/tmp">{ format!("Test #{}", props.test.index) }</a>
     }
 }
 
@@ -30,31 +29,46 @@ struct TestsProps {
 }
 
 #[function_component]
-fn Tests(props: &TestsProps) -> Html {
+fn Tests(props: &TestsProps) -> HtmlResult {
     let shown = use_state(|| false);
     let onclick = {
         let shown = shown.clone();
         Callback::from(move |_| shown.set(!*shown))
     };
 
-    html! {
+    let problem_id = props.problem_id;
+    let tests = use_future(|| async move {
+        Request::get(&format!("/api/problems/{}/tests", problem_id))
+            .send()
+            .await?
+            .json::<Vec<Test>>()
+            .await
+    })?;
+
+    let tests_html = match *tests {
+        Ok(ref tests) => tests
+            .into_iter()
+            .map(|t| {
+                html! {
+                    <TestEntry test={t.clone()} />
+                }
+            })
+            .collect::<Html>(),
+        Err(ref failure) => failure.to_string().into(),
+    };
+
+    Ok(html! {
         <div class="tests-wrapper">
             if *shown {
                 <a class="hide-tests" onclick={onclick}>{ "Hide tests" }</a>
                 <div class="tests">
-                    {
-                        (0..=100).into_iter().map(|test_number| {
-                            html!{
-                                <Test problem_id={props.problem_id} name={format!("Test #{}", test_number)} test_id="asdf" is_error={if test_number % 3 == 0 { false } else {true} } />
-                            }
-                        }).collect::<Html>()
-                    }
+                    { tests_html }
                 </div>
             } else {
                 <a class="hide-tests" onclick={onclick}>{ "Show tests" }</a>
             }
         </div>
-    }
+    })
 }
 
 #[derive(Properties, PartialEq)]
@@ -89,64 +103,56 @@ pub struct ProblemViewProps {
 }
 
 #[function_component]
-pub fn ProblemView(props: &ProblemViewProps) -> Html {
+fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
     let id = props.id;
+    let problem = use_future(|| async move {
+        Request::get(&format!("/api/problems/{}", id))
+            .send()
+            .await?
+            .json::<Problem>()
+            .await
+    })?;
 
-    let data = use_state(|| None);
-    let code = use_state(|| TextModel::create("", Some("cpp"), None).unwrap());
-    let options =
-        Rc::new(CodeEditorOptions::default().with_model((*code).clone())).to_sys_options();
+    match &*problem {
+        Ok(problem) => {
+            let code = TextModel::create(&problem.template, Some("cpp"), None).unwrap();
+            let options = Rc::new(CodeEditorOptions::default().with_model(code.clone())).to_sys_options();
 
-    options.set_font_size(Some(18.0));
-    options.set_automatic_layout(Some(true));
+            options.set_font_size(Some(18.0));
+            options.set_automatic_layout(Some(true));
 
-    {
-        let data = data.clone();
-        let code = code.clone();
+            Ok(html! {
+            <div class="problem-wrapper">
+                <div class="sidebar-wrapper">
+                    <Suspense>
+                        <Tests problem_id={id} />
+                    </Suspense>
+                    <Description title={ problem.title.clone() } content={ problem.description.clone() } />
+                </div>
+                <div class="content-wrapper">
+                    <div class="code-runner-wrapper">
+                        <a class="button green">{ "Submit" }</a>
+                    </div>
 
-        use_effect_with_deps(
-            move |_| {
-                spawn_local(async move {
-                    let res = reqwest::get(format!("http://127.0.0.1:8080/api/problems/{}", id))
-                        .await
-                        .unwrap()
-                        .json::<Problem>()
-                        .await
-                        .unwrap();
-
-                    (*code).set_value(&res.template);
-
-                    data.set(Some(res));
-                });
-                || ()
-            },
-            (),
-        );
+                    <div class="editor-wrapper">
+                        <CodeEditor options = {options}/>
+                    </div>
+                </div>
+            </div>
+            })
+        }
+        Err(e) => Ok(html! { e }),
     }
+}
 
+#[function_component]
+pub fn ProblemView(props: &ProblemViewProps) -> Html {
     html! {
         <div class="container">
             <Navbar />
-
-            <div class="problem-wrapper">
-                if let Some(problem) = &*data {
-                    <div class="sidebar-wrapper">
-                        <Tests problem_id={id} />
-                        <Description title={ problem.title.clone() } content={ problem.description.clone() } />
-                    </div>
-                    <div class="content-wrapper">
-                        <div class="code-runner-wrapper">
-                            <a class="button green">{ "Submit" }</a>
-                        </div>
-
-                        <div class="editor-wrapper">
-                            <CodeEditor options = {options}/>
-                        </div>
-                    </div>
-                } else {
-                    { "Loading..." }
-                }
-            </div>
+            <Suspense>
+                <ProblemViewInner id={props.id} />
+            </Suspense>
         </div>
     }
 }

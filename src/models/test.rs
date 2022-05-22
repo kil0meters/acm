@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
-#[derive(Deserialize, Default, Serialize, Clone, PartialEq)]
+#[derive(Deserialize, Debug, Default, Serialize, Clone, PartialEq)]
 pub struct Test {
     pub index: i64,
     pub input: String,
@@ -20,7 +20,7 @@ impl Test {
     }
 }
 
-#[derive(Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Deserialize, Debug, Clone, Serialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TestResult {
     pub index: i64,
     pub input: String,

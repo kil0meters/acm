@@ -2,7 +2,7 @@
 
 use monaco::api::{CodeEditorOptions, TextModel};
 
-use reqwest::header::AUTHORIZATION;
+use gloo_net::http::Request;
 use serde_json::Value;
 use std::rc::Rc;
 use wasm_bindgen_futures::spawn_local;
@@ -13,14 +13,16 @@ use yewdux::prelude::*;
 
 use crate::{
     components::{CodeEditor, ErrorBox, Modal, Navbar, Tabbed, TestsEditor},
-    Route, state::State,
+    state::State,
+    Route,
 };
 
 #[function_component]
 fn MarkdownEditor() -> Html {
     let dispatch = Dispatch::<State>::new();
     let state = dispatch.get();
-    let description = TextModel::create(&state.problem_editor.description, Some("markdown"), None).unwrap();
+    let description =
+        TextModel::create(&state.problem_editor.description, Some("markdown"), None).unwrap();
 
     let preview = use_state(|| false);
 
@@ -81,7 +83,8 @@ pub fn ProblemEditorView() -> Html {
     });
 
     let runner_code = TextModel::create(&state.problem_editor.runner, Some("cpp"), None).unwrap();
-    let template_code = TextModel::create(&state.problem_editor.template, Some("cpp"), None).unwrap();
+    let template_code =
+        TextModel::create(&state.problem_editor.template, Some("cpp"), None).unwrap();
 
     let error: UseStateHandle<Option<String>> = use_state(|| None);
 
@@ -102,13 +105,14 @@ pub fn ProblemEditorView() -> Html {
         let dispatch = dispatch.clone();
 
         Callback::from(move |_| {
+            let state = dispatch.get();
+
             if state.problem_editor.title.is_empty()
                 || state.problem_editor.description.is_empty()
                 || state.problem_editor.runner.is_empty()
                 || state.problem_editor.template.is_empty()
             {
                 error.set(Some("One or more required fields is empty.".to_string()));
-
                 return;
             }
 
@@ -118,11 +122,10 @@ pub fn ProblemEditorView() -> Html {
             let error = error.clone();
             let navigator = navigator.clone();
             spawn_local(async move {
-                let client = reqwest::Client::new();
-                let res: Value = client
-                    .post("http://127.0.0.1:8080/api/create-problem")
-                    .header(AUTHORIZATION, &format!("Bearer {}", token))
+                let res: Value = Request::post("/api/create-problem")
+                    .header("Authorization", &format!("Bearer {}", token))
                     .json(&state.problem_editor)
+                    .unwrap()
                     .send()
                     .await
                     .unwrap()

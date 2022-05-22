@@ -1,8 +1,9 @@
 //! Shows the list of all visible problems.
 
 use acm::models::Problem;
-use wasm_bindgen_futures::spawn_local;
+use gloo_net::http::Request;
 use yew::prelude::*;
+use yew::suspense::use_future;
 use yew_router::prelude::*;
 
 use crate::components::Navbar;
@@ -36,42 +37,39 @@ fn ProblemListing(props: &ProblemListingProps) -> Html {
 }
 
 #[function_component]
-pub fn ProblemListView() -> Html {
-    let data = use_state(|| Vec::<Problem>::new());
+fn ProblemListInner() -> HtmlResult {
+    let list = use_future(|| async move {
+        Request::get("/api/problems")
+            .send()
+            .await?
+            .json::<Vec<Problem>>()
+            .await
+    })?;
 
-    {
-        let data = data.clone();
-        use_effect_with_deps(
-            move |_| {
-                spawn_local(async move {
-                    let res = reqwest::get("http://127.0.0.1:8080/api/problems")
-                        .await
-                        .unwrap()
-                        .json::<Vec<Problem>>()
-                        .await
-                        .unwrap();
-
-                    data.set(res);
-                });
-
-                || ()
-            },
-            (),
-        );
-    }
-
-    html! {
-        <>
-            <Navbar />
-
+    if let Ok(problems) = &*list {
+        Ok(html! {
             <div class="problem-list-wrapper">
             {
-                data.iter().map(|problem| { html! {
+                problems.iter().map(|problem| { html! {
                     <ProblemListing problem = {problem.clone()} /> }
                 }).collect::<Html>()
             }
             </div>
+        })
+    } else {
+        Ok(html!({ "Failed to load" }))
+    }
+}
 
-        </>
+#[function_component]
+pub fn ProblemListView() -> Html {
+    html! {
+        <div class="container">
+            <Navbar />
+
+            <Suspense>
+                <ProblemListInner />
+            </Suspense>
+        </div>
     }
 }

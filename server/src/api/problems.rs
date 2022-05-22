@@ -63,3 +63,11 @@ pub async fn problem(id: Path<i64>, state: AppState) -> impl Responder {
         None => api_error(StatusCode::NOT_FOUND, "problem not found"),
     }
 }
+
+/// Returns the tests for a specific problem id
+///
+/// **AUTHORIZATION**: Any
+#[get("/problems/{id}/tests")]
+pub async fn problem_tests(id: Path<i64>, state: AppState) -> impl Responder {
+    Json(state.tests_get_for_problem_id(*id).await)
+}
