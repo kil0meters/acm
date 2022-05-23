@@ -94,7 +94,7 @@ pub fn AccountViewInner(props: &AccountViewProps) -> HtmlResult {
 
                 </div>
 
-                <div>
+                <div class="account-view-content">
                     /* <div class="stats padded card">
 
                     </div> */

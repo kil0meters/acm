@@ -13,6 +13,11 @@
     gap: 24px;
 }
 
+.account-view-content {
+    min-height: auto;
+    margin-bottom: 24px;
+}
+
 .submission-passed {
     color: var(--green);
     font-weight: bold;
