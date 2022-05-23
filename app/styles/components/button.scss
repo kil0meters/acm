@@ -1,5 +1,5 @@
 .button {
-    border: 2px solid;
+    border: 0;
     user-select: none;
     color: white !important;
     cursor: pointer;
@@ -7,41 +7,42 @@
     display: inline-block;
     padding: 12px;
     text-align: center;
+    border-radius: 2px;
 
     &.blue {
 	background-color: var(--blue);
-	border-color: var(--blue-highlight);
+	box-shadow: 0 0 0 2px var(--blue-highlight);
 
 	&:hover, &:focus {
-	    outline: 2px solid var(--blue-highlight);
+	    box-shadow: 0 0 0 4px var(--blue-highlight);
 	}
     }
 
     &.green {
 	background-color: var(--green);
-	border-color: var(--green-highlight);
+	box-shadow: 0 0 0 2px var(--green-highlight);
 
 	&:hover, &:focus {
-	    outline: 2px solid var(--green-highlight);
+	    box-shadow: 0 0 0 4px var(--green-highlight);
 	}
     }
 
     &.red {
 	background-color: var(--red);
-	border-color: var(--red-highlight);
+	box-shadow: 0 0 0 2px var(--red-highlight);
 
 	&:hover, &:focus {
-	    outline: 2px solid var(--red-highlight);
+	    box-shadow: 0 0 0 4px var(--red-highlight);
 	}
     }
 
     &.grey {
 	color: black !important;
 	background-color: var(--grey);
-	border-color: var(--grey-highlight);
+	box-shadow: 0 0 0 2px var(--grey-highlight);
 
 	&:hover, &:focus {
-	    outline: 2px solid var(--grey-highlight);
+	    box-shadow: 0 0 0 4px var(--grey-highlight);
 	}
     }
 }

@@ -7,33 +7,20 @@
     --blue-highlight: hsl(220, 60%, 50%);
     --text: hsl(0, 50%, 8%);
 
-    --grey: hsl(200, 10%, 98%);
+    --grey: hsl(200, 10%, 94%);
     --grey-highlight: hsl(200, 10%, 88%);
 
     --border: hsl(200, 10%, 78%);
+	--background: hsl(200, 10%, 98%);
+	--card-background: white;
 
     --modal-backdrop: rgba(0, 0, 0, 0.7);
 
     font-family: Arial, Helvetica, sans-serif;
 }
 
-body {
-	margin: 0;
-}
-
-.container {
-	display: grid;
-	gap: 12px;
-	grid-template-rows: auto 1fr;
-	height: 100vh;
-	width: 100vw;
-}
-
 @import "navbar.scss";
 @import "tests.scss";
-@import "description.scss";
-@import "editor.scss";
-@import "error.scss";
 @import "auth.scss";
 @import "views/leaderboard.scss";
 @import "views/problem-editor.scss";
@@ -45,9 +32,23 @@ body {
 @import "components/modal.scss";
 @import "components/tests-editor.scss";
 
+body {
+    margin: 0;
+	background-color: var(--background);
+}
+
+.container {
+    display: grid;
+	overflow-x: hidden;
+    grid-template-rows: auto 1fr;
+    height: 100vh;
+    width: 100vw;
+}
+
 .problem-wrapper {
     display: grid;
     gap: 12px;
+	padding: 12px;
     overflow: hidden;
 
     grid-template-columns: 500px auto;
@@ -57,14 +58,12 @@ body {
 h1, h2, h3, h4, h5 {
     &:first-child {
         margin-top: 0;
-	margin-bottom: 12px;
+        margin-bottom: 12px;
     }
 }
 
 .sidebar-wrapper {
     grid-area: sidebar;
-    margin-left: 12px;
-    margin-bottom: 12px;
     display: grid;
     grid-gap: 12px;
 
@@ -75,22 +74,40 @@ h1, h2, h3, h4, h5 {
 
 .content-wrapper {
     grid-area: content;
-    margin-right: 12px;
-    margin-bottom: 12px;
     display: grid;
     grid-gap: 12px;
 
     grid-template-rows: 1fr auto;
-    grid-template-areas: "editor"
-			 "code-runner";
 }
 
 pre {
     font-size: 1.2em;
     padding: 12px;
+	border-radius: 4px;
     background-color: var(--grey);
 }
 
 .code-editor {
-	height: 100%;
+    height: 100%;
 }
+
+* {
+    transition: 50ms ease-in-out;
+	min-height: 0;
+}
+
+.card {
+	background-color: var(--card-background);
+	border-radius: 4px;
+	outline: 2px solid var(--border);
+}
+
+.padded {
+	padding: 12px;
+}
+
+.description {
+	overflow: auto;
+}
+
+@import "error.scss";

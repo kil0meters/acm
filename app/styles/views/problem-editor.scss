@@ -2,13 +2,11 @@
     display: grid;
     gap: 12px;
     grid-template-columns: 1fr 2fr;
+    padding: 12px;
     overflow: hidden;
 }
 
 .problem-editor-content {
-    margin: 0 12px 12px 0;
-    overflow: hidden;
-
     display: grid;
     grid-template-rows: 1fr auto;
     grid-template-columns: 1fr;
@@ -16,18 +14,8 @@
     gap: 12px;
 }
 
-.problem-editor-main {
-    grid-area: editor;
-    border: 2px solid var(--border);
-    overflow: hidden;
-}
-
 .problem-editor-sidebar {
-    overflow: hidden;
     display: grid;
     grid-template-rows: auto 1fr;
-    grid-template-areas: "title" "editor";
     grid-gap: 12px;
-    margin-bottom: 12px;
-    margin-left: 12px;
 }

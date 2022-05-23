@@ -27,10 +27,12 @@ fn ProblemListing(props: &ProblemListingProps) -> Html {
     div.set_inner_html(&markdown::to_html(&props.problem.description));
 
     html! {
-        <Link<Route> classes="problem-listing" to={Route::Problem { id: props.problem.id }}>
+        <Link<Route> classes="problem-listing padded card" to={Route::Problem { id: props.problem.id }}>
             <h1>{ &props.problem.title }</h1>
 
             { Html::VRef(div.into()) }
+
+            <span class="cover" />
         </Link<Route>>
 
     }

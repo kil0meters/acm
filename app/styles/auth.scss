@@ -1,8 +1,6 @@
 .auth-wrapper {
     max-width: 600px;
-    margin: 48px auto;
-    border: 2px solid var(--border);
-    padding: 12px;
+    margin: 24px auto;
 
     h1 {
 	font-weight: bolder;
@@ -18,7 +16,8 @@
 }
 
 .authorize-form-input {
-    border: none;
+    border: 0;
+    border-radius: 2px;
     outline: 2px solid var(--border);
     padding: 8px;
     display: block;

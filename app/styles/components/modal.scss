@@ -1,29 +1,21 @@
 .modal {
     position: fixed;
-
     left: 0;
     top: 0;
     width: 100vw;
     height: 100vh;
-
     background-color: var(--modal-backdrop);
-
     z-index: 999;
 }
 
-.modal-view {
-    background: white;
-    border: 2px solid var(--border);
-    padding: 12px;
-}
-
 .modal-button {
-    position: fixed;
+    position: absolute;
     right: 12px;
     top: 12px;
 }
 
 .modal-wrapper {
+    position: relative;
     max-width: 500px;
     margin: auto;
     margin-top: 30vh;

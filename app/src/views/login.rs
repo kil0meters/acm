@@ -74,7 +74,7 @@ pub fn LoginView() -> Html {
         <>
             <Navbar />
 
-            <div class="auth-wrapper">
+            <div class="auth-wrapper padded card">
                 if let Some(e) = &*error {
                     <ErrorBox>{ e }</ErrorBox>
                 }

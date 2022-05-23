@@ -11,7 +11,7 @@ pub struct ErrorBoxProps {
 #[function_component]
 pub fn ErrorBox(props: &ErrorBoxProps) -> Html {
     html! {
-        <div class="error">
+        <div class="padded card error">
             <h2>{ "error." }</h2>
 
             { for props.children.iter() }

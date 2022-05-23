@@ -49,7 +49,7 @@ pub fn SignupView() -> Html {
         <>
             <Navbar />
 
-            <div class="auth-wrapper">
+            <div class="auth-wrapper padded card">
                 <h1>{ "Join." }</h1>
 
                 <form name="signup-form" class="auth-form" onsubmit={ submit_form } method="POST">

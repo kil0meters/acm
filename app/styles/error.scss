@@ -1,13 +1,5 @@
 .error {
     color: white;
     background-color: var(--red);
-    border: 2px solid var(--red-highlight);
-    padding: 8px;
-    margin-bottom: 12px;
-
-    h2 {
-        font-weight: bold;
-	font-size: 1.2em;
-	margin: 0 0 12px 0;
-    }
+    outline-color: var(--red-highlight);
 }

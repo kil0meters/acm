@@ -7,6 +7,7 @@ use yew::prelude::*;
 #[derive(Properties, PartialEq)]
 pub struct ModalProps {
     pub children: Children,
+    pub shown: bool,
     pub onclose: Callback<()>,
 }
 
@@ -14,13 +15,18 @@ pub struct ModalProps {
 pub fn Modal(props: &ModalProps) -> Html {
     let onclose = props.onclose.clone();
     html! {
-        <div class="modal">
-            <button class="button grey modal-button" onclick={Callback::from(move |_| {
-                onclose.emit(());
-            })}>{ "Close" }</button>
-            <div class="modal-wrapper">
-                { for props.children.iter() }
+        if props.shown {
+            <div class="modal">
+                <div class="modal-wrapper">
+                    { for props.children.iter() }
+
+                    <button class="button grey modal-button" onclick={Callback::from(move |_| {
+                        onclose.emit(());
+                    })}>{ "Close" }</button>
+                </div>
             </div>
-        </div>
+        } else {
+            <></>
+        }
     }
 }

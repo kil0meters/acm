@@ -1,8 +1,6 @@
 .markdown-editor {
-    grid-area: editor;
     overflow: hidden;
     display: grid;
-    border: 2px solid var(--border);
     grid-template-rows: auto 1fr;
 }
 
@@ -14,12 +12,12 @@
 .title-input {
     font-weight: bold;
     font-size: 1.4em;
-    border: 2px solid var(--border);
-    outline: none;
     padding: 8px;
+    border: 0;
+    box-shadow: 0 0 0 2px var(--border);
 
     &:hover {
-        outline: 2px solid var(--border);
+        box-shadow: 0 0 0 4px var(--border);
     }
 }
 

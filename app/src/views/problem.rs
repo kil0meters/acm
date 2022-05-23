@@ -46,21 +46,19 @@ fn TestEntry(props: &TestEntryProps) -> Html {
         <>
             <button class="button grey" onclick={show_modal}>{ format!("Test #{}", props.test.index) }</button>
 
-            if *modal_shown {
-                <Modal onclose={hide_modal}>
-                    <div class="modal-view">
-                        <h1>{ "Test #" } { props.test.index }</h1>
+            <Modal shown={*modal_shown} onclose={hide_modal}>
+                <div class="padded card">
+                    <h1>{ "Test #" } { props.test.index }</h1>
 
-                        <pre>
-                            <code>{ &props.test.input }</code>
-                        </pre>
+                    <pre>
+                        <code>{ &props.test.input }</code>
+                    </pre>
 
-                        <pre>
-                            <code>{ &props.test.expected_output }</code>
-                        </pre>
-                    </div>
-                </Modal>
-            }
+                    <pre>
+                        <code>{ &props.test.expected_output }</code>
+                    </pre>
+                </div>
+            </Modal>
         </>
     }
 }
@@ -98,25 +96,23 @@ fn TestResultEntry(props: &TestResultEntryProps) -> Html {
             }
             onclick={show_modal}>{ format!("Test #{}", props.result.index) }</button>
 
-            if *modal_shown {
-                <Modal onclose={hide_modal}>
-                    <div class="modal-view">
-                        <h1>{ "Test #" } { props.result.index }</h1>
+            <Modal shown={*modal_shown} onclose={hide_modal}>
+                <div class="padded card">
+                    <h1>{ "Test #" } { props.result.index }</h1>
 
-                        <pre>
-                            <code>{ &props.result.input }</code>
-                        </pre>
+                    <pre>
+                        <code>{ &props.result.input }</code>
+                    </pre>
 
-                        <pre>
-                            <code>{ &props.result.expected_output }</code>
-                        </pre>
+                    <pre>
+                        <code>{ &props.result.expected_output }</code>
+                    </pre>
 
-                        <pre>
-                            <code>{ &props.result.output }</code>
-                        </pre>
-                    </div>
-                </Modal>
-            }
+                    <pre>
+                        <code>{ &props.result.output }</code>
+                    </pre>
+                </div>
+            </Modal>
         </>
     }
 }
@@ -214,15 +210,19 @@ fn Tests(props: &TestsProps) -> HtmlResult {
     };
 
     Ok(html! {
-        <div class="tests-wrapper">
+        <div class="tests-wrapper card">
+            <a class="hide-tests" onclick={onclick}>
+                {
+                    if *shown { "Hide tests" }
+                    else { "Show tests" }
+                }
+            </a>
+
             if *shown {
-                <a class="hide-tests" onclick={onclick}>{ "Hide tests" }</a>
-                <div class="tests">
+                <div class="padded tests">
                     { tests_html }
                 </div>
-            } else {
-                <a class="hide-tests" onclick={onclick}>{ "Show tests" }</a>
-            }
+            } else {}
         </div>
     })
 }
@@ -245,7 +245,7 @@ fn Description(props: &DescriptionProps) -> Html {
     div.set_inner_html(&markdown::to_html(&props.content));
 
     html! {
-        <div class="description-wrapper">
+        <div class="description padded card">
             <h1>{ props.title.clone() }</h1>
 
             { Html::VRef(div.into()) }
@@ -286,7 +286,7 @@ fn ProblemEditor(props: &ProblemEditorProps) -> Html {
     });
 
     html! {
-        <div class="editor-wrapper" {onfocusout}>
+        <div class="card" {onfocusout}>
             <CodeEditor options = {options}/>
         </div>
     }
@@ -346,11 +346,11 @@ fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
                     <Description title={ problem.title.clone() } content={ problem.description.clone() } />
                 </div>
                 <div class="content-wrapper">
+                    <ProblemEditor {id} template={ problem.template.clone() } />
+
                     <div class="code-runner-wrapper">
                         <button class="button green" onclick={submit}>{ "Submit" }</button>
                     </div>
-
-                    <ProblemEditor {id} template={ problem.template.clone() } />
                 </div>
             </div>
         }),

@@ -4,7 +4,9 @@
     grid-template-columns: 1fr auto;
     grid-template-areas: "links signup";
     padding: 8px;
-    border-bottom: 2px solid var(--border);
+    min-height: auto;
+    box-shadow: 0 0 0 2px var(--border);
+    background-color: var(--card-background);
 }
 
 .navbar-links {

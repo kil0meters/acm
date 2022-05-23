@@ -34,7 +34,7 @@ fn MarkdownEditor() -> Html {
 
     let preview_tmp = preview.clone();
     html! {
-        <div class="markdown-editor" onfocusout={dispatch.reduce_mut_callback(move |state| {
+        <div class="markdown-editor card" onfocusout={dispatch.reduce_mut_callback(move |state| {
             state.problem_editor.description = description.get_value()
         })}>
             <div class="top-row">
@@ -160,14 +160,12 @@ pub fn ProblemEditorView() -> Html {
             <Navbar />
 
             <div class="problem-editor-wrapper">
-                if let Some(e) = &*error {
-                    <Modal onclose = { clear_error }>
-                        <ErrorBox>{ e }</ErrorBox>
-                    </Modal>
-                }
+                <Modal shown={error.is_some()} onclose = { clear_error }>
+                    <ErrorBox>{ error.as_ref().map(|x| x.clone()).unwrap_or_default() }</ErrorBox>
+                </Modal>
 
                 <div class="problem-editor-sidebar">
-                <input value={title} class="title-input" oninput={dispatch.reduce_mut_callback_with(|state, e: InputEvent| {
+                <input value={title} class="title-input card" oninput={dispatch.reduce_mut_callback_with(|state, e: InputEvent| {
                     let title = e.target_unchecked_into::<HtmlInputElement>().value();
                     state.problem_editor.title = title;
                 })} />
@@ -175,7 +173,7 @@ pub fn ProblemEditorView() -> Html {
                 </div>
 
                 <div class="problem-editor-content">
-                    <Tabbed class="problem-editor-main" titles={ vec!["runner", "template", "tests"] }>
+                    <Tabbed class="card" titles={ vec!["runner", "template", "tests"] }>
                         <div onfocusout={dispatch.reduce_mut_callback(move |state| {
                             state.problem_editor.runner = runner_code.get_value()
                         })}><CodeEditor options = { runner_editor_options } /></div>
