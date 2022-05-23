@@ -12,7 +12,7 @@ use yew_router::prelude::*;
 use yewdux::prelude::*;
 
 use crate::{
-    components::{CodeEditor, ErrorBox, Modal, Navbar, Tabbed, TestsEditor},
+    components::{CodeEditor, Navbar, Tabbed, TestsEditor},
     state::State,
     Route,
 };
@@ -66,6 +66,55 @@ fn MarkdownEditor() -> Html {
     }
 }
 
+async fn submit_problem_request(token: String, navigator: Navigator) -> Option<()> {
+    let dispatch = Dispatch::<State>::new();
+    let state = dispatch.get();
+
+    let res: Value = Request::post("/api/create-problem")
+        .header("Authorization", &format!("Bearer {}", token))
+        .json(&state.problem_editor)
+        .ok()?
+        .send()
+        .await
+        .ok()?
+        .json()
+        .await
+        .ok()?;
+
+    if let Some(id) = res.get("id") {
+        dispatch.reduce_mut(|state| state.problem_editor = Default::default());
+        navigator.push(&Route::Problem {
+            id: id.as_i64().unwrap(),
+        })
+    } else {
+        dispatch.reduce_mut(|state| state.error = Some(res["error"].as_str().unwrap().to_string()));
+    }
+
+    Some(())
+}
+
+fn submit_problem(token: String, navigator: Navigator) {
+    let dispatch = Dispatch::<State>::new();
+    let state = dispatch.get();
+
+    if state.problem_editor.title.is_empty()
+        || state.problem_editor.description.is_empty()
+        || state.problem_editor.runner.is_empty()
+        || state.problem_editor.template.is_empty()
+    {
+        dispatch.reduce_mut(|state| state.error = Some("One or more required fields is empty.".to_string()));
+        return;
+    }
+
+    let token = token.clone();
+    let navigator = navigator.clone();
+    spawn_local(async move {
+        if let None = submit_problem_request(token, navigator).await {
+            dispatch.reduce_mut(|state| state.error = Some("Encountered an error while submitting problem".to_string()));
+        };
+    });
+}
+
 #[function_component]
 pub fn ProblemEditorView() -> Html {
     let dispatch = Dispatch::<State>::new();
@@ -86,8 +135,6 @@ pub fn ProblemEditorView() -> Html {
     let template_code =
         TextModel::create(&state.problem_editor.template, Some("cpp"), None).unwrap();
 
-    let error: UseStateHandle<Option<String>> = use_state(|| None);
-
     let runner_editor_options =
         Rc::new(CodeEditorOptions::default().with_model(runner_code.clone())).to_sys_options();
     runner_editor_options.set_font_size(Some(18.0));
@@ -100,70 +147,13 @@ pub fn ProblemEditorView() -> Html {
 
     // This basically just takes all of the entered data by the user and submits that to the
     // server, thereby creating a problem or an error.
-    let create_problem = {
-        let error = error.clone();
-        let dispatch = dispatch.clone();
-
-        Callback::from(move |_| {
-            let state = dispatch.get();
-
-            if state.problem_editor.title.is_empty()
-                || state.problem_editor.description.is_empty()
-                || state.problem_editor.runner.is_empty()
-                || state.problem_editor.template.is_empty()
-            {
-                error.set(Some("One or more required fields is empty.".to_string()));
-                return;
-            }
-
-            let token = token.clone();
-            let state = state.clone();
-            let dispatch = dispatch.clone();
-            let error = error.clone();
-            let navigator = navigator.clone();
-            spawn_local(async move {
-                let res: Value = Request::post("/api/create-problem")
-                    .header("Authorization", &format!("Bearer {}", token))
-                    .json(&state.problem_editor)
-                    .unwrap()
-                    .send()
-                    .await
-                    .unwrap()
-                    .json()
-                    .await
-                    .unwrap();
-
-                if let Some(id) = res.get("id") {
-                    dispatch.reduce_mut(|state| state.problem_editor = Default::default());
-                    navigator.push(&Route::Problem {
-                        id: id.as_i64().unwrap(),
-                    })
-                } else {
-                    error.set(Some(res["error"].as_str().unwrap().to_string()))
-                }
-            });
-        })
-    };
-
-    // Simple callback function to stop showing the error dialog. Ideally this would be handled on
-    // the side of the error dialog, but that didn't seem to be possible when I wrote this *shrug*
-    let clear_error = {
-        let error = error.clone();
-
-        Callback::from(move |_| {
-            error.set(None);
-        })
-    };
+    let create_problem = Callback::from(move |_| submit_problem(token.to_string(), navigator.clone()));
 
     html! {
         <div class="container">
             <Navbar />
 
             <div class="problem-editor-wrapper">
-                <Modal shown={error.is_some()} onclose = { clear_error }>
-                    <ErrorBox>{ error.as_ref().map(|x| x.clone()).unwrap_or_default() }</ErrorBox>
-                </Modal>
-
                 <div class="problem-editor-sidebar">
                 <input value={title} class="title-input card" oninput={dispatch.reduce_mut_callback_with(|state, e: InputEvent| {
                     let title = e.target_unchecked_into::<HtmlInputElement>().value();

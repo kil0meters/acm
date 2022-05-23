@@ -2,11 +2,13 @@
 
 use acm::models::{
     forms::RunTestsForm,
+    runner::{RunnerResponse, RunnerError},
     test::{Test, TestResult},
     Problem,
 };
 use gloo_net::http::Request;
 use monaco::api::{CodeEditorOptions, TextModel};
+use thiserror::Error;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew::suspense::{use_future, Suspense};
@@ -125,15 +127,13 @@ struct TestsProps {
 #[function_component]
 fn Tests(props: &TestsProps) -> HtmlResult {
     let problem_id = props.problem_id;
+    let dispatch = Dispatch::<State>::new();
 
-    let shown = use_state(|| false);
     let test_results =
         use_selector(move |state: &State| state.test_results.get(&problem_id).map(|x| x.clone()));
+    let shown = use_selector(move |state: &State| state.tests_shown);
 
-    let onclick = {
-        let shown = shown.clone();
-        Callback::from(move |_| shown.set(!*shown))
-    };
+    let onclick = dispatch.reduce_mut_callback(|state| state.tests_shown = !state.tests_shown);
 
     let tests = use_future(|| async move {
         Request::get(&format!("/api/problems/{}/tests", problem_id))
@@ -292,6 +292,72 @@ fn ProblemEditor(props: &ProblemEditorProps) -> Html {
     }
 }
 
+#[derive(Error, Debug)]
+enum ProblemSubmissionError {
+    #[error("You must be logged in to do that")]
+    NotLoggedIn,
+
+    #[error("You have not added any code to the problem")]
+    NoProblemCode,
+}
+
+async fn run_tests(
+    token: &str,
+    form: &RunTestsForm,
+) -> Option<Result<RunnerResponse, RunnerError>> {
+    Some(
+        Request::post("/api/run-tests")
+            .header("Authorization", &format!("Bearer {}", token))
+            .json(&form)
+            .ok()?
+            .send()
+            .await
+            .ok()?
+            .json()
+            .await
+            .ok()?,
+    )
+}
+
+fn submit_code(id: i64) -> Result<(), ProblemSubmissionError> {
+    let dispatch = Dispatch::<State>::new();
+    let state = dispatch.get();
+
+    let token = state
+        .session
+        .as_ref()
+        .ok_or(ProblemSubmissionError::NotLoggedIn)?
+        .token
+        .to_string();
+
+    let problem_code = state
+        .problem_code
+        .get(&id)
+        .ok_or(ProblemSubmissionError::NoProblemCode)?
+        .to_string();
+
+    let form = RunTestsForm {
+        problem_id: id,
+        test_code: problem_code,
+    };
+
+    spawn_local(async move {
+        log::error!("IDK");
+
+        match run_tests(&token, &form).await {
+            Some(res) => dispatch.reduce_mut(|state| {
+                state.test_results.insert(id, res);
+                state.tests_shown = true;
+            }),
+            None => dispatch.reduce_mut(|state| {
+                state.error = Some("Encountered an error while submitting code".to_string());
+            }),
+        }
+    });
+
+    Ok(())
+}
+
 #[derive(Clone, Debug, PartialEq, Properties)]
 pub struct ProblemViewProps {
     pub id: i64,
@@ -299,8 +365,6 @@ pub struct ProblemViewProps {
 
 #[function_component]
 fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
-    let dispatch = Dispatch::<State>::new();
-
     let id = props.id;
     let problem = use_future(|| async move {
         Request::get(&format!("/api/problems/{}", id))
@@ -310,31 +374,11 @@ fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
             .await
     })?;
 
-    let submit = {
-        Callback::from(move |_| {
-            let state = dispatch.get();
-
-            let form = RunTestsForm {
-                problem_id: id,
-                test_code: state.problem_code[&id].clone(),
-            };
-
-            let dispatch = dispatch.clone();
-            spawn_local(async move {
-                let res = Request::post("/api/run-tests")
-                    .json(&form)
-                    .unwrap()
-                    .send()
-                    .await
-                    .unwrap()
-                    .json()
-                    .await
-                    .unwrap();
-
-                dispatch.reduce_mut(|state| state.test_results.insert(id, res));
-            });
-        })
-    };
+    let dispatch = Dispatch::<State>::new();
+    let submit = dispatch.reduce_mut_callback(move |state| match submit_code(id) {
+        Err(e) => state.error = Some(e.to_string()),
+        _ => {}
+    });
 
     match &*problem {
         Ok(problem) => Ok(html! {

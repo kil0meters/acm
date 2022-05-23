@@ -8,11 +8,14 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 use yew::prelude::*;
 use yew_router::prelude::*;
+use yewdux::prelude::*;
 
 mod components;
 mod state;
 mod views;
 
+use components::{Modal, ErrorBox};
+use state::State;
 use views::{
     AccountView, HomeView, LeaderboardView, LoginView, ProblemEditorView, ProblemListView,
     ProblemView, SignupView,
@@ -60,9 +63,26 @@ fn switch(routes: Route) -> Html {
 
 #[function_component]
 fn App() -> Html {
+    let dispatch = Dispatch::<State>::new();
+
+    let dismiss_error = dispatch.reduce_mut_callback(|state| {
+        state.error = None;
+    });
+
+    let error = use_selector(|state: &State| state.error.clone());
+
     html! {
         <BrowserRouter>
             <Switch<Route> render={switch} />
+
+            // Generic error modal used throughout application
+            if let Some(error) = &*error {
+                <Modal shown={true} onclose={dismiss_error}>
+                    <ErrorBox>
+                        { error }
+                    </ErrorBox>
+                </Modal>
+            }
         </BrowserRouter>
     }
 }
