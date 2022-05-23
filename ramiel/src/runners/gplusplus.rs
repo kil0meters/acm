@@ -4,6 +4,7 @@ use async_trait::async_trait;
 use std::fs::{self, File};
 use std::io::Write;
 use std::process::Command;
+use std::time::Instant;
 
 pub struct GPlusPlus {}
 
@@ -64,10 +65,14 @@ impl Runner for GPlusPlus {
 fn run_tests(executable_path: &str, tests: Vec<Test>) -> Result<RunnerResponse, RunnerError> {
     let mut res = RunnerResponse::new();
 
+    let start = Instant::now();
+
     for test in tests {
         let test = run_test_timed(executable_path, test)?;
         res.insert(test);
     }
+
+    res.runtime = start.elapsed().as_millis().try_into().unwrap();
 
     Ok(res)
 }

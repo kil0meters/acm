@@ -22,7 +22,6 @@ impl State {
 
     /// Searches for a user by username, returning their associated data if found
     pub async fn user_query(&self, username: &str) -> sqlx::Result<User> {
-        info!("{:?}", username);
         sqlx::query_as!(
             User,
             r#"SELECT name, username, password, auth as "auth: Auth", star_count FROM users WHERE username = ?"#,
@@ -30,5 +29,15 @@ impl State {
         )
         .fetch_one(&self.conn)
         .await
+    }
+
+    /// Searches for a user by username, returning their user id if found
+    pub async fn get_user_id(&self, username: &str) -> sqlx::Result<i64> {
+        let id = sqlx::query!(r#"SELECT id FROM users WHERE username = ?"#, username)
+            .fetch_one(&self.conn)
+            .await?
+            .id;
+
+        Ok(id)
     }
 }

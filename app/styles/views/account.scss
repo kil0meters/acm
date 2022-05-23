@@ -1,0 +1,43 @@
+.account-view-wrapper {
+    max-width: 1200px;
+    margin: 24px auto;
+
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-gap: 24px;
+    width: 100%;
+}
+
+.previous-submissions {
+    display: grid;
+    gap: 24px;
+}
+
+.submission-passed {
+    color: var(--green);
+    font-weight: bold;
+    font-size: 1.4em;
+    margin-right: 12px;
+}
+
+.submission-failed {
+    color: var(--red);
+    font-weight: bold;
+    font-size: 1.4em;
+}
+
+.submission-runtime {
+    color: var(--green);
+}
+
+.view-problem {
+    float: right;
+    color: var(--text);
+    text-decoration: none;
+    background: none;
+    border: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}

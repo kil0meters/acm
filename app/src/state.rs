@@ -1,7 +1,11 @@
-use acm::models::{forms::CreateProblemForm, Session, runner::{RunnerResponse, RunnerError}};
+use acm::models::{
+    forms::CreateProblemForm,
+    runner::{RunnerError, RunnerResponse},
+    Session,
+};
 use serde::{Deserialize, Serialize};
-use yewdux::store::Store;
 use std::collections::HashMap;
+use yewdux::store::Store;
 
 #[derive(Default, Deserialize, Serialize, PartialEq, Store, Clone)]
 #[store(storage = "local")]

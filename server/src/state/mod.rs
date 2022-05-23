@@ -9,6 +9,7 @@ use std::sync::Arc;
 
 pub mod auth;
 pub mod problems;
+pub mod submissions;
 pub mod users;
 
 pub type AppStateRaw = std::sync::Arc<State>;

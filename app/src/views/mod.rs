@@ -1,13 +1,15 @@
 //! Toplevel views (pages) associated with Routes.
 
-pub mod home;
-pub mod leaderboard;
-pub mod login;
-pub mod problem;
-pub mod problem_editor;
-pub mod problem_list;
-pub mod signup;
+mod account;
+mod home;
+mod leaderboard;
+mod login;
+mod problem;
+mod problem_editor;
+mod problem_list;
+mod signup;
 
+pub use account::AccountView;
 pub use home::HomeView;
 pub use leaderboard::LeaderboardView;
 pub use login::LoginView;

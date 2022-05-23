@@ -51,3 +51,19 @@ impl Default for Auth {
         Auth::MEMBER
     }
 }
+
+#[derive(Deserialize)]
+pub struct Pagination {
+    pub offset: Option<u32>,
+    pub count: Option<u32>,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct Submission {
+    pub problem_id: i64,
+    pub success: bool,
+    pub runtime: i64,
+    pub error: Option<String>,
+    pub code: String,
+}
+

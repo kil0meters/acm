@@ -6,7 +6,6 @@
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-
 use yew::prelude::*;
 use yew_router::prelude::*;
 
@@ -15,12 +14,15 @@ mod state;
 mod views;
 
 use views::{
-    HomeView, LeaderboardView, LoginView, ProblemEditorView, ProblemListView, ProblemView,
-    SignupView,
+    AccountView, HomeView, LeaderboardView, LoginView, ProblemEditorView, ProblemListView,
+    ProblemView, SignupView,
 };
 
 #[derive(Clone, Routable, PartialEq)]
 enum Route {
+    #[at("/u/:username")]
+    Account { username: String },
+
     #[at("/")]
     Home,
 
@@ -45,8 +47,9 @@ enum Route {
 
 fn switch(routes: Route) -> Html {
     match routes {
+        Route::Account { username } => html! { <AccountView {username} /> },
         Route::Home => html! { <HomeView /> },
-        Route::Problem { id } => html! { <ProblemView id={id.clone()} /> },
+        Route::Problem { id } => html! { <ProblemView {id} /> },
         Route::Problems => html! { <ProblemListView /> },
         Route::Leaderboard => html! { <LeaderboardView /> },
         Route::Signup => html! { <SignupView /> },

@@ -13,10 +13,13 @@
     }
 }
 
-.tests-buttons button {
-    margin-right: 12px;
-}
+.tests-buttons {
+    min-height: auto;
 
+    button {
+	margin-right: 12px;
+    }
+}
 .test-editor-col {
     display: grid;
     grid-template-rows: 24px auto;

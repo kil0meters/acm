@@ -4,6 +4,7 @@ use actix_web::{http::StatusCode, HttpResponse};
 use serde::Serialize;
 use serde_json::json;
 
+pub mod account;
 pub mod leaderboard;
 pub mod problems;
 pub mod run;

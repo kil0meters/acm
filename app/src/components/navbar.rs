@@ -32,15 +32,15 @@ pub fn Navbar() -> Html {
 
             // If the user currently has no session, we simply display the signup/login buttons,
             // otherwise we show links to logout or view their account.
-            if (session).is_none() {
+            if let Some(session) = &*session {
                 <div class="signup">
-                    <Link<Route> classes="button blue navbar-link" to={Route::Signup}>{ "Sign up" }</Link<Route>>
-                    <Link<Route> classes="navbar-link" to={Route::Login}>{ "Login" }</Link<Route>>
+                    <Link<Route> classes="button blue navbar-link" to={Route::Account { username: session.user.username.clone() }}>{ "Account" }</Link<Route>>
+                    <button class="navbar-link" onclick={logout}>{ "Logout" }</button>
                 </div>
             } else {
                 <div class="signup">
-                    <Link<Route> classes="button blue navbar-link" to={Route::Signup}>{ "Account" }</Link<Route>>
-                    <button class="navbar-link" onclick={logout}>{ "Logout" }</button>
+                    <Link<Route> classes="button blue navbar-link" to={Route::Signup}>{ "Sign up" }</Link<Route>>
+                    <Link<Route> classes="navbar-link" to={Route::Login}>{ "Login" }</Link<Route>>
                 </div>
             }
         </div>

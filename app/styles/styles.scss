@@ -25,6 +25,7 @@
 @import "views/leaderboard.scss";
 @import "views/problem-editor.scss";
 @import "views/problem-list.scss";
+@import "views/account.scss";
 @import "components/code-runner.scss";
 @import "components/button.scss";
 @import "components/markdown-editor.scss";
@@ -62,6 +63,10 @@ h1, h2, h3, h4, h5 {
     }
 }
 
+pre:last-child {
+    margin-bottom: 0;
+}
+
 .sidebar-wrapper {
     grid-area: sidebar;
     display: grid;
@@ -88,7 +93,7 @@ pre {
 }
 
 .code-editor {
-    height: 100%;
+    height: calc(100% - 4px);
 }
 
 * {

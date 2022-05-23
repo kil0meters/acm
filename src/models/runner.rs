@@ -8,6 +8,9 @@ use crate::models::test::TestResult;
 pub struct RunnerResponse {
     pub failed_tests: BTreeSet<TestResult>,
     pub passed_tests: BTreeSet<TestResult>,
+
+    // runtime, stored as milliseconds
+    pub runtime: i64,
 }
 
 impl RunnerResponse {
@@ -15,6 +18,7 @@ impl RunnerResponse {
         Self {
             failed_tests: BTreeSet::new(),
             passed_tests: BTreeSet::new(),
+            runtime: 0,
         }
     }
 

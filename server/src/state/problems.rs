@@ -67,7 +67,7 @@ impl State {
     pub async fn tests_get_for_problem_id(&self, problem_id: i64) -> Vec<Test> {
         sqlx::query_as!(
             Test,
-            r#"SELECT test_number as [index], input, expected_output FROM tests WHERE problem_id = ?"#,
+            r#"SELECT id, test_number as [index], input, expected_output FROM tests WHERE problem_id = ?"#,
             problem_id
         )
         .fetch_all(&self.conn)
