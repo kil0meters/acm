@@ -1,7 +1,7 @@
 //! Queries involving users.
 
-use super::State;
-use acm::models::{Auth, User};
+use super::{auth::Claims, State};
+use acm::models::{Auth, Session, User};
 use log::info;
 
 impl State {
@@ -39,5 +39,17 @@ impl State {
             .id;
 
         Ok(id)
+    }
+
+    pub fn get_session(&self, user: User) -> Session {
+        let claims = Claims {
+            username: user.username.clone(),
+            exp: usize::MAX,
+            auth: user.auth,
+        };
+
+        let token = self.create_token(&claims);
+
+        Session { token, user }
     }
 }

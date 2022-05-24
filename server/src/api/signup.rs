@@ -2,7 +2,7 @@
 
 use acm::models::{
     forms::{LoginForm, SignupForm},
-    User,
+    User, Session,
 };
 use actix_web::{http::StatusCode, post, web::Json, Responder};
 use log::{error, info};
@@ -45,7 +45,7 @@ async fn signup(form: Json<SignupForm>, state: AppState) -> impl Responder {
     match state.user_add(&user).await {
         Ok(_) => {
             info!("new user created: {:?}", user);
-            api_success(user)
+            api_success(state.get_session(user))
         }
         Err(e) => {
             error!("during signup {:?} error: {:?}", user, e);
@@ -67,18 +67,7 @@ async fn login(form: Json<LoginForm>, state: AppState) -> impl Responder {
     match state.get_ref().user_query(&form.username).await {
         Ok(user) => {
             if verify_password(&form.username, &form.password, &user) {
-                let claims = Claims {
-                    username: user.username.clone(),
-                    exp: usize::MAX,
-                    auth: user.auth,
-                };
-
-                let token = state.create_token(&claims);
-
-                api_success(json!({
-                    "token": token,
-                    "user": user
-                }))
+                api_success(state.get_session(user))
             } else {
                 api_error(StatusCode::NOT_FOUND, "Incorrect password.")
             }
