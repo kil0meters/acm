@@ -22,8 +22,8 @@ pub struct State {
 }
 
 impl State {
-    pub async fn new_state() -> AppStateRaw {
-        let conn = SqlPool::connect("./db.sqlite").await.unwrap();
+    pub async fn new(database_url: &str) -> AppStateRaw {
+        let conn = SqlPool::connect(database_url).await.unwrap();
 
         // TODO: Implement proper JWT secret and config management
         Arc::new(State {
