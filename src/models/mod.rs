@@ -67,3 +67,10 @@ pub struct Submission {
     pub code: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(feature = "sqlx", derive(sqlx::FromRow))]
+pub struct LeaderboardItem {
+    pub username: String,
+    pub name: String,
+    pub count: i64,
+}

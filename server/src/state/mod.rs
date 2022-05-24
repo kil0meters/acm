@@ -8,6 +8,7 @@ use crate::SqlPool;
 use std::sync::Arc;
 
 pub mod auth;
+pub mod leaderboard;
 pub mod problems;
 pub mod submissions;
 pub mod users;

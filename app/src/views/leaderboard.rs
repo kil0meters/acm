@@ -2,77 +2,73 @@
 //!
 //! Ideally this would be setup in a non-competitive manner.
 
+use acm::models::LeaderboardItem;
 use gloo_net::http::Request;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
+use yew_router::prelude::*;
+use yew::suspense::{use_future, Suspense};
 
-use crate::components::Navbar;
+use crate::{components::Navbar, Route};
 
 #[derive(Debug, PartialEq, Properties, Serialize, Deserialize)]
-pub struct LeaderboardItemProps {
-    name: String,
-    username: String,
-    star_count: i32,
+struct LeaderboardEntryProps {
+    item: LeaderboardItem,
+    position: usize,
 }
 
 #[function_component]
-fn LeaderboardItem(props: &LeaderboardItemProps) -> Html {
+fn LeaderboardEntry(props: &LeaderboardEntryProps) -> Html {
     html! {
-        <div class="leaderboard-item">
-            <img class="profile-picture" src="https://via.placeholder.com/512" />
-            <a class="name" href="/profile/{props.username.clone()}">{props.name.clone()}</a>
-            <span class="star-count">{ format!("{} Stars", props.star_count) }</span>
-        </div>
+        <Link<Route> to={Route::Account { username: props.item.username.clone() }} classes="padded leaderboard-item">
+            <span class="leaderboard-rank">{ props.position }</span>
+            <span class="leaderboard-name">{ &props.item.name }</span>
+            <span class="leaderboard-username">{ &props.item.username }</span>
+            <span class="leaderboard-stars">{ props.item.count } { if props.item.count > 1 { " Stars" } else { " Star" } } </span>
+        </Link<Route>>
     }
+}
+
+#[function_component] fn LeaderboardViewInner() -> HtmlResult {
+    let leaderboard_items = use_future(|| async move {
+        Request::get("/api/leaderboard/first-place")
+            .send()
+            .await?
+            .json::<Vec<LeaderboardItem>>()
+            .await
+    })?;
+
+    let list_html = match &*leaderboard_items {
+        Ok(items) => {
+            items.iter().enumerate().map(|(i, item)| {
+                html!{
+                    <LeaderboardEntry position={i+1} item={item.clone()} />
+                }
+            }).collect::<Html>()
+        },
+        Err(e) => html!{ e }
+    };
+
+    Ok(html! {
+        <div class="leaderboard-list card">
+            { list_html }
+        </div>
+    })
 }
 
 #[function_component]
 pub fn LeaderboardView() -> Html {
-    let leaderboard_items = use_state(|| Vec::<LeaderboardItemProps>::new());
-
-    {
-        let leaderboard_items = leaderboard_items.clone();
-
-        // use_effect_with_deps with no arguments here makes the code within the closure executed
-        // exactly once, rather than each time the component is built. This is essential to avoid
-        // inappropriate fetches.
-        use_effect_with_deps(
-            move |_| {
-                spawn_local(async move {
-                    let res = Request::get("http://127.0.0.1:8080/api/leaderboard")
-                        .send()
-                        .await
-                        .unwrap()
-                        .json::<Vec<LeaderboardItemProps>>()
-                        .await
-                        .unwrap();
-
-                    leaderboard_items.set(res);
-                });
-
-                || ()
-            },
-            (),
-        );
-    }
-
     html! {
-        <>
+        <div class="container">
             <Navbar />
-
             <div class="leaderboard-wrapper">
-            {
-                leaderboard_items.iter().map(|props| {
-                    html! {
-                        <LeaderboardItem name={props.name.clone()}
-                                         username={props.username.clone()}
-                                         star_count={props.star_count.clone()} />
-                    }
-                }).collect::<Html>()
-            }
-            </div>
+                <h1>{"Leaderboard"}</h1>
 
-        </>
+                <Suspense>
+                    <LeaderboardViewInner />
+                </Suspense>
+            </div>
+        </div>
     }
 }

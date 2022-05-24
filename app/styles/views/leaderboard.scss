@@ -1,30 +1,56 @@
 .leaderboard-wrapper {
-    display: grid;
-    max-width: 1200px;
-    margin: 12px auto;
-    display: grid;
-    gap: 8px;
-    font-size: 1.4em;
-    border: 2px solid var(--border);
+    width: 100%;
+    max-width: 800px;
+    margin: 24px auto;
+}
+
+.leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    min-height: auto;
 }
 
 .leaderboard-item {
-    display: flex;
-    flex-direction: row;
-    gap: 12px;
-    height: 150px;
+    display: grid;
+    grid-template-areas: "rank name stars"
+			 "rank username stars";
+    text-decoration: none;
+    column-gap: 12px;
+    row-gap: 4px;
+    grid-template-columns: auto 1fr;
+    color: black;
 
-    border-bottom: 2px solid var(--border);
+    &:hover {
+	text-decoration: underline;
+    }
 
-    img {
-	max-height: 100%;
+    &:not(:last-child) {
+	border-bottom: 2px solid var(--border);
     }
 }
 
-.name {
-    align-self: center;
+.leaderboard-rank {
+    display: flex;
+    align-items: center;
+    font-weight: bolder;
+    grid-area: rank;
+    font-size: 2em;
+    margin: 0 16px;
 }
 
-.star-count {
-    align-self: center;
+.leaderboard-name {
+    grid-area: name;
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.leaderboard-username {
+    grid-area: username;
+}
+
+.leaderboard-stars {
+    display: flex;
+    align-items: center;
+    grid-area: stars;
+    text-align: right;
 }
