@@ -7,6 +7,7 @@ use actix_web::{middleware::Logger, web, App, HttpServer};
 use api::account::user_submissions;
 use api::leaderboard::first_place_finishes;
 use reqwest::Client;
+use clap::Parser;
 
 use api::{
     account::user_info,
@@ -22,8 +23,20 @@ mod state;
 
 pub type SqlPool = sqlx::SqlitePool;
 
+#[derive(Parser)]
+#[clap(author, version, about, long_about = None)]
+struct Args {
+    #[clap(short, long, default_value_t = 8080)]
+    port: u16,
+
+    #[clap(short, long, default_value = "127.0.0.1")]
+    hostname: String,
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let args = Args::parse();
+
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
     let state = State::new_state().await;
@@ -64,7 +77,7 @@ async fn main() -> std::io::Result<()> {
                     })),
             )
     })
-    .bind(SERVER_URL)?
+    .bind(&format!("{}:{}", args.hostname, args.port))?
     .run()
     .await
 }
