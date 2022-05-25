@@ -3,11 +3,11 @@
     gap: 12px;
 	padding: 12px;
     grid-template-columns: 500px auto;
-    min-height: auto;
 
     @media screen and (max-width: $medium) {
         grid-template-rows: auto 1fr;
         grid-template-columns: auto;
+        min-height: auto;
     }
 }
 

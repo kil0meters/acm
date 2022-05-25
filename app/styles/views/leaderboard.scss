@@ -1,8 +1,6 @@
 .leaderboard-wrapper {
-    max-width: 800px;
-    width: 100%;
-    margin: 24px auto;
-    padding: 0 12px;
+    width: min(100% - 24px, 800px);
+    margin: 12px auto;
 }
 
 .leaderboard-list {

@@ -10,16 +10,12 @@
 
 .modal-button {
     position: absolute;
-
-    // because of padding below
-    right: 24px;
+    right: 12px;
     top: 12px;
 }
 
 .modal-wrapper {
     position: relative;
-    max-width: 500px;
-    margin: auto;
-    padding: 0 12px;
-    margin-top: 30vh;
+    margin: 30vh auto 0 auto;
+    width: min(100% - 24px, 400px);
 }
