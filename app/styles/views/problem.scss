@@ -1,0 +1,42 @@
+.problem-wrapper {
+    display: grid;
+    gap: 12px;
+	padding: 12px;
+    grid-template-columns: 500px auto;
+    min-height: auto;
+
+    @media screen and (max-width: $medium) {
+        grid-template-rows: auto 1fr;
+        grid-template-columns: auto;
+    }
+}
+
+.sidebar-wrapper {
+    display: grid;
+    grid-gap: 12px;
+
+    grid-template-rows: auto 1fr;
+
+    @media screen and (max-width: $medium) {
+        min-height: auto;
+        grid-template-rows: auto auto;
+        grid-template-columns: auto;
+    }
+}
+
+.content-wrapper {
+    display: grid;
+    grid-gap: 12px;
+
+    grid-template-rows: 1fr auto;
+
+        @media screen and (max-width: $medium) {
+            height: 50vh;
+            min-height: auto;
+        }
+}
+
+.description {
+	overflow: auto;
+}
+

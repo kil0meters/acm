@@ -4,6 +4,11 @@
     grid-template-columns: 1fr 2fr;
     padding: 12px;
     overflow: hidden;
+
+    @media screen and (max-width: $medium) {
+        grid-template-rows: 1fr 1fr;
+        grid-template-columns: auto;
+    }
 }
 
 .problem-editor-content {
@@ -12,6 +17,7 @@
     grid-template-columns: 1fr;
     grid-template-areas: "editor" "code-runner";
     gap: 12px;
+
 }
 
 .problem-editor-sidebar {

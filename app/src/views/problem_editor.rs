@@ -102,7 +102,9 @@ fn submit_problem(token: String, navigator: Navigator) {
         || state.problem_editor.runner.is_empty()
         || state.problem_editor.template.is_empty()
     {
-        dispatch.reduce_mut(|state| state.error = Some("One or more required fields is empty.".to_string()));
+        dispatch.reduce_mut(|state| {
+            state.error = Some("One or more required fields is empty.".to_string())
+        });
         return;
     }
 
@@ -110,7 +112,9 @@ fn submit_problem(token: String, navigator: Navigator) {
     let navigator = navigator.clone();
     spawn_local(async move {
         if let None = submit_problem_request(token, navigator).await {
-            dispatch.reduce_mut(|state| state.error = Some("Encountered an error while submitting problem".to_string()));
+            dispatch.reduce_mut(|state| {
+                state.error = Some("Encountered an error while submitting problem".to_string())
+            });
         };
     });
 }
@@ -138,16 +142,15 @@ pub fn ProblemEditorView() -> Html {
     let runner_editor_options =
         Rc::new(CodeEditorOptions::default().with_model(runner_code.clone())).to_sys_options();
     runner_editor_options.set_font_size(Some(18.0));
-    runner_editor_options.set_automatic_layout(Some(true));
 
     let template_editor_options =
         Rc::new(CodeEditorOptions::default().with_model(template_code.clone())).to_sys_options();
     template_editor_options.set_font_size(Some(18.0));
-    template_editor_options.set_automatic_layout(Some(true));
 
     // This basically just takes all of the entered data by the user and submits that to the
     // server, thereby creating a problem or an error.
-    let create_problem = Callback::from(move |_| submit_problem(token.to_string(), navigator.clone()));
+    let create_problem =
+        Callback::from(move |_| submit_problem(token.to_string(), navigator.clone()));
 
     html! {
         <div class="container">

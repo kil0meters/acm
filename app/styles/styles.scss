@@ -19,12 +19,16 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
+$small: 300px;
+$medium: 900px;
+
 @import "navbar.scss";
 @import "tests.scss";
 @import "auth.scss";
 @import "views/leaderboard.scss";
 @import "views/problem-editor.scss";
 @import "views/problem-list.scss";
+@import "views/problem.scss";
 @import "views/account.scss";
 @import "components/code-runner.scss";
 @import "components/button.scss";
@@ -35,7 +39,16 @@
 
 body {
     margin: 0;
-	background-color: var(--background);
+    background-color: var(--background);
+    font-size: 16px;
+
+    @media screen and (max-width: $medium) {
+        font-size: 14px;
+    }
+}
+
+.slide-content .scroller {
+  width: 1024px;
 }
 
 .container {
@@ -44,16 +57,6 @@ body {
     grid-template-rows: auto 1fr;
     height: 100vh;
     width: 100vw;
-}
-
-.problem-wrapper {
-    display: grid;
-    gap: 12px;
-	padding: 12px;
-    overflow: hidden;
-
-    grid-template-columns: 500px auto;
-    grid-template-areas: "sidebar content";
 }
 
 h1, h2, h3, h4, h5 {
@@ -67,29 +70,12 @@ pre:last-child {
     margin-bottom: 0;
 }
 
-.sidebar-wrapper {
-    grid-area: sidebar;
-    display: grid;
-    grid-gap: 12px;
-
-    grid-template-rows: auto 1fr;
-    grid-template-areas: "tests"
-			 "description";
-}
-
-.content-wrapper {
-    grid-area: content;
-    display: grid;
-    grid-gap: 12px;
-
-    grid-template-rows: 1fr auto;
-}
-
 pre {
     font-size: 1.2em;
     padding: 12px;
 	border-radius: 4px;
     background-color: var(--grey);
+    overflow-x: auto;
 }
 
 .code-editor {
@@ -98,8 +84,11 @@ pre {
 }
 
 * {
+    overflow-wrap: anywhere;
     transition: 50ms ease-in-out;
+    box-sizing: border-box;
 	min-height: 0;
+    min-width: 0;
 }
 
 .card {
@@ -110,10 +99,6 @@ pre {
 
 .padded {
 	padding: 12px;
-}
-
-.description {
-	overflow: auto;
 }
 
 @import "error.scss";

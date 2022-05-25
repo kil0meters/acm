@@ -1,25 +1,30 @@
-.navbar-wrapper {
-    display: grid;
+.navbar {
+    display: flex;
     align-items: center;
-    grid-template-columns: 1fr auto;
-    grid-template-areas: "links signup";
+    position: sticky;
+    gap: 12px;
+    top: 0;
+    z-index: 100;
+    align-self: start;
     padding: 8px;
     min-height: auto;
     box-shadow: 0 0 0 2px var(--border);
     background-color: var(--card-background);
+
+    @media screen and (max-width: 768px) {
+	flex-direction: column;
+    }
 }
 
 .navbar-links {
-    grid-area: links;
-}
-
-.signup {
-    grid-area: signup;
+    @media screen and (max-width: 768px) {
+	display: block;
+	align-self: flex-start;
+    }
 }
 
 .navbar-link {
     vertical-align: middle;
-    margin-right: 12px;
     border: none;
     background: none;
     color: var(--text);
@@ -32,11 +37,56 @@
     &:hover {
 	text-decoration: underline;
     }
+
+    @media screen and (max-width: 768px) {
+	align-self: flex-start;
+	display: block;
+
+	&:not(:first-child) {
+	    display: none;
+	}
+    }
+}
+
+.navbar-open {
+    @media screen and (max-width: 768px) {
+	.navbar-link {
+	    display: block;
+	}
+    }
 }
 
 .navbar-title {
-    vertical-align: middle;
+    align-self: flex-start;
     font-size: 1.4em;
-    margin-right: 12px;
     font-weight: bold;
+    display: flex;
+    flex-direction: row;
+}
+
+.title-container {
+    display: flex;
+    flex-direction: row;
+
+    @media screen and (max-width: 768px) {
+	width: 100%;
+    }
+}
+
+.signup-button {
+    margin-left: auto;
+
+    @media screen and (max-width: 768px) {
+	margin: 0;
+    }
+}
+
+.menu-button {
+    display: none !important;
+    margin-left: auto;
+
+    @media screen and (max-width: 768px) {
+	margin-left: auto;
+	display: inline-block !important;
+    }
 }

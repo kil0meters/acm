@@ -10,7 +10,9 @@
 
 .modal-button {
     position: absolute;
-    right: 12px;
+
+    // because of padding below
+    right: 24px;
     top: 12px;
 }
 
@@ -18,5 +20,6 @@
     position: relative;
     max-width: 500px;
     margin: auto;
+    padding: 0 12px;
     margin-top: 30vh;
 }

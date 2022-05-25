@@ -2,7 +2,7 @@
 
 use acm::models::{
     forms::RunTestsForm,
-    runner::{RunnerResponse, RunnerError},
+    runner::{RunnerError, RunnerResponse},
     test::{Test, TestResult},
     Problem,
 };
