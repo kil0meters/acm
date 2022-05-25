@@ -37,7 +37,7 @@
     }
 
     &.grey {
-	color: black !important;
+	color: var(--text) !important;
 	background-color: var(--grey);
 	box-shadow: 0 0 0 2px var(--grey-highlight);
 

@@ -11,10 +11,11 @@ use yew_router::prelude::*;
 use yewdux::prelude::*;
 
 mod components;
+mod helpers;
 mod state;
 mod views;
 
-use components::{Modal, ErrorBox};
+use components::{ErrorBox, Modal};
 use state::State;
 use views::{
     AccountView, HomeView, LeaderboardView, LoginView, ProblemEditorView, ProblemListView,

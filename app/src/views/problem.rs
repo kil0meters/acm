@@ -7,7 +7,7 @@ use acm::models::{
     Problem,
 };
 use gloo_net::http::Request;
-use monaco::api::{CodeEditorOptions, TextModel};
+use monaco::{api::{CodeEditorOptions, TextModel}, sys::editor::BuiltinTheme};
 use thiserror::Error;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
@@ -16,7 +16,7 @@ use yewdux::prelude::*;
 
 use std::rc::Rc;
 
-use crate::components::{CodeEditor, ErrorBox, Modal, Navbar};
+use crate::{components::{CodeEditor, ErrorBox, Modal, Navbar}, helpers::{is_darkmode, themed_editor_with_model}};
 use crate::state::State;
 
 #[derive(Clone, Debug, PartialEq, Properties)]
@@ -276,10 +276,7 @@ fn ProblemEditor(props: &ProblemEditorProps) -> Html {
     };
 
     let code = TextModel::create(code, Some("cpp"), None).unwrap();
-    let options = Rc::new(CodeEditorOptions::default().with_model(code.clone())).to_sys_options();
-
-    options.set_font_size(Some(18.0));
-    options.set_automatic_layout(Some(true));
+    let options = themed_editor_with_model(code.clone());
 
     let onfocusout = dispatch.reduce_mut_callback(move |state| {
         state.problem_code.insert(id, code.get_value());

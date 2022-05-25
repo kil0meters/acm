@@ -14,7 +14,7 @@ use yewdux::prelude::*;
 use crate::{
     components::{CodeEditor, Navbar, Tabbed, TestsEditor},
     state::State,
-    Route,
+    Route, helpers::themed_editor_with_model,
 };
 
 #[function_component]
@@ -26,11 +26,7 @@ fn MarkdownEditor() -> Html {
 
     let preview = use_state(|| false);
 
-    let options =
-        Rc::new(CodeEditorOptions::default().with_model(description.clone())).to_sys_options();
-
-    options.set_font_size(Some(18.0));
-    options.set_automatic_layout(Some(true));
+    let options = themed_editor_with_model(description.clone());
 
     let preview_tmp = preview.clone();
     html! {
@@ -139,13 +135,8 @@ pub fn ProblemEditorView() -> Html {
     let template_code =
         TextModel::create(&state.problem_editor.template, Some("cpp"), None).unwrap();
 
-    let runner_editor_options =
-        Rc::new(CodeEditorOptions::default().with_model(runner_code.clone())).to_sys_options();
-    runner_editor_options.set_font_size(Some(18.0));
-
-    let template_editor_options =
-        Rc::new(CodeEditorOptions::default().with_model(template_code.clone())).to_sys_options();
-    template_editor_options.set_font_size(Some(18.0));
+    let runner_editor_options = themed_editor_with_model(runner_code.clone());
+    let template_editor_options = themed_editor_with_model(template_code.clone());
 
     // This basically just takes all of the entered data by the user and submits that to the
     // server, thereby creating a problem or an error.

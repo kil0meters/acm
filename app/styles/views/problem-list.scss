@@ -14,7 +14,7 @@
     cursor: pointer;
     user-select: none;
     text-decoration: none;
-    color: black;
+    color: var(--text);
     position: relative;
     box-shadow: 0 0 0 2px var(--border);
     max-height: 300px;
@@ -28,26 +28,12 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    height: 30px;
+    height: 50px;
     width: 100%;
 
     background: linear-gradient(
         to bottom,
-        hsla(200, 10.71%, 78.04%, 0) 0%,
-        hsla(200, 10.71%, 78.04%, 0.006) 3.7%,
-        hsla(200, 10.71%, 78.04%, 0.024) 9.1%,
-        hsla(200, 10.71%, 78.04%, 0.052) 15.8%,
-        hsla(200, 10.71%, 78.04%, 0.091) 23.6%,
-        hsla(200, 10.71%, 78.04%, 0.139) 32.1%,
-        hsla(200, 10.71%, 78.04%, 0.196) 41.2%,
-        hsla(200, 10.71%, 78.04%, 0.262) 50.6%,
-        hsla(200, 10.71%, 78.04%, 0.335) 59.9%,
-        hsla(200, 10.71%, 78.04%, 0.415) 68.8%,
-        hsla(200, 10.71%, 78.04%, 0.501) 77.2%,
-        hsla(200, 10.71%, 78.04%, 0.592) 84.6%,
-        hsla(200, 10.71%, 78.04%, 0.689) 90.9%,
-        hsla(200, 10.71%, 78.04%, 0.789) 95.8%,
-        hsla(200, 10.71%, 78.04%, 0.893) 98.9%,
-        hsl(200, 10.71%, 78.04%) 100%
+        rgba(0,0,0,0) 0%,
+        var(--card-background) 100%
     );
 }
