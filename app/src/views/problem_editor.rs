@@ -15,6 +15,7 @@ use crate::{
     components::{CodeEditor, Navbar, Tabbed, TestsEditor},
     state::State,
     Route, helpers::themed_editor_with_model,
+    helpers::parse_markdown
 };
 
 #[function_component]
@@ -50,7 +51,7 @@ fn MarkdownEditor() -> Html {
                         .create_element("div")
                         .unwrap();
 
-                    div.set_inner_html(&markdown::to_html(&state.problem_editor.description));
+                    div.set_inner_html(&parse_markdown(&state.problem_editor.description));
                     div.set_class_name("markdown-preview");
 
                     Html::VRef(div.into())

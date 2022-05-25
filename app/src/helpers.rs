@@ -1,4 +1,5 @@
 use monaco::{sys::editor::{IStandaloneEditorConstructionOptions, BuiltinTheme}, api::{CodeEditorOptions, TextModel}};
+use pulldown_cmark::{Parser, html};
 use web_sys::window;
 use std::rc::Rc;
 
@@ -26,4 +27,11 @@ pub fn themed_editor_with_model(model: TextModel) -> IStandaloneEditorConstructi
     options.set_automatic_layout(Some(true));
 
     options
+}
+
+pub fn parse_markdown(content: &str) -> String {
+    let parser = Parser::new(&content);
+    let mut output = String::new();
+    html::push_html(&mut output, parser);
+    output
 }

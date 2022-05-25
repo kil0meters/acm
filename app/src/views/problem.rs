@@ -16,7 +16,7 @@ use yewdux::prelude::*;
 
 use std::rc::Rc;
 
-use crate::{components::{CodeEditor, ErrorBox, Modal, Navbar}, helpers::{is_darkmode, themed_editor_with_model}};
+use crate::{components::{CodeEditor, ErrorBox, Modal, Navbar}, helpers::{is_darkmode, themed_editor_with_model, parse_markdown}};
 use crate::state::State;
 
 #[derive(Clone, Debug, PartialEq, Properties)]
@@ -242,7 +242,7 @@ fn Description(props: &DescriptionProps) -> Html {
         .create_element("div")
         .unwrap();
 
-    div.set_inner_html(&markdown::to_html(&props.content));
+    div.set_inner_html(&parse_markdown(&props.content));
 
     html! {
         <div class="description padded card">
@@ -339,8 +339,6 @@ fn submit_code(id: i64) -> Result<(), ProblemSubmissionError> {
     };
 
     spawn_local(async move {
-        log::error!("IDK");
-
         match run_tests(&token, &form).await {
             Some(res) => dispatch.reduce_mut(|state| {
                 state.test_results.insert(id, res);

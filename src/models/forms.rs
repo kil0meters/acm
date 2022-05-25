@@ -1,21 +1,27 @@
-use lazy_static::lazy_static;
-use regex::Regex;
 use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "validate")]
+use lazy_static::lazy_static;
+#[cfg(feature = "validate")]
+use regex::Regex;
+#[cfg(feature = "validate")]
 use validator::Validate;
 
 use crate::models::{test::Test, User};
 
+#[cfg(feature = "validate")]
 lazy_static! {
     static ref RE_PASSWORD: Regex = Regex::new(r"[a-zA-Z0-9!@#$%^&*()\s]{8,256}").unwrap();
     static ref RE_USERNAME: Regex = Regex::new(r"[a-zA-Z0-9]{1,16}").unwrap();
 }
 
-#[derive(Debug, Deserialize, Validate, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "validate", derive(Validate))]
 pub struct SignupForm {
     pub name: String,
-    #[validate(regex = "RE_USERNAME")]
+    #[cfg_attr(feature = "validate", validate(regex = "RE_USERNAME"))]
     pub username: String,
-    #[validate(regex = "RE_PASSWORD")]
+    #[cfg_attr(feature = "validate", validate(regex = "RE_PASSWORD"))]
     pub password: String,
 }
 

@@ -6,8 +6,7 @@ use yew::prelude::*;
 use yew::suspense::use_future;
 use yew_router::prelude::*;
 
-use crate::components::Navbar;
-use crate::Route;
+use crate::{components::Navbar, helpers::parse_markdown, Route};
 
 #[derive(PartialEq, Properties)]
 struct ProblemListingProps {
@@ -24,7 +23,7 @@ fn ProblemListing(props: &ProblemListingProps) -> Html {
         .unwrap();
 
     div.set_class_name("problem-listing-description");
-    div.set_inner_html(&markdown::to_html(&props.problem.description));
+    div.set_inner_html(&parse_markdown(&props.problem.description));
 
     html! {
         <Link<Route> classes="problem-listing padded card" to={Route::Problem { id: props.problem.id }}>

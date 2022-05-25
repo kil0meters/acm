@@ -7,7 +7,7 @@ version = "0.1.0"
 acm = { path = ".." }
 gloo-net = "0.2"
 log = "0.4"
-markdown = "0.3"
+pulldown-cmark = { version = "0.9.1", default-features = false, features = ["simd"] }
 monaco = { git = "https://github.com/siku2/rust-monaco" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
