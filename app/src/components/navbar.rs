@@ -5,7 +5,7 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 use yewdux::prelude::*;
 
-use crate::{state::State, Route};
+use crate::{state::State, Route, helpers::is_officer};
 
 #[function_component]
 pub fn Navbar() -> Html {
@@ -32,11 +32,10 @@ pub fn Navbar() -> Html {
             </div>
 
             <Link<Route> classes="navbar-link" to={Route::Problems}>{ "Problems" }</Link<Route>>
+            <Link<Route> classes="navbar-link" to={Route::Meetings}>{ "Meetings" }</Link<Route>>
             <Link<Route> classes="navbar-link" to={Route::Leaderboard}>{ "Leaderboard" }</Link<Route>>
 
-            // If logged in and of sufficient rank
-            // this is awful.
-            if let Some(Session { user: User { auth: Auth::OFFICER | Auth::ADMIN, .. }, ..}) = &*session {
+            if is_officer(&*session) {
                 <Link<Route> classes="navbar-link" to={Route::ProblemEditor}>{ "Create Problem" }</Link<Route>>
             }
 

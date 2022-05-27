@@ -28,30 +28,3 @@
     display: grid;
     gap: 14px;
 }
-
-.test {
-    padding: 12px;
-    border: 2px solid;
-    border-radius: 0;
-    text-decoration: none;
-    color: white;
-    overflow-y: auto;
-
-    &.success {
-	background-color: var(--green);
-	border-color: var(--green-highlight);
-
-	&:hover {
-	    background-color: var(--green-highlight);
-	}
-    }
-
-    &.failure {
-	background-color: var(--red);
-	border-color: var(--red-highlight);
-
-	&:hover {
-	    background-color: var(--red-highlight);
-	}
-    }
-}

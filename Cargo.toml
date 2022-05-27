@@ -9,6 +9,7 @@ default-members = ["server"]
 
 [dependencies]
 lazy_static = { version = "1.4", optional = true }
+chrono = { version = "0.4", features = ["serde"] }
 regex = { version = "1.5", optional = true }
 serde = { version = "1.0", features = ["derive"] }
 sqlx = { version = "0.5", features = ["runtime-actix-rustls", "sqlite"], optional = true }

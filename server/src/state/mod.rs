@@ -9,6 +9,7 @@ use std::sync::Arc;
 
 pub mod auth;
 pub mod leaderboard;
+pub mod meetings;
 pub mod problems;
 pub mod submissions;
 pub mod users;

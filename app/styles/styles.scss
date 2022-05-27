@@ -30,24 +30,8 @@
     }
 }
 
-
 $small: 300px;
 $medium: 900px;
-
-@import "navbar.scss";
-@import "tests.scss";
-@import "auth.scss";
-@import "views/leaderboard.scss";
-@import "views/problem-editor.scss";
-@import "views/problem-list.scss";
-@import "views/problem.scss";
-@import "views/account.scss";
-@import "components/code-runner.scss";
-@import "components/button.scss";
-@import "components/markdown-editor.scss";
-@import "components/tabbed.scss";
-@import "components/modal.scss";
-@import "components/tests-editor.scss";
 
 body {
     margin: 0;
@@ -114,4 +98,30 @@ pre {
 	padding: 12px;
 }
 
+a {
+    border: none;
+    background: none;
+    color: var(--text);
+    text-decoration: none;
+
+    &:hover {
+	text-decoration: underline;
+    }
+}
+
 @import "error.scss";
+@import "navbar.scss";
+@import "tests.scss";
+@import "auth.scss";
+@import "views/leaderboard.scss";
+@import "views/problem-editor.scss";
+@import "views/problem-list.scss";
+@import "views/problem.scss";
+@import "views/account.scss";
+@import "components/code-runner.scss";
+@import "components/button.scss";
+@import "components/markdown-editor.scss";
+@import "components/tabbed.scss";
+@import "components/modal.scss";
+@import "components/tests-editor.scss";
+@import "views/meetings.scss";

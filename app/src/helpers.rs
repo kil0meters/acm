@@ -1,13 +1,20 @@
-use monaco::{sys::editor::{IStandaloneEditorConstructionOptions, BuiltinTheme}, api::{CodeEditorOptions, TextModel}};
-use pulldown_cmark::{Parser, html};
-use web_sys::window;
+use acm::models::{Auth, Session, User};
+use monaco::{
+    api::{CodeEditorOptions, TextModel},
+    sys::editor::{BuiltinTheme, IStandaloneEditorConstructionOptions},
+};
+use pulldown_cmark::{html, Parser};
 use std::rc::Rc;
-
+use web_sys::window;
 
 pub fn is_darkmode() -> bool {
     let window = window().unwrap();
 
-    window.match_media("(prefers-color-scheme: dark)").unwrap().unwrap().matches()
+    window
+        .match_media("(prefers-color-scheme: dark)")
+        .unwrap()
+        .unwrap()
+        .matches()
 }
 
 pub fn themed_editor_with_model(model: TextModel) -> IStandaloneEditorConstructionOptions {
@@ -34,4 +41,20 @@ pub fn parse_markdown(content: &str) -> String {
     let mut output = String::new();
     html::push_html(&mut output, parser);
     output
+}
+
+pub fn is_officer(session: &Option<Session>) -> bool {
+    // If logged in and of sufficient rank
+    if let Some(Session {
+        user: User {
+            auth: Auth::OFFICER | Auth::ADMIN,
+            ..
+        },
+        ..
+    }) = *session
+    {
+        true
+    } else {
+        false
+    }
 }

@@ -6,6 +6,7 @@ use serde_json::json;
 
 pub mod account;
 pub mod leaderboard;
+pub mod meetings;
 pub mod problems;
 pub mod run;
 pub mod signup;

@@ -1,3 +1,4 @@
+use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "sqlx")]
@@ -73,4 +74,12 @@ pub struct LeaderboardItem {
     pub username: String,
     pub name: String,
     pub count: i64,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct Meeting {
+    pub id: i64,
+    pub title: String,
+    pub description: String,
+    pub meeting_time: NaiveDateTime,
 }
