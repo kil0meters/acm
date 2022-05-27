@@ -2,15 +2,15 @@
 
 use acm::models::{
     forms::{LoginForm, SignupForm},
-    User, Session,
+    User,
 };
 use actix_web::{http::StatusCode, post, web::Json, Responder};
 use log::{error, info};
-use serde_json::json;
+
 use validator::Validate;
 
 use super::{api_error, api_success};
-use crate::state::{auth::Claims, AppState};
+use crate::state::AppState;
 
 // Returns the hash of a password
 fn hash_password(username: &str, password: &str) -> String {

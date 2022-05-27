@@ -1,8 +1,6 @@
 //! API endpoints relating to the leaderboard
 
-use acm::models::User;
 use actix_web::{get, web::Json, Responder};
-use rand::{thread_rng, Rng};
 
 use crate::state::AppState;
 

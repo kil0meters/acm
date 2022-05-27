@@ -1,4 +1,4 @@
-use acm::models::{Activity, ActivityType, Meeting, MeetingActivities};
+use acm::models::{Activity, ActivityType, Meeting};
 
 use super::State;
 

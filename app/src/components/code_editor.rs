@@ -164,7 +164,7 @@ impl CodeEditorLink {
         self.0.borrow_mut().replace(link);
     }
 
-    fn with_link<T>(&self, f: impl FnOnce(&Scope<CodeEditor>) -> T) -> Option<T> {
+    /* fn with_link<T>(&self, f: impl FnOnce(&Scope<CodeEditor>) -> T) -> Option<T> {
         (*self.0.borrow()).as_ref().map(f)
     }
 
@@ -178,7 +178,7 @@ impl CodeEditorLink {
     pub fn with_editor<T>(&self, f: impl FnOnce(&CodeEditorModel) -> T) -> Option<T> {
         self.with_component(|comp| comp.editor.as_ref().map(f))
             .flatten()
-    }
+    } */
 }
 impl PartialEq for CodeEditorLink {
     fn eq(&self, other: &Self) -> bool {

@@ -98,7 +98,7 @@ pub struct Activity {
     pub id: i64,
     pub title: String,
     pub description: String,
-    pub activity_type: ActivityType
+    pub activity_type: ActivityType,
 }
 
 #[derive(Deserialize, Serialize)]

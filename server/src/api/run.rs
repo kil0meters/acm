@@ -9,7 +9,7 @@ use actix_web::{
     http::StatusCode,
     post,
     web::{Data, Json},
-    HttpResponse, Responder,
+    Responder,
 };
 use reqwest::Client;
 

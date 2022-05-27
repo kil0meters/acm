@@ -2,7 +2,6 @@
 
 use super::{auth::Claims, State};
 use acm::models::{Auth, Session, User};
-use log::info;
 
 impl State {
     /// Inserta a user into the database, returning an error if unsuccessful

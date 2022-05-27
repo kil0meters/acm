@@ -1,10 +1,10 @@
 //! A view used by officers to create/edit problems.
 
-use monaco::api::{CodeEditorOptions, TextModel};
+use monaco::api::TextModel;
 
 use gloo_net::http::Request;
 use serde_json::Value;
-use std::rc::Rc;
+
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
@@ -13,9 +13,10 @@ use yewdux::prelude::*;
 
 use crate::{
     components::{CodeEditor, Navbar, Tabbed, TestsEditor},
+    helpers::parse_markdown,
+    helpers::themed_editor_with_model,
     state::State,
-    Route, helpers::themed_editor_with_model,
-    helpers::parse_markdown
+    Route,
 };
 
 #[function_component]

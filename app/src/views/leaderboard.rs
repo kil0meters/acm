@@ -5,10 +5,10 @@
 use acm::models::LeaderboardItem;
 use gloo_net::http::Request;
 use serde::{Deserialize, Serialize};
-use wasm_bindgen_futures::spawn_local;
+
 use yew::prelude::*;
-use yew_router::prelude::*;
 use yew::suspense::{use_future, Suspense};
+use yew_router::prelude::*;
 
 use crate::{components::Navbar, Route};
 
@@ -30,7 +30,8 @@ fn LeaderboardEntry(props: &LeaderboardEntryProps) -> Html {
     }
 }
 
-#[function_component] fn LeaderboardViewInner() -> HtmlResult {
+#[function_component]
+fn LeaderboardViewInner() -> HtmlResult {
     let leaderboard_items = use_future(|| async move {
         Request::get("/api/leaderboard/first-place")
             .send()
@@ -40,14 +41,16 @@ fn LeaderboardEntry(props: &LeaderboardEntryProps) -> Html {
     })?;
 
     let list_html = match &*leaderboard_items {
-        Ok(items) => {
-            items.iter().enumerate().map(|(i, item)| {
-                html!{
+        Ok(items) => items
+            .iter()
+            .enumerate()
+            .map(|(i, item)| {
+                html! {
                     <LeaderboardEntry position={i+1} item={item.clone()} />
                 }
-            }).collect::<Html>()
-        },
-        Err(e) => html!{ e }
+            })
+            .collect::<Html>(),
+        Err(e) => html! { e },
     };
 
     Ok(html! {

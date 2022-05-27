@@ -1,11 +1,10 @@
 //! The navigation bar at the top of each page.
 
-use acm::models::{Auth, Session, User};
 use yew::prelude::*;
 use yew_router::prelude::*;
 use yewdux::prelude::*;
 
-use crate::{state::State, Route, helpers::is_officer};
+use crate::{helpers::is_officer, state::State, Route};
 
 #[function_component]
 pub fn Navbar() -> Html {

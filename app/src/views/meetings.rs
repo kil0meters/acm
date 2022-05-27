@@ -1,5 +1,5 @@
-use acm::models::{Meeting, MeetingActivities, Activity};
-use chrono::{NaiveDate, NaiveDateTime, Utc};
+use acm::models::{Activity, Meeting, MeetingActivities};
+use chrono::{NaiveDateTime, Utc};
 use gloo_net::http::Request;
 use gloo_timers::callback::Timeout;
 use yew::prelude::*;
@@ -107,7 +107,7 @@ fn ScheduleList() -> HtmlResult {
 
 #[derive(PartialEq, Properties)]
 struct ActivitiesProps {
-    activities: Vec<Activity>
+    activities: Vec<Activity>,
 }
 
 #[function_component]
@@ -116,15 +116,19 @@ fn Activities(props: &ActivitiesProps) -> Html {
         return html! {};
     }
 
-    let activities_html = props.activities.iter().map(|activity|
-        html!{
-            <div class="padded card">
-                <h2>{ &activity.title }</h2>
+    let activities_html = props
+        .activities
+        .iter()
+        .map(|activity| {
+            html! {
+                <div class="padded card">
+                    <h2>{ &activity.title }</h2>
 
-                <span>{ &activity.description }</span>
-            </div>
-        }
-    ).collect::<Html>();
+                    <span>{ &activity.description }</span>
+                </div>
+            }
+        })
+        .collect::<Html>();
 
     html! {
         <>
@@ -156,7 +160,13 @@ fn MeetingView(props: &MeetingViewProps) -> HtmlResult {
     };
 
     let meeting_activities = use_future_with_deps(
-        |_| async move { Request::get(&url).send().await?.json::<MeetingActivities>().await },
+        |_| async move {
+            Request::get(&url)
+                .send()
+                .await?
+                .json::<MeetingActivities>()
+                .await
+        },
         props.id,
     )?;
 

@@ -18,8 +18,8 @@ mod views;
 use components::{ErrorBox, Modal};
 use state::State;
 use views::{
-    AccountView, HomeView, LeaderboardView, LoginView, ProblemEditorView, ProblemListView,
-    ProblemView, SignupView, MeetingsView
+    AccountView, HomeView, LeaderboardView, LoginView, MeetingsView, ProblemEditorView,
+    ProblemListView, ProblemView, SignupView,
 };
 
 #[derive(Clone, Routable, PartialEq)]

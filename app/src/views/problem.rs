@@ -7,17 +7,18 @@ use acm::models::{
     Problem,
 };
 use gloo_net::http::Request;
-use monaco::{api::{CodeEditorOptions, TextModel}, sys::editor::BuiltinTheme};
+use monaco::api::TextModel;
 use thiserror::Error;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew::suspense::{use_future, Suspense};
 use yewdux::prelude::*;
 
-use std::rc::Rc;
-
-use crate::{components::{CodeEditor, ErrorBox, Modal, Navbar}, helpers::{is_darkmode, themed_editor_with_model, parse_markdown}};
 use crate::state::State;
+use crate::{
+    components::{CodeEditor, ErrorBox, Modal, Navbar},
+    helpers::{parse_markdown, themed_editor_with_model},
+};
 
 #[derive(Clone, Debug, PartialEq, Properties)]
 struct TestEntryProps {

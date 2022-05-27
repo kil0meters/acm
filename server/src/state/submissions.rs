@@ -1,7 +1,7 @@
 use acm::models::{
-    Submission,
     runner::{RunnerError, RunnerResponse},
     test::TestResult,
+    Submission,
 };
 
 use super::State;
@@ -35,7 +35,9 @@ impl State {
             user_id,
             count,
             offset
-        ).fetch_all(&self.conn).await
+        )
+        .fetch_all(&self.conn)
+        .await
     }
 
     pub async fn save_submission(

@@ -1,15 +1,22 @@
 //! A sign up page.
 
-use acm::models::{forms::{SignupForm, LoginForm}, Session};
+use acm::models::{
+    forms::{LoginForm, SignupForm},
+    Session,
+};
 use gloo_net::http::Request;
+use serde_json::Value;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{FormData, HtmlFormElement};
 use yew::prelude::*;
 use yew_router::prelude::*;
 use yewdux::prelude::*;
-use serde_json::Value;
 
-use crate::{components::{Navbar, ErrorBox}, state::State, Route};
+use crate::{
+    components::{ErrorBox, Navbar},
+    state::State,
+    Route,
+};
 
 #[function_component]
 pub fn SignupView() -> Html {

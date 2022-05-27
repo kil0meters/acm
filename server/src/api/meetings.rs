@@ -1,5 +1,8 @@
 use acm::models::{Meeting, MeetingActivities};
-use actix_web::{get, Responder, web::{Json, Path}};
+use actix_web::{
+    get,
+    web::{Json, Path},
+};
 
 use crate::state::AppState;
 
@@ -19,7 +22,7 @@ pub async fn meeting(id: Path<i64>, state: AppState) -> Json<Option<MeetingActiv
     if let Some(meeting) = state.get_meeting(id).await {
         Json(Some(MeetingActivities {
             meeting,
-            activities: state.get_activities_for_meeting(id).await
+            activities: state.get_activities_for_meeting(id).await,
         }))
     } else {
         Json(None)
