@@ -83,3 +83,26 @@ pub struct Meeting {
     pub description: String,
     pub meeting_time: NaiveDateTime,
 }
+
+#[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq)]
+#[cfg_attr(feature = "sqlx", derive(Type))]
+#[cfg_attr(feature = "sqlx", sqlx(rename_all = "SCREAMING_SNAKE_CASE"))]
+pub enum ActivityType {
+    SOLO,
+    PAIR,
+    LECT,
+}
+
+#[derive(Deserialize, PartialEq, Serialize, Clone)]
+pub struct Activity {
+    pub id: i64,
+    pub title: String,
+    pub description: String,
+    pub activity_type: ActivityType
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct MeetingActivities {
+    pub meeting: Meeting,
+    pub activities: Vec<Activity>,
+}

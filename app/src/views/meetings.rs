@@ -1,4 +1,4 @@
-use acm::models::Meeting;
+use acm::models::{Meeting, MeetingActivities, Activity};
 use chrono::{NaiveDate, NaiveDateTime, Utc};
 use gloo_net::http::Request;
 use gloo_timers::callback::Timeout;
@@ -7,7 +7,7 @@ use yew::suspense::{use_future, use_future_with_deps, Suspense};
 use yew_router::prelude::*;
 use yewdux::prelude::*;
 
-use crate::{components::Navbar, Route, State, helpers::is_officer};
+use crate::{components::Navbar, helpers::is_officer, Route, State};
 
 #[derive(PartialEq, Properties)]
 struct CountdownProps {
@@ -74,15 +74,18 @@ fn ScheduleList() -> HtmlResult {
     })?;
 
     let meetings_list = match &*meetings {
-        Ok(list) => list.iter().map(|m| {
-            html! {
-                <Link<Route> to={Route::Meeting { id: m.id }} classes="padded schedule-item">
-                    <h3>{ &m.title }</h3>
-                    <span>{ m.meeting_time }</span>
-                </Link<Route>>
-            }
-        }).collect::<Html>(),
-        Err(_) => html!{},
+        Ok(list) => list
+            .iter()
+            .map(|m| {
+                html! {
+                    <Link<Route> to={Route::Meeting { id: m.id }} classes="padded schedule-item">
+                        <h3>{ &m.title }</h3>
+                        <span>{ m.meeting_time }</span>
+                    </Link<Route>>
+                }
+            })
+            .collect::<Html>(),
+        Err(_) => html! {},
     };
 
     Ok(html! {
@@ -103,6 +106,38 @@ fn ScheduleList() -> HtmlResult {
 }
 
 #[derive(PartialEq, Properties)]
+struct ActivitiesProps {
+    activities: Vec<Activity>
+}
+
+#[function_component]
+fn Activities(props: &ActivitiesProps) -> Html {
+    if props.activities.is_empty() {
+        return html! {};
+    }
+
+    let activities_html = props.activities.iter().map(|activity|
+        html!{
+            <div class="padded card">
+                <h2>{ &activity.title }</h2>
+
+                <span>{ &activity.description }</span>
+            </div>
+        }
+    ).collect::<Html>();
+
+    html! {
+        <>
+            <h2>{ "Events" }</h2>
+
+            <div class="activities-wrapper">
+                { activities_html }
+            </div>
+        </>
+    }
+}
+
+#[derive(PartialEq, Properties)]
 pub struct MeetingViewProps {
     #[prop_or_default]
     pub id: Option<i64>,
@@ -120,28 +155,27 @@ fn MeetingView(props: &MeetingViewProps) -> HtmlResult {
         "/api/next-meeting".to_string()
     };
 
-    let meeting = use_future_with_deps(|_| async move {
-        Request::get(&url)
-            .send()
-            .await?
-            .json::<Meeting>()
-            .await
-    }, props.id)?;
+    let meeting_activities = use_future_with_deps(
+        |_| async move { Request::get(&url).send().await?.json::<MeetingActivities>().await },
+        props.id,
+    )?;
 
-    let meeting_html = match &*meeting {
-        Ok(meeting) =>
-            html! {
-                <>
-                    <h1>{ &meeting.title }</h1>
-                    <Countdown event_time={meeting.meeting_time} />
-                </>
-            },
-        Err(_) => html!{},
+    let meeting_html = match &*meeting_activities {
+        Ok(meeting_activities) => html! {
+            <>
+                <h1>{ &meeting_activities.meeting.title }</h1>
+                <Countdown event_time={meeting_activities.meeting.meeting_time} />
+
+                <Activities activities={meeting_activities.activities.clone()} />
+            </>
+        },
+        Err(_) => html! {},
     };
 
     Ok(html! {
         <div class="meetings-view-content">
             { meeting_html }
+
         </div>
     })
 }

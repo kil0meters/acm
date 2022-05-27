@@ -30,3 +30,9 @@
         margin: 0;
     }
 }
+
+.activities-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}

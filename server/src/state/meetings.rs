@@ -1,4 +1,4 @@
-use acm::models::Meeting;
+use acm::models::{Activity, ActivityType, Meeting, MeetingActivities};
 
 use super::State;
 
@@ -17,7 +17,10 @@ impl State {
             WHERE
                 DATETIME('now') < DATETIME(meeting_time)
             "#
-        ).fetch_all(&self.conn).await.unwrap_or_default()
+        )
+        .fetch_all(&self.conn)
+        .await
+        .unwrap_or_default()
     }
 
     pub async fn get_meeting(&self, id: i64) -> Option<Meeting> {
@@ -35,7 +38,10 @@ impl State {
                 id = ?
             "#,
             id
-        ).fetch_one(&self.conn).await.ok()
+        )
+        .fetch_one(&self.conn)
+        .await
+        .ok()
     }
 
     pub async fn get_next_meeting(&self) -> Option<Meeting> {
@@ -54,6 +60,30 @@ impl State {
             ORDER BY
                 DATETIME(meeting_time) ASC
             "#
-        ).fetch_one(&self.conn).await.ok()
+        )
+        .fetch_one(&self.conn)
+        .await
+        .ok()
+    }
+
+    pub async fn get_activities_for_meeting(&self, id: i64) -> Vec<Activity> {
+        sqlx::query_as!(
+            Activity,
+            r#"
+            SELECT
+                id,
+                title,
+                description,
+                activity_type as "activity_type: ActivityType"
+            FROM
+                activities
+            WHERE
+                meeting_id = ?
+            "#,
+            id
+        )
+        .fetch_all(&self.conn)
+        .await
+        .unwrap_or_default()
     }
 }
