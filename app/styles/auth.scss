@@ -1,5 +1,5 @@
 .auth-wrapper {
-    max-width: 600px;
+    width: min(100% - 24px, 600px);
     margin: 24px auto;
 
     h1 {
@@ -9,31 +9,8 @@
     }
 }
 
-.authorize-form-label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 1.2em;
-}
-
-.authorize-form-input {
-    border: 0;
-    border-radius: 2px;
-    outline: 2px solid var(--border);
-    padding: 8px;
-    display: block;
-    font-size: 1.1em;
-    width: 400px;
-    margin-bottom: 16px;
-
-    &:focus {
-	outline-width: 4px;
-    }
-
-    &:valid {
-	outline-color: var(--green);
-    }
-
-    &:not(:placeholder-shown):invalid {
-	outline-color: var(--red);
-    }
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }

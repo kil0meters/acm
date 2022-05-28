@@ -10,16 +10,9 @@
 }
 
 .title-input {
-    color: var(--text);
     font-weight: bold;
     font-size: 1.4em;
     padding: 8px;
-    border: 0;
-    box-shadow: 0 0 0 2px var(--border);
-
-    &:hover {
-        box-shadow: 0 0 0 4px var(--border);
-    }
 }
 
 .top-row {

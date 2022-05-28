@@ -32,17 +32,3 @@
     gap: 12px;
     min-height: 200px;
 }
-
-.test-editor textarea {
-    color: var(--text);
-    background-color: var(--card-background);
-    border-radius: 2px;
-    border: 0;
-    outline: 0;
-    padding: 12px;
-    box-shadow: 0 0 0 2px var(--border);
-
-    &:focus {
-        box-shadow: 0 0 0 4px var(--border);
-    }
-}

@@ -92,12 +92,12 @@ pub fn SignupView() -> Html {
                     <label for="name" class="authorize-form-label">{ "Name" }</label>
                     <input name="name"
                            placeholder={ "'); DROP TABLE STUDENTS" }
-                           class="authorize-form-input"
+                           class="acm-input background-input"
                            required={ true } />
                     <label for="username" class="authorize-form-label">{ "Username" }</label>
                     <input name="username"
                            placeholder={ "'); DROP TABLE STUDENTS" }
-                           class="authorize-form-input"
+                           class="acm-input background-input"
                            pattern=r"[a-zA-Z0-9]+"
                            minlength="1"
                            maxlength="16"
@@ -105,7 +105,7 @@ pub fn SignupView() -> Html {
                     <label for="password" class="authorize-form-label">{ "Password" }</label>
                     <input name="password"
                            placeholder={ "hunter2" }
-                           class="authorize-form-input"
+                           class="acm-input background-input"
                            pattern=r"[a-zA-Z0-9!@#$%^&*()\s]+"
                            minlength="8"
                            maxlength="256" type="password"
@@ -113,7 +113,7 @@ pub fn SignupView() -> Html {
                     <label for="verify_password" class="authorize-form-label">{ "Verify Password" }</label>
                     <input name="verify_password"
                            placeholder={ "hunter2" }
-                           class="authorize-form-input"
+                           class="acm-input background-input"
                            pattern=r"[a-zA-Z0-9!@#$%^&*()\s]+"
                            minlength="8"
                            maxlength="256" type="password"
@@ -194,7 +194,7 @@ pub fn LoginView() -> Html {
                     <label for="username" class="authorize-form-label">{ "Username" }</label>
                     <input name="username"
                            placeholder={ "'); DROP TABLE STUDENTS" }
-                           class="authorize-form-input"
+                           class="acm-input background-input"
                            pattern=r"[a-zA-Z0-9]+"
                            minlength="1"
                            maxlength="16"
@@ -202,7 +202,7 @@ pub fn LoginView() -> Html {
                     <label for="password" class="authorize-form-label">{ "Password" }</label>
                     <input name="password"
                            placeholder={ "hunter2" }
-                           class="authorize-form-input"
+                           class="acm-input background-input"
                            pattern=r"[a-zA-Z0-9!@#$%^&*()\s]+"
                            minlength="8"
                            maxlength="256" type="password"

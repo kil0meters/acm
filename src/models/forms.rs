@@ -1,3 +1,4 @@
+use chrono::{NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "validate")]
@@ -8,6 +9,8 @@ use regex::Regex;
 use validator::Validate;
 
 use crate::models::{test::Test, User};
+
+use super::Activity;
 
 #[cfg(feature = "validate")]
 lazy_static! {
@@ -63,4 +66,27 @@ pub struct RunnerForm {
 pub struct RunTestsForm {
     pub problem_id: i64,
     pub test_code: String,
+}
+
+#[derive(Deserialize, Clone, PartialEq, Serialize)]
+pub struct EditMeetingForm {
+    /// If set to true, the server assumes you wish to update an existing meeting
+    pub id: Option<i64>,
+
+    pub title: String,
+    pub description: String,
+    pub meeting_time: NaiveDateTime,
+    pub activities: Vec<Activity>,
+}
+
+impl Default for EditMeetingForm {
+    fn default() -> Self {
+        EditMeetingForm {
+            id: None,
+            title: String::new(),
+            description: String::new(),
+            meeting_time: Utc::now().naive_local(),
+            activities: Vec::new(),
+        }
+    }
 }

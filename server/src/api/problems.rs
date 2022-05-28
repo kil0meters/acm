@@ -20,22 +20,17 @@ use crate::state::{auth::Claims, AppState};
 pub async fn create_problem(
     form: Json<CreateProblemForm>,
     state: AppState,
-    claims: Option<Claims>,
+    claims: Claims,
 ) -> impl Responder {
-    // convert Option<Claims> into Option<Auth>
-    // TODO: perhaps validator should offer this automatically?
-
-    log::info!("{claims:?}");
-
-    match claims.as_ref().map(|v| v.auth) {
-        Some(Auth::ADMIN | Auth::OFFICER) => match state.problem_add(&form).await {
+    match claims.auth {
+        Auth::ADMIN | Auth::OFFICER => match state.problem_add(&form).await {
             Ok(id) => api_success(json!({ "id": id })),
             Err(_) => api_error(
                 StatusCode::BAD_REQUEST,
                 "A problem with that title already exists",
             ),
         },
-        None | Some(Auth::MEMBER) => api_error(
+        Auth::MEMBER => api_error(
             StatusCode::UNAUTHORIZED,
             "You must be an officer to do that",
         ),

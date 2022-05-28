@@ -151,7 +151,7 @@ pub fn ProblemEditorView() -> Html {
 
             <div class="problem-editor-wrapper">
                 <div class="problem-editor-sidebar">
-                <input value={title} class="title-input card" oninput={dispatch.reduce_mut_callback_with(|state, e: InputEvent| {
+                <input value={title} placeholder="Title" class="title-input acm-input card" oninput={dispatch.reduce_mut_callback_with(|state, e: InputEvent| {
                     let title = e.target_unchecked_into::<HtmlInputElement>().value();
                     state.problem_editor.title = title;
                 })} />

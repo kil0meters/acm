@@ -1,5 +1,5 @@
 use acm::models::{
-    forms::CreateProblemForm,
+    forms::{CreateProblemForm, EditMeetingForm},
     runner::{RunnerError, RunnerResponse},
     Session,
 };
@@ -21,6 +21,11 @@ pub struct State {
 
     /// Stores whether or not a the tests menu is shown
     pub tests_shown: bool,
+
+    /// Stores in-progress editing
+    #[serde(skip_serializing_if = "HashMap::is_empty")]
+    #[serde(default)]
+    pub meeting_editor: HashMap<i64, EditMeetingForm>,
 
     /// The currently displayed error by the program
     /// We don't want this to be saved

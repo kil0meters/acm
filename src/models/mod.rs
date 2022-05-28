@@ -93,7 +93,13 @@ pub enum ActivityType {
     LECT,
 }
 
-#[derive(Deserialize, PartialEq, Serialize, Clone)]
+impl Default for ActivityType {
+    fn default() -> Self {
+        ActivityType::SOLO
+    }
+}
+
+#[derive(Deserialize, PartialEq, Serialize, Clone, Default)]
 pub struct Activity {
     pub id: i64,
     pub title: String,

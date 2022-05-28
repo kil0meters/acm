@@ -16,6 +16,7 @@
     position: relative;
     box-shadow: 0 0 0 2px var(--border);
     max-height: 300px;
+    transition: box-shadow 50ms ease-in-out;
 
     &:hover {
         box-shadow: 0 0 0 4px var(--border);

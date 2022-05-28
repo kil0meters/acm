@@ -82,9 +82,8 @@ pre {
 
 * {
     overflow-wrap: anywhere;
-    transition: 50ms ease-in-out;
     box-sizing: border-box;
-	min-height: 0;
+    min-height: 0;
     min-width: 0;
 }
 
@@ -96,6 +95,36 @@ pre {
 
 .padded {
 	padding: 12px;
+}
+
+.acm-input {
+    color: var(--text);
+    display: block;
+    background-color: var(--card-background);
+    border-radius: 2px;
+    font-size: 1.1em;
+    border: 0;
+    outline: 0;
+    padding: 12px;
+    box-shadow: 0 0 0 2px var(--border);
+    width: 100%;
+    transition: box-shadow 50ms ease-in-out;
+
+    &:focus {
+        box-shadow: 0 0 0 4px var(--border);
+    }
+
+    &:valid {
+	outline-color: var(--green);
+    }
+
+    &:not(:placeholder-shown):invalid {
+	outline-color: var(--red);
+    }
+}
+
+.card-input {
+    background-color: var(--background);
 }
 
 a {
@@ -118,10 +147,10 @@ a {
 @import "views/problem-list.scss";
 @import "views/problem.scss";
 @import "views/account.scss";
+@import "views/meetings.scss";
 @import "components/code-runner.scss";
-@import "components/button.scss";
 @import "components/markdown-editor.scss";
 @import "components/tabbed.scss";
 @import "components/modal.scss";
 @import "components/tests-editor.scss";
-@import "views/meetings.scss";
+@import "components/button.scss";

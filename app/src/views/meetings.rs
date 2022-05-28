@@ -99,7 +99,7 @@ fn ScheduleList() -> HtmlResult {
             </div>
 
             if is_officer(&*session) {
-                <button class="button green">{ "Add" }</button>
+                <Link<Route> to={Route::MeetingEditorNew} classes="button green">{ "Add" }</Link<Route>>
             }
         </div>
     })

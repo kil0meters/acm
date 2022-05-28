@@ -11,9 +11,10 @@
     user-select: none;
     cursor: pointer;
     position: sticky;
+    transition: outline 50ms ease-in-out;
 
     &:hover {
-	outline-width: 4px;
+        outline-width: 4px;
     }
 }
 

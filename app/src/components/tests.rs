@@ -29,19 +29,18 @@ fn TestEditor(props: &TestEditorProps) -> Html {
         <div class="test-editor">
             <div class="test-editor-col">
                 <span>{"Input"}</span>
-                <textarea oninput={input_changed} value={props.test.input.clone()} />
+                <textarea class="acm-input" oninput={input_changed} value={props.test.input.clone()} />
             </div>
 
             <div class="test-editor-col">
                 <span>{"Expected Output"}</span>
-                <textarea oninput={expected_output_changed} value={props.test.expected_output.clone()} />
+                <textarea class="acm-input" oninput={expected_output_changed} value={props.test.expected_output.clone()} />
             </div>
         </div>
 
     }
 }
 
-// TODO: This callback jumping is awful. Look into yewdux to simplify this.
 #[function_component]
 pub fn TestsEditor() -> Html {
     // We rerender only when a test is added or removed.

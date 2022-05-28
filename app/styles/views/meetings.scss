@@ -36,3 +36,53 @@
     grid-template-columns: 1fr 1fr;
     gap: 24px;
 }
+
+.meeting-editor-wrapper {
+    width: min(100% - 24px, 800px);
+    margin: 12px auto;
+    gap: 24px;
+    min-height: auto;
+}
+
+.meeting-editor-form {
+    display: grid;
+    gap: 24px;
+    grid-template-areas: "a b"
+                         "c c";
+    grid-template-columns: 1fr 1fr;
+}
+
+.description-editor {
+    grid-area: c;
+    resize: vertical;
+}
+
+.activities-editor {
+    display: flex;
+    gap: 24px;
+    flex-direction: column;
+}
+
+.activities-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.button-title {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    margin-bottom: 12px;
+
+    h1 {
+        margin: 0;
+    }
+}
+
+.activity-editor {
+    display: grid;
+    gap: 12px;
+    grid-template-areas: "a b"
+                         "c c";
+    grid-template-columns: 1fr 1fr;
+}

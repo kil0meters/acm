@@ -18,8 +18,8 @@ mod views;
 use components::{ErrorBox, Modal};
 use state::State;
 use views::{
-    AccountView, HomeView, LeaderboardView, LoginView, MeetingsView, ProblemEditorView,
-    ProblemListView, ProblemView, SignupView,
+    AccountView, HomeView, LeaderboardView, LoginView, MeetingEditorView, MeetingsView,
+    ProblemEditorView, ProblemListView, ProblemView, SignupView,
 };
 
 #[derive(Clone, Routable, PartialEq)]
@@ -45,7 +45,7 @@ enum Route {
     #[at("/leaderboard")]
     Leaderboard,
 
-    #[at("/create-problem")]
+    #[at("/problems/new")]
     ProblemEditor,
 
     #[at("/meetings")]
@@ -53,6 +53,12 @@ enum Route {
 
     #[at("/meetings/:id")]
     Meeting { id: i64 },
+
+    #[at("/meetings/:id/edit")]
+    MeetingEditor { id: i64 },
+
+    #[at("/meetings/new")]
+    MeetingEditorNew,
 }
 
 fn switch(routes: Route) -> Html {
@@ -65,6 +71,8 @@ fn switch(routes: Route) -> Html {
         Route::Login => html! { <LoginView /> },
         Route::Meetings => html! { <MeetingsView /> },
         Route::Meeting { id } => html! { <MeetingsView {id} /> },
+        Route::MeetingEditor { id } => html! { <MeetingEditorView {id} /> },
+        Route::MeetingEditorNew => html! { <MeetingEditorView /> },
         Route::ProblemEditor => html! { <ProblemEditorView /> },
         Route::Signup => html! { <SignupView /> },
     }
