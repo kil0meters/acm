@@ -6,7 +6,6 @@ use actix_web::{middleware::Logger, web, App, HttpServer};
 use api::account::user_submissions;
 use api::leaderboard::first_place_finishes;
 use clap::Parser;
-use lilith::{ServerApp, ServerAppProps};
 use reqwest::Client;
 
 use api::{
@@ -49,12 +48,9 @@ async fn main() -> std::io::Result<()> {
     let state = State::new(&args.database_url).await;
     let client = Client::new();
 
-    let url = "http://127.0.0.1/meetings".into();
-    let renderer = yew::ServerRenderer::<ServerApp>::with_props(ServerAppProps { url });
-    let res = renderer.render().await;
-    println!("{:?}", res);
-
     HttpServer::new(move || {
+        let index_path = format!("{}/index.html", args.dist_path);
+
         App::new()
             .wrap(Logger::default())
             .app_data(web::Data::new(state.clone()))
@@ -80,11 +76,14 @@ async fn main() -> std::io::Result<()> {
                     .service(edit_meeting),
             )
             .service(Files::new("/static/", &args.dist_path))
-            .default_service(fn_service(|req: ServiceRequest| async {
-                let (req, _) = req.into_parts();
-                let file = NamedFile::open_async("./dist/index.html").await?;
-                let res = file.into_response(&req);
-                Ok(ServiceResponse::new(req, res))
+            .default_service(fn_service(move |req: ServiceRequest| {
+                let index_path = index_path.clone();
+                async move {
+                    let (req, _) = req.into_parts();
+                    let file = NamedFile::open_async(&index_path).await?;
+                    let res = file.into_response(&req);
+                    Ok(ServiceResponse::new(req, res))
+                }
             }))
     })
     .bind(&format!("{}:{}", args.hostname, args.port))?

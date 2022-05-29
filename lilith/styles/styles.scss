@@ -70,7 +70,7 @@ pre:last-child {
 pre {
     font-size: 1.2em;
     padding: 12px;
-	border-radius: 4px;
+    border-radius: 4px;
     background-color: var(--grey);
     overflow-x: auto;
 }
@@ -88,13 +88,13 @@ pre {
 }
 
 .card {
-	background-color: var(--card-background);
-	border-radius: 4px;
-	outline: 2px solid var(--border);
+    background-color: var(--card-background);
+    border-radius: 4px;
+    box-shadow: 0 0 0 2px var(--border);
 }
 
 .padded {
-	padding: 12px;
+    padding: 12px;
 }
 
 .acm-input {
