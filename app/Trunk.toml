@@ -1,2 +1,8 @@
 [build]
 dist = "../dist/"
+public_url = "/static/"
+
+[[hooks]]
+stage = "post_build"
+command = "../scripts/compress.sh"
+command_arguments = ["../dist/.stage"]

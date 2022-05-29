@@ -22,3 +22,6 @@ validate = ["dep:regex", "dep:validator", "dep:lazy_static"]
 
 [profile.release.package.app]
 opt-level = 'z'
+
+[profile.release]
+lto = true

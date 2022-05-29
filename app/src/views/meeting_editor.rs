@@ -1,12 +1,12 @@
 use acm::models::{Activity, ActivityType};
 use chrono::NaiveDateTime;
-use wasm_bindgen_futures::spawn_local;
-use web_sys::{HtmlInputElement, HtmlTextAreaElement, HtmlSelectElement};
-use yew::prelude::*;
-use yewdux::prelude::*;
-use yew_router::prelude::*;
 use gloo_net::http::Request;
 use serde_json::Value;
+use wasm_bindgen_futures::spawn_local;
+use web_sys::{HtmlInputElement, HtmlSelectElement, HtmlTextAreaElement};
+use yew::prelude::*;
+use yew_router::prelude::*;
+use yewdux::prelude::*;
 
 use crate::{components::Navbar, state::State, Route};
 
@@ -146,9 +146,7 @@ fn submit_create_meeting(id: i64, token: String, navigator: Navigator) {
     let state = dispatch.get();
     let meeting = &state.meeting_editor[&id];
 
-    if meeting.title.is_empty()
-        || meeting.description.is_empty()
-    {
+    if meeting.title.is_empty() || meeting.description.is_empty() {
         dispatch.reduce_mut(|state| {
             state.error = Some("One or more required fields is empty.".to_string())
         });
@@ -156,9 +154,7 @@ fn submit_create_meeting(id: i64, token: String, navigator: Navigator) {
     }
 
     for activity in &meeting.activities {
-        if activity.title.is_empty()
-        || activity.description.is_empty()
-        {
+        if activity.title.is_empty() || activity.description.is_empty() {
             dispatch.reduce_mut(|state| {
                 state.error = Some("One or more required fields is empty.".to_string())
             });
@@ -212,7 +208,8 @@ pub fn MeetingEditorView(props: &MeetingEditorViewProps) -> Html {
 
     let update_meeting_time = dispatch.reduce_mut_callback_with(move |state, e: InputEvent| {
         let meeting_time = e.target_unchecked_into::<HtmlInputElement>().value();
-        state.meeting_editor.get_mut(&id).unwrap().meeting_time = NaiveDateTime::parse_from_str(&meeting_time, "%Y-%m-%dT%H:%M:%S").unwrap();
+        state.meeting_editor.get_mut(&id).unwrap().meeting_time =
+            NaiveDateTime::parse_from_str(&meeting_time, "%Y-%m-%dT%H:%M:%S").unwrap();
     });
 
     let submit = Callback::from(move |_| {

@@ -8,7 +8,6 @@ create table users (
     name text not null,
     username text unique not null,
 
-    star_count integer default 0 not null,
     password char(65) not null,
     create_dt datetime not null default (datetime('now', 'localtime')),
     update_dt datetime not null default (datetime('now', 'localtime'))

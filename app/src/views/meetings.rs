@@ -43,7 +43,7 @@ fn Countdown(props: &CountdownProps) -> Html {
 
     html! {
         <div>
-            <h3>{ "The next meeting will start in..." }</h3>
+            <h3>{ "Starts in..." }</h3>
 
             <span>
                 { days } { " days " }
@@ -132,7 +132,7 @@ fn Activities(props: &ActivitiesProps) -> Html {
 
     html! {
         <>
-            <h2>{ "Events" }</h2>
+            <h2>{ "Activities" }</h2>
 
             <div class="activities-wrapper">
                 { activities_html }
