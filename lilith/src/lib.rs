@@ -79,7 +79,7 @@ fn switch(routes: Route) -> Html {
 }
 
 #[function_component]
-fn App() -> Html {
+pub fn App() -> Html {
     let dispatch = Dispatch::<State>::new();
 
     let dismiss_error = dispatch.reduce_mut_callback(|state| {
@@ -104,7 +104,19 @@ fn App() -> Html {
     }
 }
 
-fn main() {
-    wasm_logger::init(wasm_logger::Config::default());
-    yew::Renderer::<App>::new().render();
+/* #[derive(Properties, PartialEq, Debug)]
+pub struct ServerAppProps {
+    pub url: AttrValue,
 }
+
+#[function_component]
+pub fn ServerApp(props: &ServerAppProps) -> Html {
+    let history = AnyHistory::from(MemoryHistory::new());
+    history.push(&*props.url);
+
+    html! {
+        <Router {history}>
+            <Switch<Route> render={switch} />
+        </Router>
+    }
+} */

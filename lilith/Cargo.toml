@@ -1,6 +1,6 @@
 [package]
 edition = "2021"
-name = "app"
+name = "lilith"
 version = "0.1.0"
 
 [dependencies]
@@ -19,6 +19,10 @@ wasm-bindgen-futures = "0.4"
 wasm-logger = "0.2"
 web-sys = { version = "0.3", features = ["HtmlFormElement", "HtmlSelectElement", "MediaQueryList"] }
 wee_alloc = "0.4"
-yew = { git = "https://github.com/yewstack/yew.git", features = ["csr"] }
+yew = { git = "https://github.com/yewstack/yew.git" }
 yew-router = { git = "https://github.com/yewstack/yew.git" }
 yewdux = { git = "https://github.com/intendednull/yewdux.git" }
+
+[[bin]]
+name = "lilith"
+required-features = ["yew/csr"]

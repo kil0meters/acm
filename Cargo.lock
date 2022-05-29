@@ -277,30 +277,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d301b3b94cb4b2f23d7917810addbbaff90738e0ca2be692bd027e70d7e0330c"
 
 [[package]]
-name = "app"
-version = "0.1.0"
-dependencies = [
- "acm",
- "chrono",
- "gloo-net",
- "gloo-timers",
- "log",
- "monaco",
- "pulldown-cmark",
- "serde",
- "serde_json",
- "thiserror",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "wasm-logger",
- "web-sys",
- "wee_alloc",
- "yew",
- "yew-router",
- "yewdux",
-]
-
-[[package]]
 name = "askama_escape"
 version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1357,6 +1333,30 @@ dependencies = [
  "cc",
  "pkg-config",
  "vcpkg",
+]
+
+[[package]]
+name = "lilith"
+version = "0.1.0"
+dependencies = [
+ "acm",
+ "chrono",
+ "gloo-net",
+ "gloo-timers",
+ "log",
+ "monaco",
+ "pulldown-cmark",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "wasm-logger",
+ "web-sys",
+ "wee_alloc",
+ "yew",
+ "yew-router",
+ "yewdux",
 ]
 
 [[package]]

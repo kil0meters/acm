@@ -6,6 +6,7 @@ use actix_web::{middleware::Logger, web, App, HttpServer};
 use api::account::user_submissions;
 use api::leaderboard::first_place_finishes;
 use clap::Parser;
+use lilith::{ServerApp, ServerAppProps};
 use reqwest::Client;
 
 use api::{
@@ -47,6 +48,11 @@ async fn main() -> std::io::Result<()> {
 
     let state = State::new(&args.database_url).await;
     let client = Client::new();
+
+    let url = "http://127.0.0.1/meetings".into();
+    let renderer = yew::ServerRenderer::<ServerApp>::with_props(ServerAppProps { url });
+    let res = renderer.render().await;
+    println!("{:?}", res);
 
     HttpServer::new(move || {
         App::new()

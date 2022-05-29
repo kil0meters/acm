@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2018"
 
 [workspace]
-members = ["server", "app", "ramiel"]
+members = ["server", "lilith", "ramiel"]
 default-members = ["server"]
 
 [dependencies]
@@ -20,7 +20,7 @@ validator = { version = "0.15", features = ["derive"], optional = true }
 sqlx = ["dep:sqlx"]
 validate = ["dep:regex", "dep:validator", "dep:lazy_static"]
 
-[profile.release.package.app]
+[profile.release.package.lilith]
 opt-level = 'z'
 
 [profile.release]
