@@ -11,8 +11,8 @@
     --grey-highlight: hsl(200, 10%, 88%);
 
     --border: hsl(200, 10%, 78%);
-	--background: hsl(200, 10%, 98%);
-	--card-background: white;
+    --background: hsl(200, 10%, 98%);
+    --card-background: white;
 
     --modal-backdrop: rgba(0, 0, 0, 0.7);
 
@@ -43,7 +43,6 @@ body {
         font-size: 14px;
     }
 }
-
 .slide-content .scroller {
   width: 1024px;
 }
@@ -145,10 +144,12 @@ a {
 @import "views/leaderboard.scss";
 @import "views/problem-editor.scss";
 @import "views/problem-list.scss";
+@import "views/home.scss";
 @import "views/problem.scss";
 @import "views/account.scss";
 @import "views/meetings.scss";
 @import "components/code-runner.scss";
+@import "components/footer.scss";
 @import "components/markdown-editor.scss";
 @import "components/tabbed.scss";
 @import "components/modal.scss";

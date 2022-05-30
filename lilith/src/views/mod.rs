@@ -15,7 +15,7 @@ pub use home::HomeView;
 pub use leaderboard::LeaderboardView;
 pub use meeting_editor::MeetingEditorView;
 pub use meetings::MeetingsView;
-pub use problem::ProblemView;
+pub use problem::{ProblemView, ProblemViewInner};
 pub use problem_editor::ProblemEditorView;
 pub use problem_list::ProblemListView;
 pub use signup::{LoginView, SignupView};

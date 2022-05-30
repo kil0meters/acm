@@ -360,7 +360,7 @@ pub struct ProblemViewProps {
 }
 
 #[function_component]
-fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
+pub fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
     let id = props.id;
     let problem = use_future(|| async move {
         Request::get(&format!("/api/problems/{}", id))
