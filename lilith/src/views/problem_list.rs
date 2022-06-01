@@ -5,8 +5,14 @@ use gloo_net::http::Request;
 use yew::prelude::*;
 use yew::suspense::use_future;
 use yew_router::prelude::*;
+use yewdux::prelude::*;
 
-use crate::{components::Navbar, helpers::parse_markdown, Route};
+use crate::{
+    components::Navbar,
+    helpers::{is_officer, parse_markdown},
+    state::State,
+    Route,
+};
 
 #[derive(PartialEq, Properties)]
 struct ProblemListingProps {
@@ -33,9 +39,23 @@ fn ProblemListing(props: &ProblemListingProps) -> Html {
 
             <span class="cover" />
         </Link<Route>>
-
     }
 }
+
+/* #[function_component]
+fn ProblemGrouping() -> Html {
+    html! {
+        <div class="problem-grouping">
+            <h1>{ "Meeting Title" }</h1>
+
+            {
+                problems.iter().map(|problem| { html! {
+                    <ProblemListing problem = {problem.clone()} /> }
+                }).collect::<Html>()
+            }
+        </div>
+    }
+} */
 
 #[function_component]
 fn ProblemListInner() -> HtmlResult {
@@ -47,14 +67,21 @@ fn ProblemListInner() -> HtmlResult {
             .await
     })?;
 
+    let dispatch = Dispatch::<State>::new();
+    let state = dispatch.get();
+
     if let Ok(problems) = &*list {
         Ok(html! {
             <div class="problem-list-wrapper">
-            {
-                problems.iter().map(|problem| { html! {
-                    <ProblemListing problem = {problem.clone()} /> }
-                }).collect::<Html>()
-            }
+                if is_officer(&state.session) {
+                    <Link<Route> classes="green button" to={Route::ProblemEditor}>{"New Problem"}</Link<Route>>
+                }
+
+                {
+                    problems.iter().map(|problem| { html! {
+                        <ProblemListing problem = {problem.clone()} /> }
+                    }).collect::<Html>()
+                }
             </div>
         })
     } else {
@@ -65,12 +92,12 @@ fn ProblemListInner() -> HtmlResult {
 #[function_component]
 pub fn ProblemListView() -> Html {
     html! {
-        <div class="container">
+        <main>
             <Navbar />
 
             <Suspense>
                 <ProblemListInner />
             </Suspense>
-        </div>
+        </main>
     }
 }

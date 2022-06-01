@@ -38,4 +38,13 @@ pub enum RunnerError {
 
     #[error("encountered a runtime error")]
     RuntimeError(String),
+
+    #[error("Encountered an error while running code: {}", .0)]
+    InternalServerError(String),
+}
+
+impl From<std::io::Error> for RunnerError {
+    fn from(e: std::io::Error) -> Self {
+        RunnerError::InternalServerError(e.to_string())
+    }
 }

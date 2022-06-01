@@ -74,7 +74,9 @@ impl State {
             FROM
                 meetings
             WHERE
-                DATETIME('now') < DATETIME(meeting_time)
+                DATETIME('now', 'localtime', 'start of day') < DATETIME(meeting_time)
+            ORDER BY
+                meeting_time ASC
             "#
         )
         .fetch_all(&self.conn)
@@ -115,7 +117,7 @@ impl State {
             FROM
                 meetings
             WHERE
-                DATETIME('now') < DATETIME(meeting_time)
+                DATETIME('now', 'localtime', 'start of day') < DATETIME(meeting_time)
             ORDER BY
                 DATETIME(meeting_time) ASC
             "#

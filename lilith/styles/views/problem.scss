@@ -26,17 +26,47 @@
 
 .content-wrapper {
     display: grid;
-    grid-gap: 12px;
+    gap: 12px;
 
     grid-template-rows: 1fr auto;
 
-        @media screen and (max-width: $medium) {
-            height: 50vh;
-            min-height: auto;
-        }
+    &.shown {
+	grid-template-rows: 2fr 1fr auto;
+    }
+
+    @media screen and (max-width: $medium) {
+	min-height: auto;
+	grid-template-rows: 50vh min-content;
+
+	&.shown {
+	    grid-template-rows: 50vh auto auto;
+	}
+    }
+}
+
+.problem-console {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: minmax(150px, 100%) minmax(200px, 400px);
+
+    @media screen and (max-width: $small) {
+	grid-template-columns: auto;
+	grid-template-rows: 200px auto;
+    }
+}
+
+
+.custom-input {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 12px;
 }
 
 .description {
 	overflow: auto;
+}
+
+.run-button {
+    margin-right: auto;
 }
 

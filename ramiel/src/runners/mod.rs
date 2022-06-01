@@ -1,52 +1,54 @@
 use acm::models::{
+    forms::{GenerateTestsForm, RunnerCustomProblemInputForm, RunnerForm},
     runner::{RunnerError, RunnerResponse},
     test::{Test, TestResult},
 };
 use async_trait::async_trait;
-use std::{
-    io::Write,
-    process::{Command, Stdio},
-    time::Instant,
-};
+use std::process::Stdio;
+use std::time::Instant;
+use tokio::{io::AsyncWriteExt, process::Command};
 
-mod gplusplus;
+mod cplusplus;
 
-pub use gplusplus::GPlusPlus;
+pub use cplusplus::CPlusPlus;
 
 #[async_trait]
 pub trait Runner {
-    async fn run_tests(
+    async fn run_tests(&self, form: RunnerForm) -> Result<RunnerResponse, RunnerError>;
+    async fn generate_tests(&self, form: GenerateTestsForm) -> Result<Vec<Test>, RunnerError>;
+    async fn run_custom_input(
         &self,
-        problem_id: i64,
-        runner_code: &str,
-        test_code: &str,
-        tests: Vec<Test>,
-    ) -> Result<RunnerResponse, RunnerError>;
+        form: RunnerCustomProblemInputForm,
+    ) -> Result<TestResult, RunnerError>;
 }
 
 /// Runs a command with a specified input, returning a RuntimeError if the process returns an
 /// error, otherwise returns the output and the duration
-fn run_test_timed(command: &str, test: Test) -> Result<TestResult, RunnerError> {
-    let mut command = Command::new(command)
+async fn run_test_timed(command: &str, test: Test) -> Result<TestResult, RunnerError> {
+    let now = Instant::now();
+    let output = run_command(command, &test.input).await?;
+    Ok(test.make_result(output, now.elapsed()))
+}
+
+async fn run_command(command: &str, input: &str) -> Result<String, RunnerError> {
+    let mut command = Command::new("wasmer")
+        .arg(command)
         .stdin(Stdio::piped())
         .stderr(Stdio::piped())
         .stdout(Stdio::piped())
-        .spawn()
-        .unwrap();
-
-    let now = Instant::now();
+        .spawn()?;
 
     if let Some(stdin) = command.stdin.as_mut().take() {
-        stdin.write_all(test.input.as_bytes()).unwrap();
+        stdin.write_all(input.as_bytes()).await?;
     }
 
-    let output = command.wait_with_output().unwrap();
+    let output = command.wait_with_output().await?;
 
     if output.status.success() {
-        Ok(test.make_result(String::from_utf8(output.stdout).unwrap(), now.elapsed()))
+        Ok(String::from_utf8_lossy(&output.stdout).to_string())
     } else {
         Err(RunnerError::RuntimeError(
-            String::from_utf8(output.stdout).unwrap(),
+            String::from_utf8_lossy(&output.stdout).to_string(),
         ))
     }
 }

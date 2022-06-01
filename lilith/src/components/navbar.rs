@@ -4,7 +4,7 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 use yewdux::prelude::*;
 
-use crate::{helpers::is_officer, state::State, Route};
+use crate::{state::State, Route};
 
 #[function_component]
 pub fn Navbar() -> Html {
@@ -33,10 +33,6 @@ pub fn Navbar() -> Html {
             <Link<Route> classes="navbar-link" to={Route::Problems}>{ "Problems" }</Link<Route>>
             <Link<Route> classes="navbar-link" to={Route::Meetings}>{ "Meetings" }</Link<Route>>
             <Link<Route> classes="navbar-link" to={Route::Leaderboard}>{ "Leaderboard" }</Link<Route>>
-
-            if is_officer(&*session) {
-                <Link<Route> classes="navbar-link" to={Route::ProblemEditor}>{ "Create Problem" }</Link<Route>>
-            }
 
             // If the user currently has no session, we simply display the signup/login buttons,
             // otherwise we show links to logout or view their account.

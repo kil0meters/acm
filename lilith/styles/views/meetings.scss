@@ -15,10 +15,35 @@
 
 .schedule-item {
     display: block;
+    box-shadow: 0 0 0 1px var(--border);
+    transition: box-shadow 50ms ease-in-out;
 
-    &:not(:last-child) {
-        border-bottom: 2px solid var(--border);
+    &:first-child {
+        border-radius: 4px 4px 0 0;
     }
+
+    &:last-child {
+        border-radius: 0 0 4px 4px;
+    }
+
+    &:hover {
+        text-decoration: none;
+        box-shadow: 0 0 0 4px var(--border);
+
+        h3 {
+            text-decoration: underline;
+        }
+    }
+}
+
+.countdown {
+    margin-top: 24px;
+}
+
+.schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .schedule {

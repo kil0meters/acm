@@ -1,13 +1,15 @@
 //! A view used by officers to create/edit problems.
 
+use acm::models::{Activity, Meeting};
 use monaco::api::TextModel;
 
 use gloo_net::http::Request;
 use serde_json::Value;
 
 use wasm_bindgen_futures::spawn_local;
-use web_sys::HtmlInputElement;
+use web_sys::{HtmlInputElement, HtmlSelectElement};
 use yew::prelude::*;
+use yew::suspense::{use_future, use_future_with_deps, Suspense};
 use yew_router::prelude::*;
 use yewdux::prelude::*;
 
@@ -36,7 +38,7 @@ fn MarkdownEditor() -> Html {
             state.problem_editor.description = description.get_value()
         })}>
             <div class="top-row">
-                <span>{ "problem description" }</span>
+                <span>{ "Problem Description" }</span>
 
                 <button class="button grey" onclick={ Callback::from(move |_| preview_tmp.set(!*preview_tmp)) }>
                     { if *preview { "hide preview" } else { "show preview" } }
@@ -68,7 +70,7 @@ async fn submit_problem_request(token: String, navigator: Navigator) -> Option<(
     let dispatch = Dispatch::<State>::new();
     let state = dispatch.get();
 
-    let res: Value = Request::post("/api/create-problem")
+    let res: Value = Request::post("/api/problems/new")
         .header("Authorization", &format!("Bearer {}", token))
         .json(&state.problem_editor)
         .ok()?
@@ -118,6 +120,106 @@ fn submit_problem(token: String, navigator: Navigator) {
 }
 
 #[function_component]
+fn MeetingActivitySelector() -> HtmlResult {
+    let meetings = use_future(|| async move {
+        Request::get("/api/meetings")
+            .send()
+            .await?
+            .json::<Vec<Meeting>>()
+            .await
+    })?;
+
+    let meeting_id = use_state(|| -1);
+
+    let dispatch = Dispatch::<State>::new();
+
+    let update_meeting = {
+        let meeting_id = meeting_id.clone();
+        Callback::from(move |e: InputEvent| {
+            let res = e.target_unchecked_into::<HtmlSelectElement>().value();
+            meeting_id.set(res.parse().unwrap());
+        })
+    };
+
+    let meetings_list = match &*meetings {
+        Ok(list) => list
+            .iter()
+            .map(|m| {
+                html! {
+                    <option value={ m.id.to_string() }>{ &m.title }</option>
+                }
+            })
+            .collect::<Html>(),
+        Err(_) => html! {},
+    };
+
+    Ok(html! {
+        <div class="activity-selector">
+            <label>{ "Meeting: " }</label>
+            <select class="acm-input" oninput={update_meeting}>
+                <option value="-1" selected={true}>{ "None" }</option>
+
+                { meetings_list }
+            </select>
+
+            if *meeting_id != -1 {
+                <Suspense>
+                    <ActivitySelector meeting_id={*meeting_id} />
+                </Suspense>
+            }
+        </div>
+    })
+}
+
+#[derive(Properties, PartialEq)]
+struct ActivitySelectorProps {
+    meeting_id: i64,
+}
+
+#[function_component]
+fn ActivitySelector(props: &ActivitySelectorProps) -> HtmlResult {
+    let activities = use_future_with_deps(
+        |meeting_id| async move {
+            Request::get(&format!("/api/meetings/{}/activities", meeting_id))
+                .send()
+                .await?
+                .json::<Vec<Activity>>()
+                .await
+        },
+        props.meeting_id,
+    )?;
+
+    let dispatch = Dispatch::<State>::new();
+
+    let update_activity = dispatch.reduce_mut_callback_with(move |state, e: InputEvent| {
+        let res = e.target_unchecked_into::<HtmlSelectElement>().value();
+        state.problem_editor.activity_id = res.parse().ok();
+    });
+
+    let activities_list = match &*activities {
+        Ok(list) => list
+            .iter()
+            .map(|a| {
+                html! {
+                    <option value={ a.id.to_string() }>{ &a.title }</option>
+                }
+            })
+            .collect::<Html>(),
+        Err(_) => html! {},
+    };
+
+    Ok(html! {
+        <>
+            <label>{ "Activity:" }</label>
+            <select class="acm-input" oninput={update_activity}>
+                <option value="None" selected={true}>{ "None" }</option>
+                { activities_list }
+            </select>
+        </>
+    })
+}
+
+#[function_component]
 pub fn ProblemEditorView() -> Html {
     let dispatch = Dispatch::<State>::new();
     let state = dispatch.get();
@@ -159,7 +261,7 @@ pub fn ProblemEditorView() -> Html {
                 </div>
 
                 <div class="problem-editor-content">
-                    <Tabbed class="card" titles={ vec!["runner", "template", "tests"] }>
+                    <Tabbed class="card" titles={ vec!["Runner", "Template", "Tests"] }>
                         <div onfocusout={dispatch.reduce_mut_callback(move |state| {
                             state.problem_editor.runner = runner_code.get_value()
                         })}><CodeEditor options = { runner_editor_options } /></div>
@@ -170,6 +272,9 @@ pub fn ProblemEditorView() -> Html {
                     </Tabbed>
 
                     <div class="code-runner-wrapper">
+                        <Suspense fallback={html!{<div class="activity-selector" />}}>
+                            <MeetingActivitySelector />
+                        </Suspense>
                         <button class="button green" onclick={create_problem}>{ "Submit" }</button>
                     </div>
                 </div>

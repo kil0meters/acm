@@ -24,8 +24,8 @@ fn LeaderboardEntry(props: &LeaderboardEntryProps) -> Html {
         <Link<Route> to={Route::Account { username: props.item.username.clone() }} classes="padded leaderboard-item">
             <span class="leaderboard-rank">{ props.position }</span>
             <span class="leaderboard-name">{ &props.item.name }</span>
-            <span class="leaderboard-username">{ &props.item.username }</span>
-            <span class="leaderboard-stars">{ props.item.count } { if props.item.count > 1 { " Stars" } else { " Star" } } </span>
+            <span class="leaderboard-username subtitle">{ &props.item.username }</span>
+            <span class="leaderboard-stars subtitle">{ props.item.count } { if props.item.count > 1 { " Stars" } else { " Star" } } </span>
         </Link<Route>>
     }
 }

@@ -1,6 +1,7 @@
 use acm::models::{
     forms::{CreateProblemForm, EditMeetingForm},
     runner::{RunnerError, RunnerResponse},
+    test::TestResult,
     Session,
 };
 use serde::{Deserialize, Serialize};
@@ -17,7 +18,9 @@ pub struct State {
     pub test_results: HashMap<i64, Result<RunnerResponse, RunnerError>>,
 
     /// Stores the code for a problem
-    pub problem_code: HashMap<i64, String>,
+    #[serde(skip_serializing_if = "HashMap::is_empty")]
+    #[serde(default)]
+    pub problems: HashMap<i64, ProblemState>,
 
     /// Stores whether or not a the tests menu is shown
     pub tests_shown: bool,
@@ -31,4 +34,12 @@ pub struct State {
     /// We don't want this to be saved
     #[serde(skip)]
     pub error: Option<String>,
+}
+
+#[derive(Deserialize, Default, Serialize, PartialEq, Clone)]
+pub struct ProblemState {
+    pub implementation: String,
+    pub custom_input: String,
+    pub docker_shown: bool,
+    pub custom_test_result: Option<TestResult>,
 }

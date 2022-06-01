@@ -10,7 +10,7 @@ use validator::Validate;
 
 use crate::models::{test::Test, User};
 
-use super::Activity;
+use super::{Activity, Meeting};
 
 #[cfg(feature = "validate")]
 lazy_static! {
@@ -50,15 +50,18 @@ pub struct CreateProblemForm {
     pub title: String,
     pub description: String,
     pub runner: String,
+    pub reference: String,
     pub template: String,
     pub tests: Vec<Test>,
+    pub activity_id: Option<i64>,
 }
 
 #[derive(Deserialize, Serialize)]
 pub struct RunnerForm {
     pub problem_id: i64,
-    pub runner_code: String,
-    pub test_code: String,
+    pub username: String,
+    pub runner: String,
+    pub implementation: String,
     pub tests: Vec<Test>,
 }
 
@@ -89,4 +92,30 @@ impl Default for EditMeetingForm {
             activities: Vec::new(),
         }
     }
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct GenerateTestsForm {
+    pub runner: String,
+    pub reference: String,
+    pub username: String,
+    pub inputs: Vec<String>,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct CustomProblemInputForm {
+    pub problem_id: i64,
+    pub implementation: String,
+    pub input: String,
+}
+
+// TODO: Make naming less bad
+#[derive(Deserialize, Serialize)]
+pub struct RunnerCustomProblemInputForm {
+    pub problem_id: i64,
+    pub runner: String,
+    pub username: String,
+    pub implementation: String,
+    pub reference: String,
+    pub input: String,
 }

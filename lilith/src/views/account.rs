@@ -25,12 +25,12 @@ fn RecentSubmissions(props: &AccountViewProps) -> HtmlResult {
                 html! {
                     <div class="padded card">
                         if s.success {
-                            <span class="submission-passed">
+                            <span class="passed res-title">
                                 { "Passed" }
                             </span>
-                            <span class="submission-runtime">{ s.runtime } { "ms" }</span>
+                            <span class="passed">{ s.runtime } { "ms" }</span>
                         } else {
-                            <span class="submission-failed">
+                            <span class="failed res-title">
                                 { "Failed" }
                             </span>
                         }

@@ -1,7 +1,7 @@
 //! An editor view showing a single problem.
 
 use acm::models::{
-    forms::RunTestsForm,
+    forms::{RunTestsForm, CustomProblemInputForm},
     runner::{RunnerError, RunnerResponse},
     test::{Test, TestResult},
     Problem,
@@ -10,6 +10,7 @@ use gloo_net::http::Request;
 use monaco::api::TextModel;
 use thiserror::Error;
 use wasm_bindgen_futures::spawn_local;
+use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
 use yew::suspense::{use_future, Suspense};
 use yewdux::prelude::*;
@@ -51,11 +52,15 @@ fn TestEntry(props: &TestEntryProps) -> Html {
 
             <Modal shown={*modal_shown} onclose={hide_modal}>
                 <div class="padded card">
-                    <h1>{ "Test #" } { props.test.index }</h1>
+                    <h2>{ "Test #" } { props.test.index }</h2>
+
+                    <label>{ "Input" }</label>
 
                     <pre>
                         <code>{ &props.test.input }</code>
                     </pre>
+
+                    <label>{ "Expected" }</label>
 
                     <pre>
                         <code>{ &props.test.expected_output }</code>
@@ -67,13 +72,46 @@ fn TestEntry(props: &TestEntryProps) -> Html {
 }
 
 #[derive(Clone, Debug, PartialEq, Properties)]
-struct TestResultEntryProps {
+struct TestResultProps {
     result: TestResult,
     failed: bool,
 }
 
 #[function_component]
-fn TestResultEntry(props: &TestResultEntryProps) -> Html {
+fn TestResultContents(props: &TestResultProps) -> Html {
+    html! {
+        <div>
+            <div class="submission-title">
+                if props.failed {
+                    <span class="failed res-title">{ "Failed" }</span> <span class="failed">{ props.result.time / 1000 } {"µs"}</span>
+                } else {
+                    <span class="passed res-title">{ "Passed" }</span> <span class="passed">{ props.result.time / 1000 } {"µs"}</span>
+                }
+            </div>
+
+            <label>{ "Input" }</label>
+
+            <pre>
+                <code>{ &props.result.input }</code>
+            </pre>
+
+            <label>{ "Expected" }</label>
+
+            <pre>
+                <code>{ &props.result.expected_output }</code>
+            </pre>
+
+            <label>{ "Output" }</label>
+
+            <pre>
+                <code>{ &props.result.output }</code>
+            </pre>
+        </div>
+    }
+}
+
+#[function_component]
+fn TestResultEntry(props: &TestResultProps) -> Html {
     let modal_shown = use_state(|| false);
 
     let show_modal = {
@@ -101,19 +139,7 @@ fn TestResultEntry(props: &TestResultEntryProps) -> Html {
 
             <Modal shown={*modal_shown} onclose={hide_modal}>
                 <div class="padded card">
-                    <h1>{ "Test #" } { props.result.index }</h1>
-
-                    <pre>
-                        <code>{ &props.result.input }</code>
-                    </pre>
-
-                    <pre>
-                        <code>{ &props.result.expected_output }</code>
-                    </pre>
-
-                    <pre>
-                        <code>{ &props.result.output }</code>
-                    </pre>
+                    <TestResultContents result={props.result.clone()} failed={props.failed} />
                 </div>
             </Modal>
         </>
@@ -148,49 +174,61 @@ fn Tests(props: &TestsProps) -> HtmlResult {
     //
     // 1. If the most recent submission ran fine, we display the test results
     //
-    // 1. If the most recent submission contains a compilation or runtime error, we display that at
+    //     a. If the code worked without error
+    //
+    // 2. If the most recent submission contains a compilation or runtime error, we display that at
     //    the top of the message
     //
-    // 2. If the user has not yet run code, we simply show all of the tested in a greyed out state.
+    // 3. If the user has not yet run code, we simply show all of the tested in a greyed out state.
     let tests_html = match &*test_results {
         Some(Ok(res)) => {
-            let failed_tests = html! {
-                <div class="failed-tests">
-                    <h3>{"Failed"}</h3>
+            if res.failed_tests.is_empty() {
+                html! {
+                    <>
+                        <span class="submission-passed">{ "Congradulations!" }</span>
+                        <span>{ "Your code passed all of the supplied tests." }</span>
+                        <span>{ "Ran in " } { res.runtime } { " ms." }</span>
+                    </>
+                }
+            } else {
+                let failed_tests = html! {
+                    <div class="failed-tests">
+                        <h3>{"Failed"}</h3>
 
-                    <div class="test-list">
-                    {
-                        res.failed_tests.iter()
-                        .map(|t| {
-                            html! {
-                                <TestResultEntry failed={true} result={t.clone()} />
-                            }
-                        })
-                        .collect::<Html>()
-                    }
+                        <div class="test-list">
+                        {
+                            res.failed_tests.iter()
+                            .map(|t| {
+                                html! {
+                                    <TestResultEntry failed={true} result={t.clone()} />
+                                }
+                            })
+                            .collect::<Html>()
+                        }
+                        </div>
                     </div>
-                </div>
-            };
+                };
 
-            let passed_tests = html! {
-                <div class="passed-tests">
-                    <h3>{"Passed"}</h3>
+                let passed_tests = html! {
+                    <div class="passed-tests">
+                        <h3>{"Passed"}</h3>
 
-                    <div class="test-list">
-                    {
-                        res.passed_tests.iter()
-                        .map(|t| {
-                            html! {
-                                <TestResultEntry failed={false} result={t.clone()} />
-                            }
-                        })
-                        .collect::<Html>()
-                    }
+                        <div class="test-list">
+                        {
+                            res.passed_tests.iter()
+                            .map(|t| {
+                                html! {
+                                    <TestResultEntry failed={false} result={t.clone()} />
+                                }
+                            })
+                            .collect::<Html>()
+                        }
+                        </div>
                     </div>
-                </div>
-            };
+                };
 
-            html! {<> {failed_tests} {passed_tests} </>}
+                html! {<> {failed_tests} {passed_tests} </>}
+            }
         }
         Some(Err(e)) => html! {
             html! {
@@ -269,8 +307,8 @@ fn ProblemEditor(props: &ProblemEditorProps) -> Html {
     let state = dispatch.get();
 
     let code = {
-        if let Some(code) = state.problem_code.get(&id) {
-            code
+        if let Some(problem) = state.problems.get(&id) {
+            &problem.implementation
         } else {
             &props.template
         }
@@ -280,7 +318,11 @@ fn ProblemEditor(props: &ProblemEditorProps) -> Html {
     let options = themed_editor_with_model(code.clone());
 
     let onfocusout = dispatch.reduce_mut_callback(move |state| {
-        state.problem_code.insert(id, code.get_value());
+        let entry = state
+            .problems
+            .entry(id)
+            .or_insert_with(|| Default::default());
+        entry.implementation = code.get_value();
     });
 
     html! {
@@ -329,9 +371,10 @@ fn submit_code(id: i64) -> Result<(), ProblemSubmissionError> {
         .to_string();
 
     let problem_code = state
-        .problem_code
+        .problems
         .get(&id)
         .ok_or(ProblemSubmissionError::NoProblemCode)?
+        .implementation
         .to_string();
 
     let form = RunTestsForm {
@@ -354,6 +397,104 @@ fn submit_code(id: i64) -> Result<(), ProblemSubmissionError> {
     Ok(())
 }
 
+#[derive(Properties, PartialEq)]
+struct CustomTestResultProps {
+    id: i64,
+}
+
+#[function_component]
+fn CustomTestResult(props: &CustomTestResultProps) -> Html {
+    let id = props.id;
+
+    let result = use_selector(move |state: &State| {
+        state
+            .problems
+            .get(&id)
+            .map(|x| x.custom_test_result.clone())
+            .flatten()
+    });
+
+    html! {
+        if let Some(result) = &*result {
+            <TestResultContents failed={result.expected_output != result.output} result={result.clone()} />
+        }
+    }
+}
+
+#[derive(Properties, PartialEq)]
+struct InputTesterProps {
+    id: i64,
+}
+
+#[function_component]
+fn InputTester(props: &InputTesterProps) -> Html {
+    let dispatch = Dispatch::<State>::new();
+    let state = dispatch.get();
+    let id = props.id;
+
+    let oninput = dispatch.reduce_mut_callback_with(move |state, e: InputEvent| {
+        let text = e.target_unchecked_into::<HtmlTextAreaElement>().value();
+        let entry = state
+            .problems
+            .entry(id)
+            .or_insert_with(|| Default::default());
+        entry.custom_input = text;
+    });
+
+    let onclick = dispatch.reduce_mut_future_callback(move |state| {
+        Box::pin(async move {
+            let entry = state.problems.entry(id).or_insert_with(|| Default::default());
+            let input = entry.custom_input.clone();
+            let implementation = entry.implementation.clone();
+
+            let token = state
+                .session
+                .as_ref()
+                .unwrap()
+                .token
+                .clone();
+
+            let res = Request::post("/api/custom-input")
+                .header("Authorization", &format!("Bearer {}", token))
+                .json(&CustomProblemInputForm {
+                    problem_id: id,
+                    input,
+                    implementation,
+                })
+                .unwrap()
+                .send()
+                .await
+                .unwrap();
+
+            let res: Result<TestResult, RunnerError> = res
+                .json()
+                .await
+                .unwrap();
+
+            state.problems.entry(id).and_modify(|e| e.custom_test_result = res.ok());
+        })
+    });
+
+    let value = state
+        .problems
+        .get(&id)
+        .map(|p| p.custom_input.clone())
+        .unwrap_or_default();
+
+    html! {
+        <div class="padded card problem-console">
+            <div class="custom-input">
+                <label>{ "Input" }</label>
+                <textarea class="acm-input resize-none" {oninput} {value}>
+                </textarea>
+                <button class="blue button run-button" {onclick}>{ "Run" }</button>
+            </div>
+
+            <CustomTestResult {id} />
+        </div>
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Properties)]
 pub struct ProblemViewProps {
     pub id: i64,
@@ -371,9 +512,25 @@ pub fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
     })?;
 
     let dispatch = Dispatch::<State>::new();
+    let docker_shown = use_selector(move |state: &State| {
+        if let Some(entry) = state.problems.get(&id) {
+            entry.docker_shown
+        } else {
+            false
+        }
+    });
+
     let submit = dispatch.reduce_mut_callback(move |state| match submit_code(id) {
         Err(e) => state.error = Some(e.to_string()),
         _ => {}
+    });
+
+    let toggle_console = dispatch.reduce_mut_callback(move |state| {
+        let entry = state
+            .problems
+            .entry(id)
+            .or_insert_with(|| Default::default());
+        entry.docker_shown = !entry.docker_shown;
     });
 
     match &*problem {
@@ -385,10 +542,24 @@ pub fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
                     </Suspense>
                     <Description title={ problem.title.clone() } content={ problem.description.clone() } />
                 </div>
-                <div class="content-wrapper">
+                <div class={classes!("content-wrapper", if *docker_shown { "shown" } else {""})}>
                     <ProblemEditor {id} template={ problem.template.clone() } />
 
+                    if *docker_shown {
+                        <InputTester {id} />
+                    }
+
                     <div class="code-runner-wrapper">
+                        <div class="activity-selector">
+                            <button class="button grey" onclick={toggle_console}>
+                                if *docker_shown {
+                                    { "Hide console" }
+                                } else {
+                                    { "Show console" }
+                                }
+                            </button>
+                        </div>
+
                         <button class="button green" onclick={submit}>{ "Submit" }</button>
                     </div>
                 </div>

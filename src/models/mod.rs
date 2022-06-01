@@ -30,9 +30,19 @@ pub struct User {
 pub struct Problem {
     pub id: i64,
 
+    /// Problem title
     pub title: String,
+
+    /// Problem description (markdown formatted)
     pub description: String,
+
+    /// Code that parses standard input and outputs to standard out
     pub runner: String,
+
+    /// Reference implementation
+    pub reference: String,
+
+    /// Template that's shown when you start a problem
     pub template: String,
 
     pub visible: bool,
@@ -76,7 +86,7 @@ pub struct LeaderboardItem {
     pub count: i64,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct Meeting {
     pub id: i64,
     pub title: String,
@@ -105,10 +115,4 @@ pub struct Activity {
     pub title: String,
     pub description: String,
     pub activity_type: ActivityType,
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct MeetingActivities {
-    pub meeting: Meeting,
-    pub activities: Vec<Activity>,
 }

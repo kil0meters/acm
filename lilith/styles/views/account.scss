@@ -23,21 +23,18 @@
     margin-bottom: 24px;
 }
 
-.submission-passed {
+.passed {
     color: var(--green);
+}
+
+.failed {
+    color: var(--red);
+}
+
+.res-title {
     font-weight: bold;
     font-size: 1.4em;
     margin-right: 12px;
-}
-
-.submission-failed {
-    color: var(--red);
-    font-weight: bold;
-    font-size: 1.4em;
-}
-
-.submission-runtime {
-    color: var(--green);
 }
 
 .view-problem {

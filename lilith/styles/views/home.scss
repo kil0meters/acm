@@ -10,9 +10,9 @@
     justify-content: center;
 
     grid-template-columns:
-      [full-start] minmax(12px, 0.2fr)
+      [full-start] minmax(0, 0.2fr)
       [main-start] minmax(0, 800px) [main-end]
-      minmax(12px, 0.2fr) [full-end];
+      minmax(0, 0.2fr) [full-end];
 
     img {
         border-radius: 0 0 4px 4px;

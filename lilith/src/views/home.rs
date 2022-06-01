@@ -4,17 +4,17 @@ use yew::prelude::*;
 use yew::suspense::Suspense;
 
 use crate::{
-    components::{Navbar, Footer},
-    views::ProblemViewInner
+    components::{Footer, Navbar},
+    views::ProblemViewInner,
 };
 
 #[function_component]
 pub fn HomeView() -> Html {
     html! {
-        <div class="homepage">
+        <div>
             <Navbar />
 
-            <div class="home-wrapper">
+            <main class="home-wrapper">
                 <img src="https://web.archive.org/web/20211220234950im_/http://chico-acm.com/images/acm-club.png" />
 
                 <h2>{ "Try a problem." }</h2>
@@ -24,7 +24,7 @@ pub fn HomeView() -> Html {
                 <Suspense>
                     <ProblemViewInner id={1} />
                 </Suspense>
-            </div>
+            </main>
 
             <Footer />
         </div>

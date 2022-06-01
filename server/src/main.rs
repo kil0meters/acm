@@ -11,9 +11,9 @@ use reqwest::Client;
 use api::{
     account::user_info,
     leaderboard::leaderboard,
-    meetings::{edit_meeting, meeting, meeting_list, next_meeting},
+    meetings::{edit_meeting, meeting, meeting_activities, meeting_list, next_meeting},
     problems::{create_problem, problem, problem_list, problem_tests},
-    run::run_tests,
+    run::{custom_input, generate_tests, run_tests},
     signup::{login, signup},
 };
 use state::State;
@@ -68,10 +68,13 @@ async fn main() -> std::io::Result<()> {
                     .service(problem_tests)
                     .service(create_problem)
                     .service(run_tests)
+                    .service(generate_tests)
+                    .service(custom_input)
                     .service(user_info)
                     .service(user_submissions)
                     .service(meeting_list)
                     .service(next_meeting)
+                    .service(meeting_activities)
                     .service(meeting)
                     .service(edit_meeting),
             )

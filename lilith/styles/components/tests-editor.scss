@@ -1,4 +1,15 @@
 .tests-editor {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+
+    @media screen and (max-width: $medium) {
+	grid-template-columns: auto;
+	grid-template-rows: auto auto;
+    }
+}
+
+.tests-editor-list {
+    border-left: 2px solid var(--border);
     max-height: 100%;
     display: flex;
     flex-direction: column;
@@ -10,6 +21,11 @@
     textarea {
 	font-size: 18px;
 	resize: none;
+    }
+
+    @media screen and (max-width: $medium) {
+	border-left: 0;
+	border-top: 2px solid var(--border);
     }
 }
 

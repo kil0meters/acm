@@ -16,7 +16,7 @@ use crate::state::{auth::Claims, AppState};
 /// Creates a new problem
 ///
 /// **AUTHORIZATION**: ADMIN/OFFICER
-#[post("/create-problem")]
+#[post("/problems/new")]
 pub async fn create_problem(
     form: Json<CreateProblemForm>,
     state: AppState,

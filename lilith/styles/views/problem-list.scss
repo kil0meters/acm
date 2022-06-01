@@ -5,6 +5,28 @@
     margin: 24px auto;
     gap: 24px;
     min-height: auto;
+
+    h2 {
+        margin: 0;
+    }
+}
+
+.problem-grouping {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-radius: 8px;
+    margin: 0 -8px 6px -8px;
+    padding: 8px;
+
+    color: var(--retro-code-text);
+    background-color: var(--retro-code-background);
+    box-shadow: 0 0 0 8px var(--retro-code-border);
+
+    & > h1 {
+        font-family: monospace;
+        margin: 0;
+    }
 }
 
 .problem-listing {
@@ -19,7 +41,12 @@
     transition: box-shadow 50ms ease-in-out;
 
     &:hover {
+        text-decoration: none;
         box-shadow: 0 0 0 4px var(--border);
+
+        h1 {
+            text-decoration: underline;
+        }
     }
 }
 

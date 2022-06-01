@@ -1,9 +1,15 @@
-use acm::models::test::Test;
+use acm::models::{
+    forms::{CreateProblemForm, GenerateTestsForm},
+    runner::RunnerError,
+    test::Test,
+};
+use gloo_net::http::Request;
+use monaco::api::TextModel;
 use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
 use yewdux::prelude::*;
 
-use crate::state::State;
+use crate::{components::CodeEditor, helpers::themed_editor_with_model, state::State};
 
 #[derive(PartialEq, Properties)]
 struct TestEditorProps {
@@ -42,12 +48,10 @@ fn TestEditor(props: &TestEditorProps) -> Html {
 }
 
 #[function_component]
-pub fn TestsEditor() -> Html {
+fn TestEditorList() -> Html {
     // We rerender only when a test is added or removed.
-    use_selector(|state: &State| state.problem_editor.tests.len());
-
+    let tests = use_selector(|state: &State| state.problem_editor.tests.clone());
     let dispatch = Dispatch::<State>::new();
-    let state = dispatch.get();
 
     let add_test = dispatch.reduce_mut_callback(|state| {
         state.problem_editor.tests.push(Test {
@@ -60,10 +64,43 @@ pub fn TestsEditor() -> Html {
         state.problem_editor.tests.pop();
     });
 
+    let populate_tests = dispatch.reduce_mut_future_callback(|state| {
+        Box::pin(async move {
+            let res: Result<Vec<Test>, RunnerError> = Request::post("/api/generate-tests")
+                .header(
+                    "Authorization",
+                    &format!("Bearer {}", state.session.as_ref().unwrap().token),
+                )
+                .json(&GenerateTestsForm {
+                    runner: state.problem_editor.runner.clone(),
+                    reference: state.problem_editor.reference.clone(),
+                    username: state.session.as_ref().unwrap().user.username.clone(),
+                    inputs: state
+                        .problem_editor
+                        .tests
+                        .iter()
+                        .map(|test| test.input.clone())
+                        .collect::<Vec<String>>(),
+                })
+                .unwrap()
+                .send()
+                .await
+                .unwrap()
+                .json()
+                .await
+                .unwrap();
+
+            match res {
+                Ok(tests) => state.problem_editor.tests = tests,
+                Err(e) => state.error = Some(e.to_string()),
+            };
+        })
+    });
+
     html! {
-        <div class="tests-editor">
+        <div class="tests-editor-list">
             {
-                state.problem_editor.tests.iter().map(|test| {
+                tests.iter().map(|test| {
                     html! {
                         <TestEditor test={test.clone()}/>
                     }
@@ -73,7 +110,30 @@ pub fn TestsEditor() -> Html {
             <div class="tests-buttons">
                 <button class="blue button" onclick={add_test}>{ "Add test" }</button>
                 <button class="red button" onclick={remove_test}>{ "Remove test" }</button>
+                <button class="grey button" onclick={populate_tests}>{ "Populate output" }</button>
             </div>
+        </div>
+    }
+}
+
+#[function_component]
+pub fn TestsEditor() -> Html {
+    let dispatch = Dispatch::<State>::new();
+    let state = dispatch.get();
+
+    let reference = TextModel::create(&state.problem_editor.reference, Some("cpp"), None).unwrap();
+    let options = themed_editor_with_model(reference.clone());
+
+    let onfocusout = dispatch.reduce_mut_callback(move |state| {
+        state.problem_editor.reference = reference.get_value();
+    });
+
+    html! {
+        <div class="tests-editor">
+            <div {onfocusout}>
+                <CodeEditor {options} />
+            </div>
+            <TestEditorList />
         </div>
     }
 }

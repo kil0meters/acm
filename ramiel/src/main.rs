@@ -1,31 +1,37 @@
-use acm::{models::forms::RunnerForm, RAMIEL_URL};
-use actix_web::{
-    middleware::Logger,
-    post,
-    web::{self, Json},
-    App, HttpResponse, HttpServer, Responder,
+use acm::{
+    models::{
+        forms::RunnerCustomProblemInputForm,
+        runner::{RunnerError, RunnerResponse}, test::TestResult,
+    },
+    models::{
+        forms::{GenerateTestsForm, RunnerForm},
+        test::Test,
+    },
+    RAMIEL_URL,
 };
+use actix_web::{middleware::Logger, post, web::Json, App, HttpServer};
 
 mod runners;
 
-use runners::{GPlusPlus, Runner};
+use runners::{CPlusPlus, Runner};
 
-async fn handle_runner(runner: impl Runner, form: RunnerForm) -> impl Responder {
-    let res = runner
-        .run_tests(
-            form.problem_id,
-            &form.runner_code,
-            &form.test_code,
-            form.tests,
-        )
-        .await;
-
-    HttpResponse::Ok().json(&res)
+#[post("/run/c++")]
+async fn cplusplus_run(form: Json<RunnerForm>) -> Json<Result<RunnerResponse, RunnerError>> {
+    Json(CPlusPlus.run_tests(form.into_inner()).await)
 }
 
-#[post("/run/g++")]
-async fn gplusplus(form: Json<RunnerForm>) -> impl Responder {
-    handle_runner(GPlusPlus::new(), form.into_inner()).await
+#[post("/generate-tests/c++")]
+async fn cplusplus_generate_tests(
+    form: Json<GenerateTestsForm>,
+) -> Json<Result<Vec<Test>, RunnerError>> {
+    Json(CPlusPlus.generate_tests(form.into_inner()).await)
+}
+
+#[post("/custom-input/c++")]
+async fn cplusplus_custom_input(
+    form: Json<RunnerCustomProblemInputForm>,
+) -> Json<Result<TestResult, RunnerError>> {
+    Json(CPlusPlus.run_custom_input(form.into_inner()).await)
 }
 
 #[actix_web::main]
@@ -35,8 +41,9 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .wrap(Logger::default())
-            .route("/hello", web::get().to(|| async { "Hello World!" }))
-            .service(gplusplus)
+            .service(cplusplus_run)
+            .service(cplusplus_generate_tests)
+            .service(cplusplus_custom_input)
     })
     .bind(RAMIEL_URL)?
     .run()

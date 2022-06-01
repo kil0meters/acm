@@ -6,6 +6,11 @@
     --blue: hsl(220, 60%, 40%);
     --blue-highlight: hsl(220, 60%, 50%);
     --text: hsl(0, 50%, 8%);
+    --subtitle: hsl(0, 6%, 43%);
+
+    --retro-code-text: hsl(44, 10%, 83%);
+    --retro-code-background: hsl(44, 10%, 23%);
+    --retro-code-border: hsl(44, 10%, 16%);
 
     --grey: hsl(200, 10%, 94%);
     --grey-highlight: hsl(200, 10%, 88%);
@@ -30,7 +35,7 @@
     }
 }
 
-$small: 300px;
+$small: 500px;
 $medium: 900px;
 
 body {
@@ -45,6 +50,10 @@ body {
 }
 .slide-content .scroller {
   width: 1024px;
+}
+
+.subtitle {
+    color: var(--subtitle);
 }
 
 .container {
@@ -67,7 +76,6 @@ pre:last-child {
 }
 
 pre {
-    font-size: 1.2em;
     padding: 12px;
     border-radius: 4px;
     background-color: var(--grey);
@@ -124,6 +132,10 @@ pre {
 
 .card-input {
     background-color: var(--background);
+}
+
+.resize-none {
+    resize: none;
 }
 
 a {
