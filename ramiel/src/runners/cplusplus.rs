@@ -117,7 +117,6 @@ async fn compile_problem(
             "-Wall",
             "-Wextra",
             "-Wpedantic",
-            "-O2",
             &runner_filename,
             &implementation_filename,
             "-o",
