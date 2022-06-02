@@ -32,7 +32,12 @@ async fn run_test_timed(command: &str, test: Test) -> Result<TestResult, RunnerE
 
 async fn run_command(command: &str, input: &str) -> Result<String, RunnerError> {
     let mut command = Command::new("wasmer")
-        .arg(command)
+        .args(&[
+            "run",
+            "--disable-cache",
+            "--singlepass",
+            command
+        ])
         .stdin(Stdio::piped())
         .stderr(Stdio::piped())
         .stdout(Stdio::piped())

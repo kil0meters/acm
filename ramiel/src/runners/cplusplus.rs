@@ -81,7 +81,8 @@ async fn compile_problem(
     runner: &str,
 ) -> Result<String, RunnerError> {
     let runner_filename = format!("{prefix}/runner.cpp");
-    let executable_filename = format!("{prefix}/out.wasm");
+    let wasm_filename = format!("{prefix}/out.wasm");
+    let executable_filename = format!("{prefix}/out.wasmu");
     let implementation_filename = format!("{prefix}/implementation.cpp");
 
     // Read the existing file, if it exists
@@ -114,13 +115,31 @@ async fn compile_problem(
 
     let output = Command::new("/opt/wasi-sdk/bin/clang++")
         .args([
+            "-O2",
             "-Wall",
             "-Wextra",
             "-Wpedantic",
             &runner_filename,
             &implementation_filename,
             "-o",
-            &executable_filename,
+            &wasm_filename,
+        ])
+        .output()
+        .await?;
+
+    if !output.status.success() {
+        return Err(parse_cplusplus_error(
+            String::from_utf8_lossy(&output.stderr).to_string(),
+        ))
+    }
+
+    let output = Command::new("wasmer")
+        .args([
+            "compile",
+            "--cranelift",
+            &wasm_filename,
+            "-o",
+            &executable_filename
         ])
         .output()
         .await?;
@@ -128,9 +147,7 @@ async fn compile_problem(
     if output.status.success() {
         Ok(executable_filename)
     } else {
-        Err(parse_cplusplus_error(
-            String::from_utf8_lossy(&output.stderr).to_string(),
-        ))
+        Err(RunnerError::InternalServerError("Failed to compile.".to_string()))
     }
 }
 
