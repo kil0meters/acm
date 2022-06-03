@@ -41,6 +41,9 @@ pub enum RunnerError {
 
     #[error("Encountered an error while running code: {}", .0)]
     InternalServerError(String),
+
+    #[error("Process took too long to execute")]
+    TimeoutError,
 }
 
 impl From<std::io::Error> for RunnerError {

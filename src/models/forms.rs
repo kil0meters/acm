@@ -10,7 +10,7 @@ use validator::Validate;
 
 use crate::models::{test::Test, User};
 
-use super::{Activity, Meeting};
+use super::Activity;
 
 #[cfg(feature = "validate")]
 lazy_static! {

@@ -5,8 +5,11 @@ use acm::models::{
 };
 use async_trait::async_trait;
 use std::process::Stdio;
-use std::time::Instant;
-use tokio::{io::AsyncWriteExt, process::Command};
+use tokio::{
+    io::{AsyncReadExt, AsyncWriteExt, BufReader},
+    process::Command,
+    time::{timeout, Duration, Instant},
+};
 
 mod cplusplus;
 
@@ -31,24 +34,40 @@ async fn run_test_timed(command: &str, test: Test) -> Result<TestResult, RunnerE
 }
 
 async fn run_command(command: &str, input: &str) -> Result<String, RunnerError> {
-    let mut command = Command::new("wasmer")
+    let mut child = Command::new("wasmer")
         .args(&["run", command])
         .stdin(Stdio::piped())
         .stderr(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()?;
 
-    if let Some(stdin) = command.stdin.as_mut().take() {
+    if let Some(stdin) = child.stdin.as_mut().take() {
         stdin.write_all(input.as_bytes()).await?;
     }
 
-    let output = command.wait_with_output().await?;
+    let exit_status = match timeout(Duration::from_secs(5), child.wait()).await {
+        Ok(exit_status) => exit_status?,
+        Err(_) => {
+            child.kill().await?;
+            return Err(RunnerError::TimeoutError);
+        }
+    };
 
-    if output.status.success() {
-        Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    let stdout = child
+        .stdout
+        .take()
+        .expect("child process did not have handle to stdout");
+
+    let mut reader = BufReader::new(stdout);
+
+    let mut bytes = vec![];
+    reader.read_to_end(&mut bytes).await?;
+
+    if exit_status.success() {
+        Ok(String::from_utf8_lossy(&bytes).to_string())
     } else {
         Err(RunnerError::RuntimeError(
-            String::from_utf8_lossy(&output.stdout).to_string(),
+            String::from_utf8_lossy(&bytes).to_string(),
         ))
     }
 }

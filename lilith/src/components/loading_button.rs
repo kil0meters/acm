@@ -45,5 +45,6 @@ pub fn LoadingButton(props: &LoadingButtonProps) -> Html {
 
             <span class="spinner" />
         </button>
+
     }
 }
