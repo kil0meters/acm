@@ -1,5 +1,5 @@
 use acm::models::{
-    forms::{CreateProblemForm, GenerateTestsForm},
+    forms::{GenerateTestsForm},
     runner::RunnerError,
     test::{Test, TestResult},
 };
@@ -7,7 +7,7 @@ use gloo_net::http::Request;
 use monaco::api::TextModel;
 use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
-use yew::suspense::{use_future, Suspense};
+use yew::suspense::{use_future};
 use yewdux::prelude::*;
 
 use crate::{

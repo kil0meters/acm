@@ -131,7 +131,7 @@ fn MeetingActivitySelector() -> HtmlResult {
 
     let meeting_id = use_state(|| -1);
 
-    let dispatch = Dispatch::<State>::new();
+    let _dispatch = Dispatch::<State>::new();
 
     let update_meeting = {
         let meeting_id = meeting_id.clone();

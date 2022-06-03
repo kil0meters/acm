@@ -7,7 +7,7 @@ impl State {
         // TODO: Once again, we need to work on a way to structure transactions since this can
         // cause issues if something fails early.
 
-        if let Some(id) = form.id {
+        if let Some(_id) = form.id {
             todo!();
         } else {
             let id = sqlx::query!(

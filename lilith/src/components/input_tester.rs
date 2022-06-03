@@ -1,6 +1,6 @@
 use acm::models::{forms::CustomProblemInputForm, runner::RunnerError, test::TestResult};
 use gloo_net::http::Request;
-use std::rc::Rc;
+
 use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
 use yewdux::prelude::*;
