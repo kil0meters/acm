@@ -1,8 +1,12 @@
 use acm::{
     models::{
-        forms::{RunTestsForm, RunnerForm, GenerateTestsForm, RunnerCustomProblemInputForm, CustomProblemInputForm},
+        forms::{
+            CustomProblemInputForm, GenerateTestsForm, RunTestsForm, RunnerCustomProblemInputForm,
+            RunnerForm,
+        },
         runner::{RunnerError, RunnerResponse},
-        Auth, test::{Test, TestResult}
+        test::{Test, TestResult},
+        Auth,
     },
     RAMIEL_URL,
 };
@@ -20,7 +24,8 @@ use crate::{
 };
 
 #[post("/run-tests")]
-pub async fn run_tests( form: Json<RunTestsForm>,
+pub async fn run_tests(
+    form: Json<RunTestsForm>,
     state: AppState,
     client: Data<Client>,
     claims: Claims,
@@ -82,7 +87,7 @@ pub async fn generate_tests(
 
             let tests: Result<Vec<Test>, RunnerError> = res.json().await.unwrap();
             api_success(tests)
-        },
+        }
         Auth::MEMBER => api_error(
             StatusCode::UNAUTHORIZED,
             "You must be an officer to do that",
@@ -99,7 +104,7 @@ pub async fn custom_input(
 ) -> impl Responder {
     let form = form.into_inner();
 
-    if let Some (problem) = state.problems_get_by_id(form.problem_id).await {
+    if let Some(problem) = state.problems_get_by_id(form.problem_id).await {
         let res = client
             .post(&format!("http://{RAMIEL_URL}/custom-input/c++"))
             .json(&RunnerCustomProblemInputForm {
@@ -108,7 +113,7 @@ pub async fn custom_input(
                 username: claims.username,
                 implementation: form.implementation,
                 reference: problem.reference,
-                input: form.input
+                input: form.input,
             })
             .send()
             .await

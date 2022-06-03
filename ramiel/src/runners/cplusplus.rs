@@ -1,9 +1,9 @@
 use acm::models::{
-    forms::{GenerateTestsForm, RunnerForm, RunnerCustomProblemInputForm},
+    forms::{GenerateTestsForm, RunnerCustomProblemInputForm, RunnerForm},
     test::{Test, TestResult},
 };
 use async_trait::async_trait;
-use std::time::Instant;
+use std::{path::Path, time::Instant};
 use tokio::{
     fs::{self, File},
     io::{AsyncReadExt, AsyncWriteExt},
@@ -55,12 +55,23 @@ impl Runner for CPlusPlus {
         Ok(outputs)
     }
 
-    async fn run_custom_input(&self, form: RunnerCustomProblemInputForm) -> Result<TestResult, RunnerError> {
-        let reference_prefix = format!("/tmp/acm/custom_input/{}/{}/reference/", form.username, form.problem_id);
-        let implementation_prefix = format!("/tmp/acm/custom_input/{}/{}/implementation/", form.username, form.problem_id);
+    async fn run_custom_input(
+        &self,
+        form: RunnerCustomProblemInputForm,
+    ) -> Result<TestResult, RunnerError> {
+        let reference_prefix = format!(
+            "/tmp/acm/custom_input/{}/{}/reference/",
+            form.username, form.problem_id
+        );
+        let implementation_prefix = format!(
+            "/tmp/acm/custom_input/{}/{}/implementation/",
+            form.username, form.problem_id
+        );
 
-        let reference_command = compile_problem(&reference_prefix, &form.reference, &form.runner).await?;
-        let implementation_command = compile_problem(&implementation_prefix, &form.implementation, &form.runner).await?;
+        let reference_command =
+            compile_problem(&reference_prefix, &form.reference, &form.runner).await?;
+        let implementation_command =
+            compile_problem(&implementation_prefix, &form.implementation, &form.runner).await?;
 
         let expected_output = run_command(&reference_command, &form.input).await?;
 
@@ -85,19 +96,21 @@ async fn compile_problem(
     let executable_filename = format!("{prefix}/out.wasmu");
     let implementation_filename = format!("{prefix}/implementation.cpp");
 
-    // Read the existing file, if it exists
-    if let Some(mut file) = File::open(&implementation_filename).await.ok() {
-        let mut data: Vec<u8> = vec![];
-        file.read_buf(&mut data).await?;
+    // If the previous submission was successful and unchanged, go ahead without compiling.
+    if Path::new(&executable_filename).exists() {
+        if let Some(mut file) = File::open(&implementation_filename).await.ok() {
+            let mut data: Vec<u8> = vec![];
+            file.read_buf(&mut data).await?;
 
-        // Using md5 here is fine since everything is scoped to the username of the account. The
-        // worst anyone could do is trick the server into not compiling their code. Main benefit of
-        // using it over something like sha256 is speed and hash length.
-        let old_hash = md5::compute(data);
-        let new_hash = md5::compute(implementation.as_bytes());
+            // Using md5 here is fine since everything is scoped to the username of the account. The
+            // worst anyone could do is trick the server into not compiling their code. Main benefit of
+            // using it over something like sha256 is speed and hash length.
+            let old_hash = md5::compute(data);
+            let new_hash = md5::compute(implementation.as_bytes());
 
-        if old_hash == new_hash {
-            return Ok(executable_filename);
+            if old_hash == new_hash {
+                return Ok(executable_filename);
+            }
         }
     }
 
@@ -128,9 +141,14 @@ async fn compile_problem(
         .await?;
 
     if !output.status.success() {
+        match fs::remove_file(&executable_filename).await {
+            Ok(_) => {}
+            Err(_) => {}
+        };
+
         return Err(parse_cplusplus_error(
             String::from_utf8_lossy(&output.stderr).to_string(),
-        ))
+        ));
     }
 
     let output = Command::new("wasmer")
@@ -139,7 +157,7 @@ async fn compile_problem(
             "--cranelift",
             &wasm_filename,
             "-o",
-            &executable_filename
+            &executable_filename,
         ])
         .output()
         .await?;
@@ -147,7 +165,9 @@ async fn compile_problem(
     if output.status.success() {
         Ok(executable_filename)
     } else {
-        Err(RunnerError::InternalServerError("Failed to compile.".to_string()))
+        Err(RunnerError::InternalServerError(
+            "Failed to compile.".to_string(),
+        ))
     }
 }
 

@@ -1,12 +1,13 @@
+use acm::models::{forms::CustomProblemInputForm, runner::RunnerError, test::TestResult};
+use gloo_net::http::Request;
+use std::rc::Rc;
+use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
 use yewdux::prelude::*;
-use acm::models::{runner::RunnerError, test::TestResult, forms::CustomProblemInputForm};
-use web_sys::HtmlTextAreaElement;
-use gloo_net::http::Request;
 
 use crate::{
+    components::{LoadingButton, TestResultContents},
     state::State,
-    components::TestResultContents,
 };
 
 #[derive(Properties, PartialEq)]
@@ -53,38 +54,6 @@ pub fn InputTester(props: &InputTesterProps) -> Html {
         entry.custom_input = text;
     });
 
-    let onclick = dispatch.reduce_mut_future_callback(move |state| {
-        Box::pin(async move {
-            let entry = state
-                .problems
-                .entry(id)
-                .or_insert_with(|| Default::default());
-            let input = entry.custom_input.clone();
-            let implementation = entry.implementation.clone();
-
-            let token = state.session.as_ref().unwrap().token.clone();
-
-            let res = Request::post("/api/custom-input")
-                .header("Authorization", &format!("Bearer {}", token))
-                .json(&CustomProblemInputForm {
-                    problem_id: id,
-                    input,
-                    implementation,
-                })
-                .unwrap()
-                .send()
-                .await
-                .unwrap();
-
-            let res: Result<TestResult, RunnerError> = res.json().await.unwrap();
-
-            state
-                .problems
-                .entry(id)
-                .and_modify(|e| e.custom_test_result = res.ok());
-        })
-    });
-
     let value = state
         .problems
         .get(&id)
@@ -97,7 +66,7 @@ pub fn InputTester(props: &InputTesterProps) -> Html {
                 <label>{ "Input" }</label>
                 <textarea class="acm-input resize-none" {oninput} {value}>
                 </textarea>
-                <button class="blue button run-button" {onclick}>{ "Run" }</button>
+                <CustomInputButton {id} />
             </div>
 
             <CustomTestResult {id} />
@@ -105,3 +74,83 @@ pub fn InputTester(props: &InputTesterProps) -> Html {
     }
 }
 
+#[function_component]
+fn CustomInputButton(props: &InputTesterProps) -> Html {
+    let loading = use_state(|| false);
+    let dispatch = Dispatch::<State>::new();
+    let id = props.id;
+
+    let onclick = {
+        let loading = loading.clone();
+        dispatch.reduce_mut_future_callback(move |state| {
+            let loading = loading.clone();
+            Box::pin(async move {
+                loading.set(true);
+
+                let entry = state
+                    .problems
+                    .entry(id)
+                    .or_insert_with(|| Default::default());
+                let input = entry.custom_input.clone();
+                let implementation = entry.implementation.clone();
+
+                let token = match state.session.as_ref() {
+                    Some(session) => session.token.clone(),
+                    None => {
+                        state.error = Some("You must be logged in to do that.".to_string());
+                        loading.set(false);
+                        return;
+                    }
+                };
+
+                let res = match Request::post("/api/custom-input")
+                    .header("Authorization", &format!("Bearer {}", token))
+                    .json(&CustomProblemInputForm {
+                        problem_id: id,
+                        input,
+                        implementation,
+                    })
+                    .expect("Failed to serialize json")
+                    .send()
+                    .await
+                {
+                    Ok(res) => res,
+                    Err(_) => {
+                        state.error = Some("Could not connect to server".to_string());
+                        loading.set(false);
+                        return;
+                    }
+                };
+
+                let res: Result<TestResult, RunnerError> =
+                    res.json().await.expect("Request is in an invalid format");
+
+                match res {
+                    Ok(res) => {
+                        state
+                            .problems
+                            .entry(id)
+                            .and_modify(|e| e.custom_test_result = Some(res));
+                    }
+                    Err(e) => {
+                        state.test_results.entry(id).and_modify(|t| *t = Err(e));
+
+                        state.tests_shown = true;
+                    }
+                }
+
+                loading.set(false);
+            })
+        })
+    };
+
+    html! {
+        <LoadingButton
+            class="blue button run-button"
+            loading={*loading}
+            {onclick}
+        >
+            { "Run" }
+        </LoadingButton>
+    }
+}

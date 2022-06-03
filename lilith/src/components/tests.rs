@@ -11,7 +11,7 @@ use yew::suspense::{use_future, Suspense};
 use yewdux::prelude::*;
 
 use crate::{
-    components::{CodeEditor, Modal, ErrorBox},
+    components::{CodeEditor, ErrorBox, Modal},
     helpers::themed_editor_with_model,
     state::State,
 };
@@ -307,7 +307,7 @@ pub fn TestList(props: &TestsProps) -> HtmlResult {
             if res.failed_tests.is_empty() {
                 html! {
                     <>
-                        <span class="submission-passed">{ "Congratulations!" }</span>
+                        <span class="passed res-title">{ "Congratulations!" }</span>
                         <span>{ "Your code passed all of the supplied tests." }</span>
                         <span>{ "Ran in " } { res.runtime } { " ms." }</span>
                     </>
