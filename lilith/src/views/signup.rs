@@ -35,12 +35,6 @@ pub fn SignupView() -> Html {
             let name = form_data.get("name").as_string().unwrap();
             let username = form_data.get("username").as_string().unwrap();
             let password = form_data.get("password").as_string().unwrap();
-            let verify_password = form_data.get("verify_password").as_string().unwrap();
-
-            if password != verify_password {
-                error.set(Some("Passwords do not match".to_string()));
-                return;
-            }
 
             let signup_data = SignupForm {
                 name,

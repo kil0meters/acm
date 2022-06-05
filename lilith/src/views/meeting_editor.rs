@@ -8,7 +8,7 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 use yewdux::prelude::*;
 
-use crate::{components::Navbar, state::State, Route, api_url};
+use crate::{api_url, components::Navbar, state::State, Route};
 
 #[derive(PartialEq, Properties)]
 pub struct ActivityEntryProps {

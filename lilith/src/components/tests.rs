@@ -142,8 +142,8 @@ pub fn TestsEditor() -> Html {
     });
 
     html! {
-        <div class="grid grid-rows-2 xl:grid-rows-1 xl:grid-cols-3">
-            <div class="col-span-2 border-b border-neutral-300 lg:border-b-0 lg:border-r" {onfocusout}>
+        <div class="grid grid-rows-2 grid-cols-1 xl:grid-rows-1 xl:grid-cols-3">
+            <div class="xl:col-span-2 border-b border-neutral-300 xl:border-b-0 xl:border-r" {onfocusout}>
                 <CodeEditor classes="min-h-[40vh] lg:h-full" {options} />
             </div>
             <TestEditorList />
