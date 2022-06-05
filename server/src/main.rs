@@ -47,7 +47,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
-            .wrap(Cors::default().allow_any_origin())
+            .wrap(Cors::permissive())
             .app_data(web::Data::new(state.clone()))
             // TODO: Benchmark storing client in web::Data vs creating a new one per request
             .app_data(web::Data::new(client.clone()))
