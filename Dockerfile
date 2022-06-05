@@ -24,7 +24,6 @@ RUN apt-get purge -y wget; \
 
 COPY --from=builder /usr/local/cargo/bin/server /usr/local/bin/server
 COPY --from=builder /usr/local/cargo/bin/ramiel /usr/local/bin/ramiel
-COPY --from=builder /usr/src/acm/dist /usr/share/acm/dist
 COPY scripts/start_acm.sh /usr/local/bin/start_acm
 
 CMD ["start_acm"]

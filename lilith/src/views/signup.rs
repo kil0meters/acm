@@ -53,7 +53,7 @@ pub fn SignupView() -> Html {
             spawn_local(async move {
                 let dispatch = Dispatch::<State>::new();
 
-                let res: Value = Request::post(api_url!("/api/signup"))
+                let res: Value = Request::post(api_url!("/signup"))
                     .json(&signup_data)
                     .unwrap()
                     .send()
@@ -135,7 +135,7 @@ pub fn LoginView() -> Html {
             // that waits for a future using Javascript's event loop.
             spawn_local(async move {
                 // You might think this code is ugly, but it actually makes quite a bit of sense:
-                let res: Value = Request::post("/api/login")
+                let res: Value = Request::post(api_url!("/login"))
                     .json(&login_data) // Attach a JSON object to the request
                     .unwrap() // Ignore parsing errors
                     .send() // Send the request

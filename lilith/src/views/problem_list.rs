@@ -45,7 +45,7 @@ fn ProblemListing(props: &ProblemListingProps) -> Html {
 #[function_component]
 fn ProblemListInner() -> HtmlResult {
     let list = use_future(|| async move {
-        Request::get(api_url!("/api/problems"))
+        Request::get(api_url!("/problems"))
             .send()
             .await?
             .json::<Vec<Problem>>()
