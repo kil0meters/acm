@@ -23,7 +23,6 @@ pub struct User {
     pub password: String,
 
     pub auth: Auth,
-    pub star_count: i64,
 }
 
 #[derive(Debug, Default, Deserialize, Serialize, Clone, PartialEq)]

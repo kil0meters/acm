@@ -25,7 +25,7 @@ pub type SqlPool = sqlx::SqlitePool;
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
-    #[clap(short, long, default_value_t = 8080)]
+    #[clap(short, long, default_value_t = 8081)]
     port: u16,
 
     #[clap(short, long, default_value = "127.0.0.1")]
@@ -42,6 +42,8 @@ async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
     let state = State::new(&args.database_url).await;
+    state.migrate().await;
+
     let client = Client::new();
 
     HttpServer::new(move || {

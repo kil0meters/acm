@@ -23,7 +23,7 @@ impl State {
     pub async fn user_query(&self, username: &str) -> sqlx::Result<User> {
         sqlx::query_as!(
             User,
-            r#"SELECT name, username, password, auth as "auth: Auth", star_count FROM users WHERE username = ?"#,
+            r#"SELECT name, username, password, auth as "auth: Auth" FROM users WHERE username = ?"#,
             username
         )
         .fetch_one(&self.conn)

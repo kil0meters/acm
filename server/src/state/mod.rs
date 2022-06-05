@@ -32,4 +32,14 @@ impl State {
             jwt_private_key: "supersecret".to_string(),
         })
     }
+
+    pub async fn migrate(&self) {
+        match sqlx::migrate!("../migrations").run(&self.conn).await {
+            Ok(_) => {}
+            Err(e) => {
+                log::error!("Migration error: {e:?}");
+                panic!();
+            }
+        }
+    }
 }
