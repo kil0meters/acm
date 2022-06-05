@@ -8,6 +8,7 @@ use yew::prelude::*;
 use yew::suspense::{use_future, Suspense};
 use yewdux::prelude::*;
 
+use crate::api_url;
 use crate::state::State;
 use crate::{
     components::{CodeEditor, InputTester, LoadingButton, Navbar, TestList},
@@ -116,7 +117,7 @@ fn SubmitButton(props: &ProblemViewProps) -> Html {
                     test_code: problem_code,
                 };
 
-                match Request::post("/api/run-tests")
+                match Request::post(api_url!("/run-tests"))
                     .header("Authorization", &format!("Bearer {}", token))
                     .json(&form)
                     .expect("Failed to serialize json")
@@ -201,7 +202,7 @@ pub fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
     let id = props.id;
 
     let problem = use_future(|| async move {
-        Request::get(&format!("/api/problems/{}", id))
+        Request::get(api_url!("/problems/{}", id))
             .send()
             .await?
             .json::<Problem>()

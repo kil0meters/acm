@@ -10,6 +10,7 @@ use yew::prelude::*;
 use yew::suspense::{use_future, Suspense};
 use yew_router::prelude::*;
 
+use crate::api_url;
 use crate::{components::Navbar, Route};
 
 #[derive(Debug, PartialEq, Properties, Serialize, Deserialize)]
@@ -36,7 +37,7 @@ fn LeaderboardEntry(props: &LeaderboardEntryProps) -> Html {
 #[function_component]
 fn LeaderboardViewInner() -> HtmlResult {
     let leaderboard_items = use_future(|| async move {
-        Request::get("/api/leaderboard/first-place")
+        Request::get(api_url!("/leaderboard/first-place"))
             .send()
             .await?
             .json::<Vec<LeaderboardItem>>()

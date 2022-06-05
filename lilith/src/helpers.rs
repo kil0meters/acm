@@ -62,3 +62,25 @@ pub fn is_officer(session: &Option<Session>) -> bool {
         false
     }
 }
+
+#[cfg(not(debug_assertions))]
+#[macro_export]
+macro_rules! api_url {
+    ($str: tt) => {
+        concat!("https://api.meters.sh", $str)
+    };
+    ($str: tt, $($arg: tt)*) => {
+        &format!(concat!("https://api.meters.sh", $str), $($arg)*)
+    };
+}
+
+#[cfg(debug_assertions)]
+#[macro_export]
+macro_rules! api_url {
+    ($str: tt) => {
+        concat!("http://localhost:8081", $str)
+    };
+    ($str: tt, $($arg: tt)*) => {
+        &format!(concat!("http://localhost:8081", $str), $($arg)*)
+    };
+}

@@ -7,3 +7,4 @@ db.sqlite-wal
 styles.css
 node_modules
 package-lock.json
+.netlify

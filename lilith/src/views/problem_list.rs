@@ -8,6 +8,7 @@ use yew_router::prelude::*;
 use yewdux::prelude::*;
 
 use crate::{
+    api_url,
     components::Navbar,
     helpers::{is_officer, parse_markdown},
     state::State,
@@ -44,7 +45,7 @@ fn ProblemListing(props: &ProblemListingProps) -> Html {
 #[function_component]
 fn ProblemListInner() -> HtmlResult {
     let list = use_future(|| async move {
-        Request::get("/api/problems")
+        Request::get(api_url!("/api/problems"))
             .send()
             .await?
             .json::<Vec<Problem>>()

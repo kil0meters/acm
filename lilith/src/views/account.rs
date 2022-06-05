@@ -4,14 +4,14 @@ use yew::prelude::*;
 use yew::suspense::{use_future, Suspense};
 use yew_router::prelude::*;
 
-use crate::{components::Navbar, Route};
+use crate::{api_url, components::Navbar, Route};
 
 #[function_component]
 fn RecentSubmissions(props: &AccountViewProps) -> HtmlResult {
     let username = props.username.clone();
 
     let submissions = use_future(|| async move {
-        Request::get(&format!("/api/user-info/{}/submissions", username))
+        Request::get(api_url!("/user-info/{}/submissions", username))
             .send()
             .await?
             .json::<Vec<Submission>>()
@@ -72,7 +72,7 @@ pub fn AccountViewInner(props: &AccountViewProps) -> HtmlResult {
 
     let username = props.username.clone();
     let user = use_future(|| async move {
-        Request::get(&format!("/api/user-info/{}", username))
+        Request::get(api_url!("/user-info/{}", username))
             .send()
             .await?
             .json::<User>()

@@ -1,7 +1,6 @@
 //! The backend.
 
-use actix_files::{Files, NamedFile};
-use actix_web::dev::{fn_service, ServiceRequest, ServiceResponse};
+use actix_cors::Cors;
 use actix_web::{middleware::Logger, web, App, HttpServer};
 use api::account::user_submissions;
 use api::leaderboard::first_place_finishes;
@@ -34,9 +33,6 @@ struct Args {
 
     #[clap(long, default_value = "./db.sqlite")]
     database_url: String,
-
-    #[clap(long, default_value = "./dist")]
-    dist_path: String,
 }
 
 #[actix_web::main]
@@ -49,45 +45,30 @@ async fn main() -> std::io::Result<()> {
     let client = Client::new();
 
     HttpServer::new(move || {
-        let index_path = format!("{}/index.html", args.dist_path);
-
         App::new()
             .wrap(Logger::default())
+            .wrap(Cors::default().allow_any_origin())
             .app_data(web::Data::new(state.clone()))
             // TODO: Benchmark storing client in web::Data vs creating a new one per request
             .app_data(web::Data::new(client.clone()))
-            .service(
-                // The entire api is scoped behind "/api/" to avoid collisions with regular pages.
-                web::scope("/api")
-                    .service(leaderboard)
-                    .service(first_place_finishes)
-                    .service(login)
-                    .service(signup)
-                    .service(problem_list)
-                    .service(problem)
-                    .service(problem_tests)
-                    .service(create_problem)
-                    .service(run_tests)
-                    .service(generate_tests)
-                    .service(custom_input)
-                    .service(user_info)
-                    .service(user_submissions)
-                    .service(meeting_list)
-                    .service(next_meeting)
-                    .service(meeting_activities)
-                    .service(meeting)
-                    .service(edit_meeting),
-            )
-            .service(Files::new("/static/", &args.dist_path))
-            .default_service(fn_service(move |req: ServiceRequest| {
-                let index_path = index_path.clone();
-                async move {
-                    let (req, _) = req.into_parts();
-                    let file = NamedFile::open_async(&index_path).await?;
-                    let res = file.into_response(&req);
-                    Ok(ServiceResponse::new(req, res))
-                }
-            }))
+            .service(leaderboard)
+            .service(first_place_finishes)
+            .service(login)
+            .service(signup)
+            .service(problem_list)
+            .service(problem)
+            .service(problem_tests)
+            .service(create_problem)
+            .service(run_tests)
+            .service(generate_tests)
+            .service(custom_input)
+            .service(user_info)
+            .service(user_submissions)
+            .service(meeting_list)
+            .service(next_meeting)
+            .service(meeting_activities)
+            .service(meeting)
+            .service(edit_meeting)
     })
     .bind(&format!("{}:{}", args.hostname, args.port))?
     .run()

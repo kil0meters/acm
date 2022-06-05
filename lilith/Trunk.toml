@@ -1,6 +1,5 @@
 [build]
 dist = "../dist/"
-public_url = "/static/"
 
 [watch]
 watch = [

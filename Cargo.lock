@@ -33,26 +33,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "actix-files"
-version = "0.6.0"
+name = "actix-cors"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d81bde9a79336aa51ebed236e91fc1a0528ff67cfdf4f68ca4c61ede9fd26fb5"
+checksum = "414360eed71ba2d5435b185ba43ecbe281dfab5df3898286d6b7be8074372c92"
 dependencies = [
- "actix-http",
- "actix-service",
  "actix-utils",
  "actix-web",
- "askama_escape",
- "bitflags",
- "bytes",
  "derive_more",
- "futures-core",
- "http-range",
+ "futures-util",
  "log",
- "mime",
- "mime_guess",
- "percent-encoding",
- "pin-project-lite",
+ "once_cell",
+ "smallvec",
 ]
 
 [[package]]
@@ -275,12 +267,6 @@ name = "anymap2"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d301b3b94cb4b2f23d7917810addbbaff90738e0ca2be692bd027e70d7e0330c"
-
-[[package]]
-name = "askama_escape"
-version = "0.10.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "619743e34b5ba4e9703bba34deac3427c72507c7159f5fd030aea8cac0cfe341"
 
 [[package]]
 name = "async-trait"
@@ -1140,12 +1126,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "http-range"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "21dec9db110f5f872ed9699c3ecf50cf16f423502706ba5c72462e28d3157573"
-
-[[package]]
 name = "httparse"
 version = "1.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1423,16 +1403,6 @@ name = "mime"
 version = "0.3.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a60c7ce501c71e03a9c9c0d35b861413ae925bd979cc7a4e30d060069aaac8d"
-
-[[package]]
-name = "mime_guess"
-version = "2.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4192263c238a5f0d0c6bfd21f336a313a4ce1c450542449ca191bb657b4642ef"
-dependencies = [
- "mime",
- "unicase",
-]
 
 [[package]]
 name = "minimal-lexical"
@@ -2077,7 +2047,7 @@ name = "server"
 version = "0.1.0"
 dependencies = [
  "acm",
- "actix-files",
+ "actix-cors",
  "actix-web",
  "anyhow",
  "bcrypt",

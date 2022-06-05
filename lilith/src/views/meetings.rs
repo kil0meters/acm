@@ -7,6 +7,7 @@ use yew::suspense::{use_future, use_future_with_deps, Suspense};
 use yew_router::prelude::*;
 use yewdux::prelude::*;
 
+use crate::api_url;
 use crate::{components::Navbar, helpers::is_officer, Route, State};
 
 #[derive(PartialEq, Properties)]
@@ -87,7 +88,7 @@ fn ScheduleList() -> HtmlResult {
     let session = use_selector(|state: &State| state.session.clone());
 
     let meetings = use_future(|| async move {
-        Request::get("/api/meetings")
+        Request::get(api_url!("/meetings"))
             .send()
             .await?
             .json::<Vec<Meeting>>()
@@ -135,7 +136,7 @@ fn Activities(props: &ActivitiesProps) -> HtmlResult {
     let id = props.meeting_id;
 
     let activities = use_future(|| async move {
-        Request::get(&format!("/api/meetings/{}/activities", id))
+        Request::get(api_url!("/meetings/{}/activities", id))
             .send()
             .await?
             .json::<Vec<Activity>>()
@@ -185,11 +186,9 @@ fn MeetingView(props: &MeetingViewProps) -> HtmlResult {
     let id = props.id;
 
     let url = if let Some(id) = id {
-        let mut url = "/api/meetings/".to_string();
-        url.push_str(&id.to_string());
-        url
+        api_url!("/meetings/{}", id).to_string()
     } else {
-        "/api/meetings/next".to_string()
+        api_url!("/meetings/next").to_string()
     };
 
     let meeting = use_future_with_deps(

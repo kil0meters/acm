@@ -11,6 +11,7 @@ use yew::suspense::use_future;
 use yewdux::prelude::*;
 
 use crate::{
+    api_url,
     components::{CodeEditor, LoadingButton, Modal},
     helpers::themed_editor_with_model,
     state::State,
@@ -76,7 +77,7 @@ fn TestEditorList() -> Html {
         Box::pin(async move {
             loading.set(true);
 
-            let res: Result<Vec<Test>, RunnerError> = Request::post("/api/generate-tests")
+            let res: Result<Vec<Test>, RunnerError> = Request::post(api_url!("/generate-tests"))
                 .header(
                     "Authorization",
                     &format!("Bearer {}", state.session.as_ref().unwrap().token),
@@ -300,7 +301,7 @@ pub fn TestList(props: &TestsProps) -> HtmlResult {
     let onclick = dispatch.reduce_mut_callback(|state| state.tests_shown = !state.tests_shown);
 
     let tests = use_future(|| async move {
-        Request::get(&format!("/api/problems/{}/tests", problem_id))
+        Request::get(api_url!("/problems/{}/tests", problem_id))
             .send()
             .await?
             .json::<Vec<Test>>()

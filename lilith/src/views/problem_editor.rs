@@ -15,6 +15,7 @@ use yew_router::prelude::*;
 use yewdux::prelude::*;
 
 use crate::{
+    api_url,
     components::{CodeEditor, Navbar, Tabbed, TestsEditor},
     helpers::parse_markdown,
     helpers::themed_editor_with_model,
@@ -74,7 +75,7 @@ async fn submit_problem_request(token: String, navigator: Navigator) -> Option<(
     let dispatch = Dispatch::<State>::new();
     let state = dispatch.get();
 
-    let res: Value = Request::post("/api/problems/new")
+    let res: Value = Request::post(api_url!("/problems/new"))
         .header("Authorization", &format!("Bearer {}", token))
         .json(&state.problem_editor)
         .ok()?
@@ -126,7 +127,7 @@ fn submit_problem(token: String, navigator: Navigator) {
 #[function_component]
 fn MeetingActivitySelector() -> HtmlResult {
     let meetings = use_future(|| async move {
-        Request::get("/api/meetings")
+        Request::get(api_url!("/meetings"))
             .send()
             .await?
             .json::<Vec<Meeting>>()
@@ -184,7 +185,7 @@ struct ActivitySelectorProps {
 fn ActivitySelector(props: &ActivitySelectorProps) -> HtmlResult {
     let activities = use_future_with_deps(
         |meeting_id| async move {
-            Request::get(&format!("/api/meetings/{}/activities", meeting_id))
+            Request::get(api_url!("/meetings/{}/activities", meeting_id))
                 .send()
                 .await?
                 .json::<Vec<Activity>>()

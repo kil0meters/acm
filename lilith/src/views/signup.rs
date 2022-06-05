@@ -13,6 +13,7 @@ use yew_router::prelude::*;
 use yewdux::prelude::*;
 
 use crate::{
+    api_url,
     components::{ErrorBox, Navbar},
     state::State,
     Route,
@@ -52,7 +53,7 @@ pub fn SignupView() -> Html {
             spawn_local(async move {
                 let dispatch = Dispatch::<State>::new();
 
-                let res: Value = Request::post("/api/signup")
+                let res: Value = Request::post(api_url!("/api/signup"))
                     .json(&signup_data)
                     .unwrap()
                     .send()

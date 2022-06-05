@@ -6,6 +6,7 @@ use yew::prelude::*;
 use yewdux::prelude::*;
 
 use crate::{
+    api_url,
     components::{LoadingButton, TestResultContents},
     state::State,
 };
@@ -105,7 +106,7 @@ fn CustomInputButton(props: &InputTesterProps) -> Html {
                     }
                 };
 
-                let res = match Request::post("/api/custom-input")
+                let res = match Request::post(api_url!("/custom-input"))
                     .header("Authorization", &format!("Bearer {}", token))
                     .json(&CustomProblemInputForm {
                         problem_id: id,

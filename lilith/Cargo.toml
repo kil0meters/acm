@@ -23,6 +23,9 @@ yew = { git = "https://github.com/yewstack/yew.git" }
 yew-router = { git = "https://github.com/yewstack/yew.git" }
 yewdux = { git = "https://github.com/intendednull/yewdux.git" }
 
+[features]
+deploy = []
+
 [[bin]]
 name = "lilith"
 required-features = ["yew/csr"]

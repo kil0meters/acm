@@ -8,7 +8,7 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 use yewdux::prelude::*;
 
-use crate::{components::Navbar, state::State, Route};
+use crate::{components::Navbar, state::State, Route, api_url};
 
 #[derive(PartialEq, Properties)]
 pub struct ActivityEntryProps {
@@ -131,7 +131,7 @@ async fn submit_create_meeting_request(id: i64, token: String, navigator: Naviga
     let dispatch = Dispatch::<State>::new();
     let state = dispatch.get();
 
-    let res: Value = Request::post("/api/meetings/edit")
+    let res: Value = Request::post(api_url!("/meetings/edit"))
         .header("Authorization", &format!("Bearer {}", token))
         .json(&state.meeting_editor[&id])
         .ok()?

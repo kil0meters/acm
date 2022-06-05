@@ -5,14 +5,6 @@ COPY . .
 RUN cargo +nightly install --path server; \
     cargo +nightly install --path ramiel
 
-WORKDIR /usr/src/acm/lilith
-RUN wget https://github.com/WebAssembly/binaryen/releases/download/version_108/binaryen-version_108-x86_64-linux.tar.gz; \
-    tar -xf binaryen-version_108-x86_64-linux.tar.gz; \
-    cp binaryen-version_108/bin/wasm-opt /usr/bin/wasm-opt; \
-    cargo install trunk; \
-    rustup target add wasm32-unknown-unknown; \
-    trunk build --release
-
 FROM debian:bullseye-slim
 RUN apt-get update; \
     apt-get install -y openssl libxml2 wget libxkbcommon-x11-0 libncurses5
