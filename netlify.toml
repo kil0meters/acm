@@ -1,2 +1,8 @@
 [build]
+command = "cd lilith; trunk build --release"
 publish = "./dist"
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
