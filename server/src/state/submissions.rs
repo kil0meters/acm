@@ -3,6 +3,7 @@ use acm::models::{
     test::TestResult,
     Submission,
 };
+use sqlx::{Sqlite, Transaction};
 
 use super::State;
 
@@ -48,6 +49,7 @@ impl State {
         problem_id: i64,
     ) -> sqlx::Result<()> {
         let user_id = self.get_user_id(&username).await?;
+        let mut tx = self.conn.begin().await?;
 
         match res {
             Ok(res) => {
@@ -71,18 +73,18 @@ impl State {
                     res.runtime,
                     code
                 )
-                .fetch_one(&self.conn)
+                .fetch_one(&mut tx)
                 .await?
                 .id;
 
                 log::info!("submission id: {}", submission_id);
 
                 for test in &res.failed_tests {
-                    self.insert_test_result(test, submission_id, false).await?;
+                    Self::insert_test_result(&mut tx, test, submission_id, false).await?;
                 }
 
                 for test in &res.passed_tests {
-                    self.insert_test_result(test, submission_id, true).await?;
+                    Self::insert_test_result(&mut tx, test, submission_id, true).await?;
                 }
             }
             Err(e) => {
@@ -105,16 +107,16 @@ impl State {
                     e,
                     code
                 )
-                .execute(&self.conn)
+                .execute(&mut tx)
                 .await?;
             }
         };
 
-        Ok(())
+        tx.commit().await
     }
 
-    pub async fn insert_test_result(
-        &self,
+    async fn insert_test_result(
+        tx: &mut Transaction<'_, Sqlite>,
         test: &TestResult,
         submission_id: i64,
         passed: bool,
@@ -137,7 +139,7 @@ impl State {
             test.expected_output,
             passed,
         )
-        .execute(&self.conn)
+        .execute(tx)
         .await
         .unwrap();
 

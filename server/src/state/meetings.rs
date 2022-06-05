@@ -1,11 +1,11 @@
 use acm::models::{forms::EditMeetingForm, Activity, ActivityType, Meeting};
+use sqlx::{Sqlite, Transaction};
 
 use super::State;
 
 impl State {
     pub async fn edit_or_insert_meeting(&self, form: &EditMeetingForm) -> sqlx::Result<i64> {
-        // TODO: Once again, we need to work on a way to structure transactions since this can
-        // cause issues if something fails early.
+        let mut tx = self.conn.begin().await?;
 
         if let Some(_id) = form.id {
             todo!();
@@ -24,18 +24,20 @@ impl State {
                 form.description,
                 form.meeting_time
             )
-            .fetch_one(&self.conn)
+            .fetch_one(&mut tx)
             .await?
             .id;
 
-            self.insert_activities(id, &form.activities).await?;
+            Self::insert_activities(&mut tx, id, &form.activities).await?;
+
+            tx.commit().await?;
 
             Ok(id)
         }
     }
 
-    pub async fn insert_activities(
-        &self,
+    async fn insert_activities(
+        tx: &mut Transaction<'_, Sqlite>,
         meeting_id: i64,
         activities: &Vec<Activity>,
     ) -> sqlx::Result<()> {
@@ -55,7 +57,7 @@ impl State {
                 activity.description,
                 activity.activity_type
             )
-            .execute(&self.conn)
+            .execute(&mut *tx)
             .await?;
         }
 

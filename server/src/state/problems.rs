@@ -6,6 +6,8 @@ use acm::models::{forms::CreateProblemForm, test::Test, Problem};
 impl State {
     /// Adds a problem to the database, returning the id of the problem or an error.
     pub async fn problem_add(&self, problem: &CreateProblemForm) -> sqlx::Result<i64> {
+        let mut tx = self.conn.begin().await?;
+
         let id = sqlx::query!(
             r#"
             INSERT INTO problems (
@@ -25,7 +27,7 @@ impl State {
             problem.template,
             problem.activity_id
         )
-        .fetch_one(&self.conn)
+        .fetch_one(&mut tx)
         .await?
         .id;
 
@@ -45,9 +47,11 @@ impl State {
                 test.input,
                 test.expected_output
             )
-            .execute(&self.conn)
+            .execute(&mut tx)
             .await?;
         }
+
+        tx.commit().await?;
 
         Ok(id)
     }
