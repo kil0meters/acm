@@ -3,6 +3,7 @@
 mod account;
 mod home;
 mod leaderboard;
+mod logout;
 mod meeting_editor;
 mod meetings;
 mod problem;
@@ -13,6 +14,7 @@ mod signup;
 pub use account::AccountView;
 pub use home::HomeView;
 pub use leaderboard::LeaderboardView;
+pub use logout::LogoutView;
 pub use meeting_editor::MeetingEditorView;
 pub use meetings::MeetingsView;
 pub use problem::{ProblemView, ProblemViewInner};

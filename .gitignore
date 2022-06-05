@@ -4,3 +4,6 @@
 db.sqlite
 db.sqlite-shm
 db.sqlite-wal
+styles.css
+node_modules
+package-lock.json

@@ -1,7 +1,7 @@
 use acm::models::{Auth, Session, User};
 use monaco::{
     api::{CodeEditorOptions, TextModel},
-    sys::editor::{BuiltinTheme, IStandaloneEditorConstructionOptions},
+    sys::editor::{BuiltinTheme, IEditorMinimapOptions, IStandaloneEditorConstructionOptions},
 };
 use pulldown_cmark::{html, Parser};
 use std::rc::Rc;
@@ -32,6 +32,10 @@ pub fn themed_editor_with_model(model: TextModel) -> IStandaloneEditorConstructi
 
     options.set_font_size(Some(18.0));
     options.set_automatic_layout(Some(true));
+
+    let minimap_options = IEditorMinimapOptions::default();
+    minimap_options.set_enabled(Some(false));
+    options.set_minimap(Some(&minimap_options));
 
     options
 }

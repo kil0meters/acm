@@ -21,7 +21,7 @@ sqlx = ["dep:sqlx"]
 validate = ["dep:regex", "dep:validator", "dep:lazy_static"]
 
 [profile.release.package.lilith]
-opt-level = 'z'
+opt-level = "z"
 
 [profile.release]
 lto = true

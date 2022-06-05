@@ -10,6 +10,22 @@ use yewdux::prelude::*;
 use crate::{components::Navbar, helpers::is_officer, Route, State};
 
 #[derive(PartialEq, Properties)]
+struct CountdownNumberProps {
+    number: i64,
+    description: &'static str,
+}
+
+#[function_component]
+fn CountdownNumber(props: &CountdownNumberProps) -> Html {
+    html! {
+        <div class="flex flex-col items-center w-14">
+            <span class="text-3xl font-bold">{ props.number }</span>
+            <span class="text-sm font-bold">{ props.description }</span>
+        </div>
+    }
+}
+
+#[derive(PartialEq, Properties)]
 struct CountdownProps {
     event_time: NaiveDateTime,
 }
@@ -57,38 +73,11 @@ fn Countdown(props: &CountdownProps) -> Html {
     let days = duration.num_days().abs();
 
     html! {
-        <div class="countdown">
-            if duration.num_seconds() < 0 {
-                <h3>{ "Started..." }</h3>
-            } else {
-                <h3>{ "Starts in..." }</h3>
-            }
-
-            if days != 0 {
-                <span>
-                    { days } { " days " }
-                </span>
-            }
-
-            if days == 0 && hours != 0 {
-                <span>
-                    { hours } { " hours " }
-                </span>
-            }
-
-            if minutes != 0 {
-                <span>
-                    { minutes } { " minutes " }
-                </span>
-            }
-
-            <span>
-                { " and " } { seconds } { " seconds " }
-            </span>
-
-            if duration.num_seconds() < 0 {
-                <span>{ "ago." }</span>
-            }
+        <div class="flex gap-4 justify-center">
+            <CountdownNumber number={days} description="days" />
+            <CountdownNumber number={hours} description="hours" />
+            <CountdownNumber number={minutes} description="minutes" />
+            <CountdownNumber number={seconds} description="seconds" />
         </div>
     }
 }
@@ -110,9 +99,10 @@ fn ScheduleList() -> HtmlResult {
             .iter()
             .map(|m| {
                 html! {
-                    <Link<Route> to={Route::Meeting { id: m.id }} classes="padded schedule-item">
-                        <h3>{ &m.title }</h3>
-                        <span class="subtitle">{ m.meeting_time.format("%A, %B %-d @ %-I:%M %p") }</span>
+                    <Link<Route> to={Route::Meeting { id: m.id }}
+                                 classes="border-b last:border-0 border-neutral-300 p-2 sm:first:rounded-t-md sm:last:rounded-b-md hover:bg-neutral-100 transition-colors">
+                        <h3 class="font-bold">{ &m.title }</h3>
+                        <span class="text-neutral-600 text-sm">{ m.meeting_time.format("%A, %B %-d @ %-I:%M %p") }</span>
                     </Link<Route>>
                 }
             })
@@ -121,17 +111,15 @@ fn ScheduleList() -> HtmlResult {
     };
 
     Ok(html! {
-        <div class="schedule">
-            <h2>
-                { "Schedule" }
-            </h2>
+        <div class="sm:px-2 flex flex-col gap-2">
+            <h2 class="text-2xl font-bold px-2 sm:p-0">{ "Schedule" }</h2>
 
-            <div class="card schedule-list">
+            <div class="bg-white sm:rounded-md border-y sm:border border-neutral-300 flex flex-col">
                 { meetings_list }
             </div>
 
             if is_officer(&*session) {
-                <Link<Route> to={Route::MeetingEditorNew} classes="button green">{ "Add" }</Link<Route>>
+                <Link<Route> to={Route::MeetingEditorNew} classes="text-center rounded-full bg-green-700 hover:bg-green-500 transition-colors text-green-50 py-2 text-sm">{ "Add" }</Link<Route>>
             }
         </div>
     })
@@ -166,10 +154,10 @@ fn Activities(props: &ActivitiesProps) -> HtmlResult {
         .iter()
         .map(|activity| {
             html! {
-                <div class="padded card">
-                    <h3>{ &activity.title }</h3>
+                <div class="bg-white ring-1 sm:rounded-md ring-neutral-300 p-2">
+                    <h3 class="text-lg font-bold">{ &activity.title }</h3>
 
-                    <span class="subtitle">{ &activity.description }</span>
+                    <span class="text-neutral-500">{ &activity.description }</span>
                 </div>
             }
         })
@@ -177,9 +165,9 @@ fn Activities(props: &ActivitiesProps) -> HtmlResult {
 
     Ok(html! {
         <>
-            <h2>{ "Activities" }</h2>
+            <h2 class="font-bold text-xl px-2 sm:p-0">{ "Activities" }</h2>
 
-            <div class="activities-wrapper">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                 { activities_html }
             </div>
         </>
@@ -212,8 +200,10 @@ fn MeetingView(props: &MeetingViewProps) -> HtmlResult {
     let meeting_html = match &*meeting {
         Ok(meeting) => html! {
             <>
-                <h1>{ &meeting.title }</h1>
-                <span class="subtitle">{ meeting.meeting_time.format("%A, %B %-d @ %-I:%M %p") }</span>
+                <div class="px-2 sm:p-0">
+                    <h1 class="text-2xl font-bold">{ &meeting.title }</h1>
+                    <span class="text-neutral-600 text-sm">{ meeting.meeting_time.format("%A, %B %-d @ %-I:%M %p") }</span>
+                </div>
 
                 <Countdown event_time={ meeting.meeting_time } />
 
@@ -222,13 +212,14 @@ fn MeetingView(props: &MeetingViewProps) -> HtmlResult {
                 </Suspense>
             </>
         },
-        Err(_) => html! {},
+        Err(_) => html! {
+            "not found"
+        },
     };
 
     Ok(html! {
-        <div class="meetings-view-content">
+        <div class="sm:px-2 flex flex-col gap-2">
             { meeting_html }
-
         </div>
     })
 }
@@ -238,10 +229,10 @@ pub fn MeetingsView(props: &MeetingViewProps) -> Html {
     let id = props.id;
 
     html! {
-        <div class="container">
+        <>
             <Navbar />
 
-            <div class="meetings-view-wrapper">
+            <div class="grid grid-rows-[min-content_1fr] md:grid-cols-[1fr_300px] md:grid-rows-1 max-w-screen-lg mx-auto gap-2 my-2">
                 <Suspense fallback={html!{ <div></div> }}>
                     <MeetingView {id} />
                 </Suspense>
@@ -250,6 +241,6 @@ pub fn MeetingsView(props: &MeetingViewProps) -> Html {
                     <ScheduleList />
                 </Suspense>
             </div>
-        </div>
+        </>
     }
 }

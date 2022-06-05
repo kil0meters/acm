@@ -1,5 +1,5 @@
 use acm::models::{
-    forms::{GenerateTestsForm},
+    forms::GenerateTestsForm,
     runner::RunnerError,
     test::{Test, TestResult},
 };
@@ -7,11 +7,11 @@ use gloo_net::http::Request;
 use monaco::api::TextModel;
 use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
-use yew::suspense::{use_future};
+use yew::suspense::use_future;
 use yewdux::prelude::*;
 
 use crate::{
-    components::{CodeEditor, ErrorBox, Modal},
+    components::{CodeEditor, LoadingButton, Modal},
     helpers::themed_editor_with_model,
     state::State,
 };
@@ -37,15 +37,15 @@ fn TestEditor(props: &TestEditorProps) -> Html {
     });
 
     html! {
-        <div class="test-editor">
-            <div class="test-editor-col">
+        <div class="grid grid-cols-2 gap-2">
+            <div class="flex flex-col gap-2">
                 <span>{"Input"}</span>
-                <textarea class="acm-input" oninput={input_changed} value={props.test.input.clone()} />
+                <textarea class="h-32 resize-none border-neutral-300 border rounded p-2 bg-neutral-50 outline-0 transition-shadow focus:ring ring-neutral-300" oninput={input_changed} value={props.test.input.clone()} />
             </div>
 
-            <div class="test-editor-col">
+            <div class="flex flex-col gap-2">
                 <span>{"Expected Output"}</span>
-                <textarea class="acm-input" oninput={expected_output_changed} value={props.test.expected_output.clone()} />
+                <textarea class="h-32 resize-none border-neutral-300 border rounded p-2 bg-neutral-50 outline-0 transition-shadow focus:ring ring-neutral-300" oninput={expected_output_changed} value={props.test.expected_output.clone()} />
             </div>
         </div>
 
@@ -56,6 +56,7 @@ fn TestEditor(props: &TestEditorProps) -> Html {
 fn TestEditorList() -> Html {
     // We rerender only when a test is added or removed.
     let tests = use_selector(|state: &State| state.problem_editor.tests.clone());
+    let loading = use_state(|| false);
     let dispatch = Dispatch::<State>::new();
 
     let add_test = dispatch.reduce_mut_callback(|state| {
@@ -69,8 +70,12 @@ fn TestEditorList() -> Html {
         state.problem_editor.tests.pop();
     });
 
-    let populate_tests = dispatch.reduce_mut_future_callback(|state| {
+    let loading_tmp = loading.clone();
+    let populate_tests = dispatch.reduce_mut_future_callback(move |state| {
+        let loading = loading_tmp.clone();
         Box::pin(async move {
+            loading.set(true);
+
             let res: Result<Vec<Test>, RunnerError> = Request::post("/api/generate-tests")
                 .header(
                     "Authorization",
@@ -99,11 +104,13 @@ fn TestEditorList() -> Html {
                 Ok(tests) => state.problem_editor.tests = tests,
                 Err(e) => state.error = Some(e.to_string()),
             };
+
+            loading.set(false);
         })
     });
 
     html! {
-        <div class="tests-editor-list">
+        <div class="flex flex-col gap-2 p-2 overflow-y-auto">
             {
                 tests.iter().map(|test| {
                     html! {
@@ -112,10 +119,10 @@ fn TestEditorList() -> Html {
                 }).collect::<Html>()
             }
 
-            <div class="tests-buttons">
-                <button class="blue button" onclick={add_test}>{ "Add test" }</button>
-                <button class="red button" onclick={remove_test}>{ "Remove test" }</button>
-                <button class="grey button" onclick={populate_tests}>{ "Populate output" }</button>
+            <div class="flex items-center gap-1 justify-center">
+                <button class="px-4 py-2 rounded-l-full bg-blue-600 hover:bg-blue-500 text-blue-50 transition-colors text-sm w-36" onclick={add_test}>{ "Add test" }</button>
+                <button class="px-4 py-2 bg-red-600 hover:bg-red-500 text-red-50 transition-colors text-sm w-36" onclick={remove_test}>{ "Remove test" }</button>
+                <LoadingButton loading={*loading} class="px-4 py-2 rounded-r-full bg-neutral-600 hover:bg-neutral-500 text-neutral-50 transition-colors text-sm min-w-[9rem] justify-center whitespace-nowrap" onclick={populate_tests}>{ "Populate output" }</LoadingButton>
             </div>
         </div>
     }
@@ -134,9 +141,9 @@ pub fn TestsEditor() -> Html {
     });
 
     html! {
-        <div class="tests-editor">
-            <div {onfocusout}>
-                <CodeEditor {options} />
+        <div class="grid grid-rows-2 xl:grid-rows-1 xl:grid-cols-3">
+            <div class="col-span-2 border-b border-neutral-300 lg:border-b-0 lg:border-r" {onfocusout}>
+                <CodeEditor classes="min-h-[40vh] lg:h-full" {options} />
             </div>
             <TestEditorList />
         </div>
@@ -170,21 +177,24 @@ fn TestEntry(props: &TestEntryProps) -> Html {
 
     html! {
         <>
-            <button class="button grey" onclick={show_modal}>{ format!("Test #{}", props.test.index) }</button>
+            <button class="aspect-square bg-neutral-200 border border-neutral-400 b rounded transition-shadow hover:shadow-md hover:ring-2 ring-neutral-400"
+                    onclick={show_modal}>
+                { format!("Test #{}", props.test.index) }
+            </button>
 
             <Modal shown={*modal_shown} onclose={hide_modal}>
-                <div class="padded card">
-                    <h2>{ "Test #" } { props.test.index }</h2>
+                <div class="bg-white rounded-md border border-neutral-300 p-4 flex flex-col gap-2">
+                    <h2 class="text-2xl">{ "Test #" } { props.test.index }</h2>
 
                     <label>{ "Input" }</label>
 
-                    <pre>
+                    <pre class="p-2 bg-blue-50 rounded-md">
                         <code>{ &props.test.input }</code>
                     </pre>
 
                     <label>{ "Expected" }</label>
 
-                    <pre>
+                    <pre class="p-2 bg-blue-50 rounded-md">
                         <code>{ &props.test.expected_output }</code>
                     </pre>
                 </div>
@@ -202,30 +212,32 @@ pub struct TestResultProps {
 #[function_component]
 pub fn TestResultContents(props: &TestResultProps) -> Html {
     html! {
-        <div>
-            <div class="submission-title">
+        <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-2">
                 if props.failed {
-                    <span class="failed res-title">{ "Failed" }</span> <span class="failed">{ props.result.time / 1000 } {"µs"}</span>
+                    <span class="text-red-600 text-2xl">{ "Failed" }</span>
+                    <span class="text-red-600">{ props.result.time / 1000 } {"µs"}</span>
                 } else {
-                    <span class="passed res-title">{ "Passed" }</span> <span class="passed">{ props.result.time / 1000 } {"µs"}</span>
+                    <span class="text-red-600 text-2xl">{ "Passed" }</span>
+                    <span class="text-green-600">{ props.result.time / 1000 } {"µs"}</span>
                 }
             </div>
 
             <label>{ "Input" }</label>
 
-            <pre>
+            <pre class="p-2 bg-blue-50 rounded-md">
                 <code>{ &props.result.input }</code>
             </pre>
 
             <label>{ "Expected" }</label>
 
-            <pre>
+            <pre class="p-2 bg-blue-50 rounded-md">
                 <code>{ &props.result.expected_output }</code>
             </pre>
 
             <label>{ "Output" }</label>
 
-            <pre>
+            <pre class="p-2 bg-blue-50 rounded-md">
                 <code>{ &props.result.output }</code>
             </pre>
         </div>
@@ -252,15 +264,18 @@ fn TestResultEntry(props: &TestResultProps) -> Html {
         })
     };
 
+    let base_button_styles =
+        "aspect-square border b rounded transition-shadow hover:shadow-md hover:ring-2";
+
     html! {
         <>
             <button class={
-                classes!("button", if props.failed { "red" } else { "green" } )
+                classes!(base_button_styles, if props.failed { "bg-red-200 border-red-400 ring-red-400 text-red-900" } else { "bg-green-200 border-green-400 ring-green-400 text-green-900" } )
             }
             onclick={show_modal}>{ format!("Test #{}", props.result.index) }</button>
 
             <Modal shown={*modal_shown} onclose={hide_modal}>
-                <div class="padded card">
+                <div class="bg-white rounded-md border border-neutral-300 p-4">
                     <TestResultContents result={props.result.clone()} failed={props.failed} />
                 </div>
             </Modal>
@@ -306,18 +321,15 @@ pub fn TestList(props: &TestsProps) -> HtmlResult {
         Some(Ok(res)) => {
             if res.failed_tests.is_empty() {
                 html! {
-                    <>
-                        <span class="passed res-title">{ "Congratulations!" }</span>
+                    <div class="flex-col flex p-4 bg-green-500 text-green-50">
+                        <span class="font-bold text-2xl">{ "Congratulations!" }</span>
                         <span>{ "Your code passed all of the supplied tests." }</span>
                         <span>{ "Ran in " } { res.runtime } { " ms." }</span>
-                    </>
+                    </div>
                 }
             } else {
-                let failed_tests = html! {
-                    <div class="failed-tests">
-                        <h3>{"Failed"}</h3>
-
-                        <div class="test-list">
+                html! {
+                    <div class="grid grid-cols-3 lg:grid-cols-4 p-2 gap-2">
                         {
                             res.failed_tests.iter()
                             .map(|t| {
@@ -327,15 +339,7 @@ pub fn TestList(props: &TestsProps) -> HtmlResult {
                             })
                             .collect::<Html>()
                         }
-                        </div>
-                    </div>
-                };
 
-                let passed_tests = html! {
-                    <div class="passed-tests">
-                        <h3>{"Passed"}</h3>
-
-                        <div class="test-list">
                         {
                             res.passed_tests.iter()
                             .map(|t| {
@@ -345,42 +349,58 @@ pub fn TestList(props: &TestsProps) -> HtmlResult {
                             })
                             .collect::<Html>()
                         }
-                        </div>
                     </div>
-                };
-
-                html! {<> {failed_tests} {passed_tests} </>}
+                }
             }
         }
         Some(Err(e)) => html! {
             html! {
-                <ErrorBox>{ e }</ErrorBox>
+                <div class="bg-red-500 text-red-50 p-2 flex flex-col gap-2">
+                    <h1 class="text-2xl font-bold">{ "error." }</h1>
+
+                    <pre class="bg-red-700 overflow-x-auto p-2 rounded">
+                        <code>{ e }</code>
+                    </pre>
+                </div>
             }
         },
         None => match *tests {
-            Ok(ref tests) => tests
-                .into_iter()
-                .map(|t| {
-                    html! {
-                        <TestEntry test={t.clone()} />
-                    }
-                })
-                .collect::<Html>(),
+            Ok(ref tests) => html! {
+                <div class="grid grid-cols-3 lg:grid-cols-4 p-2 gap-2">
+                {
+                    tests
+                    .into_iter()
+                    .map(|t| {
+                        html! {
+                            <TestEntry test={t.clone()} />
+                        }
+                    })
+                    .collect::<Html>()
+                }
+                </div>
+            },
             Err(ref failure) => failure.to_string().into(),
         },
     };
 
+    let collapse_styles = if *shown {
+        "p-4 bg-neutral-200 hover:bg-neutral-100 cursor-pointer select-none transition-colors border-b border-neutral-300 rounded-t-md md:rounded-none"
+    } else {
+        "p-4 bg-neutral-200 hover:bg-neutral-100 cursor-pointer select-none transition-colors rounded-md md:rounded-none"
+    };
+
     Ok(html! {
-        <div class="tests-wrapper card">
-            <a class="hide-tests" onclick={onclick}>
-                {
-                    if *shown { "Hide tests" }
-                    else { "Show tests" }
+        <div class="flex flex-col border border-neutral-300 rounded-md mx-2 mb-2 md:m-0 md:border-0">
+            <a class={collapse_styles} onclick={onclick}>
+                if *shown {
+                    {"Hide tests"}
+                } else {
+                    {"Show tests"}
                 }
             </a>
 
             if *shown {
-                <div class="padded tests">
+                <div class="max-h-96 overflow-y-auto">
                     { tests_html }
                 </div>
             } else {}

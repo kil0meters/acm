@@ -21,11 +21,14 @@ struct LeaderboardEntryProps {
 #[function_component]
 fn LeaderboardEntry(props: &LeaderboardEntryProps) -> Html {
     html! {
-        <Link<Route> to={Route::Account { username: props.item.username.clone() }} classes="padded leaderboard-item">
-            <span class="leaderboard-rank">{ props.position }</span>
-            <span class="leaderboard-name">{ &props.item.name }</span>
-            <span class="leaderboard-username subtitle">{ &props.item.username }</span>
-            <span class="leaderboard-stars subtitle">{ props.item.count } { if props.item.count > 1 { " Stars" } else { " Star" } } </span>
+        <Link<Route> to={Route::Account { username: props.item.username.clone() }}
+                     classes="border-b border-neutral-300 p-4 last:border-b-0 flex flex-row gap-4 first:rounded-t-md last:rounded-b-md hover:bg-neutral-100 transition-colors">
+            <div class="bg-blue-700 text-neutral-50 flex items-center justify-center rounded-full w-9 h-9 text-xl font-bold self-center">{ props.position }</div>
+            <div class="flex flex-col">
+                <span class="text-xl font-bold text-neutral-800">{ &props.item.name }</span>
+                <span class="text-neutral-500">{ &props.item.username }</span>
+            </div>
+            <span class="ml-auto bg-yellow-300 text-yellow-800 rounded-full px-4 h-9 self-center flex items-center">{ props.item.count } { if props.item.count > 1 { " Stars" } else { " Star" } } </span>
         </Link<Route>>
     }
 }
@@ -54,7 +57,7 @@ fn LeaderboardViewInner() -> HtmlResult {
     };
 
     Ok(html! {
-        <div class="leaderboard-list card">
+        <div class="flex flex-col border-y sm:rounded-md sm:border sm:m-2 md:m-0 border-neutral-300 bg-white">
             { list_html }
         </div>
     })
@@ -63,15 +66,15 @@ fn LeaderboardViewInner() -> HtmlResult {
 #[function_component]
 pub fn LeaderboardView() -> Html {
     html! {
-        <div class="container">
+        <>
             <Navbar />
-            <div class="leaderboard-wrapper">
-                <h1>{"Leaderboard"}</h1>
+            <div class="max-w-screen-md mx-auto">
+                <h1 class="text-2xl font-bold p-2">{"Leaderboard"}</h1>
 
                 <Suspense>
                     <LeaderboardViewInner />
                 </Suspense>
             </div>
-        </div>
+        </>
     }
 }

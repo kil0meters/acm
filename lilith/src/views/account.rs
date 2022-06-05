@@ -23,21 +23,26 @@ fn RecentSubmissions(props: &AccountViewProps) -> HtmlResult {
             .iter()
             .map(|s| {
                 html! {
-                    <div class="padded card">
-                        if s.success {
-                            <span class="passed res-title">
-                                { "Passed" }
-                            </span>
-                            <span class="passed">{ s.runtime } { "ms" }</span>
-                        } else {
-                            <span class="failed res-title">
-                                { "Failed" }
-                            </span>
-                        }
+                    <div class="border-y border-neutral-300 bg-white sm:rounded-md sm:m-2 md:m-0 sm:border p-4 flex flex-col gap-4">
+                        <div class="flex gap-2">
+                            if s.success {
+                                    <span class="font-bold text-green-600 text-2xl self-center">
+                                        { "Passed" }
+                                    </span>
+                                    <span class="text-green-600 self-center text-sm">{ s.runtime } { "ms" }</span>
+                            } else {
+                                <span class="font-bold text-red-600 text-2xl self-center">
+                                    { "Failed" }
+                                </span>
+                            }
 
-                        <Link<Route> classes="view-problem" to={Route::Problem { id: s.problem_id }}>{"View Problem"}</Link<Route>>
+                            <Link<Route> classes="ml-auto self-center bg-blue-700 hover:bg-blue-500 transition-colors text-blue-50 px-3 py-2 text-sm rounded-full font-bold"
+                                         to={Route::Problem { id: s.problem_id }}>
+                                {"View Problem"}
+                            </Link<Route>>
+                        </div>
 
-                        <pre>
+                        <pre class="rounded-md bg-blue-50 p-2">
                             { &s.code }
                         </pre>
                     </div>
@@ -48,13 +53,11 @@ fn RecentSubmissions(props: &AccountViewProps) -> HtmlResult {
     };
 
     Ok(html! {
-        <>
-            <h2>{"Recent Submissions"}</h2>
+        <div class="flex flex-col gap-4">
+            <h2 class="text-2xl font-bold text-neutral-800 pt-4 px-4 lg:p-0">{"Recent Submissions"}</h2>
 
-            <div class="previous-submissions">
-                { submissions_html }
-            </div>
-        </>
+            { submissions_html }
+        </div>
     })
 }
 
@@ -78,31 +81,26 @@ pub fn AccountViewInner(props: &AccountViewProps) -> HtmlResult {
 
     if let Ok(user) = &*user {
         Ok(html! {
-            <div class="account-view-wrapper">
-                <div class="whatever">
-                    <h1>{ &user.name }</h1>
-                    <h3>{ &user.username }</h3>
+            <div class="grid lg:grid-flow-col lg:gap-4 lg:p-4 lg:grid-cols-[300px_1fr] max-w-screen-md lg:max-w-screen-lg mx-auto">
+                <div class="flex flex-col gap-2 p-4 lg:p-0">
+                    <h1 class="text-2xl font-bold">{ &user.name }</h1>
+                    <h3 class="text-neutral-500">{ &user.username }</h3>
 
-
+                    <span class="rounded-full px-4 p-2 bg-neutral-600 text-neutral-50 self-start text-sm">
                     {
                         match user.auth {
-                                Auth::ADMIN => html! { <span class="ranking">{ "Admin" }</span> },
-                                Auth::OFFICER => html! { <span class="ranking">{ "Officer" }</span> },
-                                Auth::MEMBER => html! { <span class="ranking">{ "Member" }</span> }
+                                Auth::ADMIN => "Admin",
+                                Auth::OFFICER => "Officer",
+                                Auth::MEMBER => "Member"
                         }
                     }
+                    </span>
 
                 </div>
 
-                <div class="account-view-content">
-                    /* <div class="stats padded card">
-
-                    </div> */
-
-                    <Suspense>
-                        <RecentSubmissions username = { user.username.clone() } />
-                    </Suspense>
-                </div>
+                <Suspense>
+                    <RecentSubmissions username = { user.username.clone() } />
+                </Suspense>
 
             </div>
         })
@@ -115,11 +113,11 @@ pub fn AccountViewInner(props: &AccountViewProps) -> HtmlResult {
 #[function_component]
 pub fn AccountView(props: &AccountViewProps) -> Html {
     html! {
-        <div class="container">
+        <>
             <Navbar />
             <Suspense>
                 <AccountViewInner username={props.username.clone()} />
             </Suspense>
-        </div>
+        </>
     }
 }

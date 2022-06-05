@@ -1,13 +1,8 @@
 //! An editor view showing a single problem.
 
-use acm::models::{
-    forms::RunTestsForm,
-    Problem,
-};
+use acm::models::{forms::RunTestsForm, Problem};
 use gloo_net::http::Request;
 use monaco::api::TextModel;
-
-
 
 use yew::prelude::*;
 use yew::suspense::{use_future, Suspense};
@@ -35,10 +30,11 @@ fn Description(props: &DescriptionProps) -> Html {
         .unwrap();
 
     div.set_inner_html(&parse_markdown(&props.content));
+    div.set_class_name("prose prose-neutral");
 
     html! {
-        <div class="description padded card">
-            <h1>{ props.title.clone() }</h1>
+        <div class="grow bg-white border-y md:border-b-0 border-neutral-300 p-4 max-h-full overflow-y-auto">
+            <h1 class="text-3xl font-bold">{ props.title.clone() }</h1>
 
             { Html::VRef(div.into()) }
         </div>
@@ -79,8 +75,9 @@ fn ProblemEditor(props: &ProblemEditorProps) -> Html {
     });
 
     html! {
-        <div class="card" {onfocusout}>
-            <CodeEditor options = {options}/>
+        <div class="md:h-full" {onfocusout}>
+            // <CodeEditor classes="" options = {options}/>
+            <CodeEditor classes="h-[60vh] md:h-full md:w-full" options = {options}/>
         </div>
     }
 }
@@ -143,7 +140,12 @@ fn SubmitButton(props: &ProblemViewProps) -> Html {
     };
 
     html! {
-        <LoadingButton loading={*loading} class="button green" onclick={submit}>{ "Submit" }</LoadingButton>
+        <LoadingButton
+            loading={*loading}
+            class="p-4 border-l border-neutral-300 bg-green-500 hover:bg-green-400 transition-colors text-white"
+            onclick={submit}>
+            { "Submit" }
+        </LoadingButton>
     }
 }
 
@@ -169,18 +171,22 @@ fn CodeRunner(props: &ProblemViewProps) -> Html {
     });
 
     html! {
-        <div class="code-runner-wrapper">
-            <div class="activity-selector">
-            <button class="button grey" onclick={toggle_console}>
+        <div class="sticky md:static bottom-0">
             if *docker_shown {
-                { "Hide console" }
-            } else {
-                { "Show console" }
+                <InputTester {id} />
             }
-            </button>
-            </div>
 
-            <SubmitButton {id} />
+            <div class="flex bg-white border-t border-neutral-300">
+                <button class="mr-auto p-4 border-r border-neutral-300 hover:bg-neutral-200 transition-colors" onclick={toggle_console}>
+                if *docker_shown {
+                    { "Hide console" }
+                } else {
+                    { "Show console" }
+                }
+                </button>
+
+                <SubmitButton {id} />
+            </div>
         </div>
     }
 }
@@ -202,32 +208,18 @@ pub fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
             .await
     })?;
 
-    let docker_shown = use_selector(move |state: &State| {
-        state
-            .problems
-            .get(&id)
-            .map(|x| x.docker_shown)
-            .unwrap_or(false)
-    });
-
     match &*problem {
         Ok(problem) => Ok(html! {
-            <div class="problem-wrapper">
-                <div class="sidebar-wrapper">
+            <div class="md:grid md:grid-cols-[400px_minmax(0,1fr)] lg:grid-cols-[500px_minmax(0,1fr)] md:grid-rows-full-min md:h-full">
+                <div class="md:border-r border-neutral-300 pt-2 md:p-0 row-span-2 flex flex-col">
                     <Suspense>
                         <TestList problem_id={id} />
                     </Suspense>
                     <Description title={ problem.title.clone() } content={ problem.description.clone() } />
                 </div>
-                <div class={classes!("content-wrapper", if *docker_shown { "shown" } else {""})}>
-                    <ProblemEditor {id} template={ problem.template.clone() } />
 
-                    if *docker_shown {
-                        <InputTester {id} />
-                    }
-
-                    <CodeRunner {id} />
-                </div>
+                <ProblemEditor {id} template={ problem.template.clone() } />
+                <CodeRunner {id} />
             </div>
         }),
         Err(e) => Ok(html! { e }),
@@ -237,7 +229,7 @@ pub fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
 #[function_component]
 pub fn ProblemView(props: &ProblemViewProps) -> Html {
     html! {
-        <div class="container">
+        <div class="h-screen w-screen grid grid-rows-min-full grid-cols-full">
             <Navbar />
             <Suspense>
                 <ProblemViewInner id={props.id} />

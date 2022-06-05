@@ -81,44 +81,24 @@ pub fn SignupView() -> Html {
         <>
             <Navbar />
 
-            <div class="auth-wrapper padded card">
+            <div class="max-w-md mx-auto px-2 sm:p-0 mt-4 flex flex-col gap-4 text-lg">
                 if let Some(e) = &*error {
                     <ErrorBox>{ e }</ErrorBox>
                 }
 
-                <h1>{ "Join." }</h1>
+                <h1 class="text-4xl font-bold">{ "Join." }</h1>
 
-                <form name="signup-form" class="auth-form" onsubmit={ submit_form } method="POST">
-                    <label for="name" class="authorize-form-label">{ "Name" }</label>
-                    <input name="name"
-                           placeholder={ "'); DROP TABLE STUDENTS" }
-                           class="acm-input background-input"
-                           required={ true } />
-                    <label for="username" class="authorize-form-label">{ "Username" }</label>
-                    <input name="username"
-                           placeholder={ "'); DROP TABLE STUDENTS" }
-                           class="acm-input background-input"
-                           pattern=r"[a-zA-Z0-9]+"
-                           minlength="1"
-                           maxlength="16"
-                           required={ true } />
-                    <label for="password" class="authorize-form-label">{ "Password" }</label>
-                    <input name="password"
-                           placeholder={ "hunter2" }
-                           class="acm-input background-input"
-                           pattern=r"[a-zA-Z0-9!@#$%^&*()\s]+"
-                           minlength="8"
-                           maxlength="256" type="password"
-                           required={ true } />
-                    <label for="verify_password" class="authorize-form-label">{ "Verify Password" }</label>
-                    <input name="verify_password"
-                           placeholder={ "hunter2" }
-                           class="acm-input background-input"
-                           pattern=r"[a-zA-Z0-9!@#$%^&*()\s]+"
-                           minlength="8"
-                           maxlength="256" type="password"
-                           required={ true } />
-                    <button class="button green" type="submit">{ "Sign up" }</button>
+                <form class="flex flex-col gap-4"
+                    name="signup-form" onsubmit={ submit_form } method="POST">
+
+                    <FormRow name="name" label="Name" maxlength="16" placeholder="'); DROP TABLE STUDENTS;"/>
+                    <FormRow name="username" label="Username" pattern=r"[a-zA-Z0-9]+"
+                             placeholder="username" maxlength="16" />
+                    <FormRow name="password" label="Password" pattern=r"[a-zA-Z0-9!@#$%^&*()\s]+"
+                             placeholder="password" maxlength="256" input_type="password" />
+
+                    <button class="rounded hover:ring transition-all focus:ring-4 border border-green-700
+                                   hover:bg-green-500 ring-green-700 text-green-100 p-2 bg-green-600" type="submit">{ "Sign up" }</button>
                 </form>
             </div>
         </>
@@ -183,33 +163,61 @@ pub fn LoginView() -> Html {
         <>
             <Navbar />
 
-            <div class="auth-wrapper padded card">
+            <div class="max-w-md mx-auto px-2 sm:p-0 mt-4 flex flex-col gap-4 text-lg">
                 if let Some(e) = &*error {
                     <ErrorBox>{ e }</ErrorBox>
                 }
 
-                <h1>{ "Login." }</h1>
+                <h1 class="text-4xl font-bold">{ "Login." }</h1>
 
-                <form name="login-form" class="auth-form" onsubmit={ submit_form } method="POST">
-                    <label for="username" class="authorize-form-label">{ "Username" }</label>
-                    <input name="username"
-                           placeholder={ "'); DROP TABLE STUDENTS" }
-                           class="acm-input background-input"
-                           pattern=r"[a-zA-Z0-9]+"
-                           minlength="1"
-                           maxlength="16"
-                           required={ true } />
-                    <label for="password" class="authorize-form-label">{ "Password" }</label>
-                    <input name="password"
-                           placeholder={ "hunter2" }
-                           class="acm-input background-input"
-                           pattern=r"[a-zA-Z0-9!@#$%^&*()\s]+"
-                           minlength="8"
-                           maxlength="256" type="password"
-                           required={ true } />
-                    <button class="button green" type="submit">{ "login" }</button>
+                <form class="flex flex-col gap-4"
+                    name="login-form" onsubmit={ submit_form } method="POST">
+
+                    <FormRow name="username" label="Username" pattern=r"[a-zA-Z0-9]+"
+                             placeholder="username" maxlength="16" />
+                    <FormRow name="password" label="Password" pattern=r"[a-zA-Z0-9!@#$%^&*()\s]+"
+                             placeholder="password" maxlength="256" input_type="password" />
+
+                    <button class="rounded hover:ring transition-all focus:ring-4 border border-green-700
+                                   hover:bg-green-500 ring-green-700 text-green-100 p-2 bg-green-600" type="submit">{ "Sign in" }</button>
                 </form>
             </div>
         </>
+    }
+}
+
+#[derive(PartialEq, Properties)]
+struct FormRowProps {
+    label: &'static str,
+    placeholder: &'static str,
+    name: &'static str,
+    pattern: Option<&'static str>,
+    maxlength: &'static str,
+    input_type: Option<&'static str>,
+}
+
+#[function_component]
+fn FormRow(props: &FormRowProps) -> Html {
+    let FormRowProps {
+        label,
+        placeholder,
+        name,
+        pattern,
+        maxlength,
+        input_type,
+    } = *props;
+
+    html! {
+        <div class="flex flex-col gap-2">
+            <label for={name} class="">{ label }</label>
+            <input {name}
+                   {placeholder}
+                   class="border-neutral-300 border rounded p-2 bg-neutral-50 outline-0 transition-shadow focus:ring ring-neutral-300"
+                   {pattern}
+                   minlength="1"
+                   {maxlength}
+                   type={input_type}
+                   required={true} />
+        </div>
     }
 }

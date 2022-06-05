@@ -1,3 +1,14 @@
 [build]
 dist = "../dist/"
 public_url = "/static/"
+
+[watch]
+watch = [
+    "./index.html",
+    "src/"
+]
+
+[[hooks]]
+stage = "pre_build"
+command = "tailwindcss"
+command_arguments = ["-o", "styles.css", "--minify"]

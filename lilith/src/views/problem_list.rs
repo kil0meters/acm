@@ -28,34 +28,18 @@ fn ProblemListing(props: &ProblemListingProps) -> Html {
         .create_element("div")
         .unwrap();
 
-    div.set_class_name("problem-listing-description");
+    div.set_class_name("prose prose-neutral");
     div.set_inner_html(&parse_markdown(&props.problem.description));
 
     html! {
-        <Link<Route> classes="problem-listing padded card" to={Route::Problem { id: props.problem.id }}>
-            <h1>{ &props.problem.title }</h1>
+        <Link<Route> classes="sm:rounded-md border-neutral-300 border-y sm:border sm:mx-2 md:m-0 bg-white p-4 hover:shadow-md transition-shadow"
+                     to={Route::Problem { id: props.problem.id }}>
+            <h1 class="text-2xl font-bold">{ &props.problem.title }</h1>
 
             { Html::VRef(div.into()) }
-
-            <span class="cover" />
         </Link<Route>>
     }
 }
-
-/* #[function_component]
-fn ProblemGrouping() -> Html {
-    html! {
-        <div class="problem-grouping">
-            <h1>{ "Meeting Title" }</h1>
-
-            {
-                problems.iter().map(|problem| { html! {
-                    <ProblemListing problem = {problem.clone()} /> }
-                }).collect::<Html>()
-            }
-        </div>
-    }
-} */
 
 #[function_component]
 fn ProblemListInner() -> HtmlResult {
@@ -72,9 +56,10 @@ fn ProblemListInner() -> HtmlResult {
 
     if let Ok(problems) = &*list {
         Ok(html! {
-            <div class="problem-list-wrapper">
+            <div class="max-w-screen-md mx-auto mt-4 flex flex-col gap-4">
                 if is_officer(&state.session) {
-                    <Link<Route> classes="green button" to={Route::ProblemEditor}>{"New Problem"}</Link<Route>>
+                    <Link<Route> classes="ml-auto text-green-50 text-sm font-bold rounded-full bg-green-700 hover:bg-green-500 transition-colors px-4 py-2 mr-4 md:mr-0"
+                                 to={Route::ProblemEditor}>{"New Problem"}</Link<Route>>
                 }
 
                 {
@@ -92,12 +77,12 @@ fn ProblemListInner() -> HtmlResult {
 #[function_component]
 pub fn ProblemListView() -> Html {
     html! {
-        <main>
+        <>
             <Navbar />
 
             <Suspense>
                 <ProblemListInner />
             </Suspense>
-        </main>
+        </>
     }
 }

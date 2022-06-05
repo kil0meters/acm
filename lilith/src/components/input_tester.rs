@@ -61,15 +61,17 @@ pub fn InputTester(props: &InputTesterProps) -> Html {
         .unwrap_or_default();
 
     html! {
-        <div class="padded card problem-console">
-            <div class="custom-input">
+        <div class="p-2 border-t border-neutral-300 bg-white flex flex-col gap-4 lg:flex-row min-h-0">
+            <div class="flex flex-col gap-2 lg:w-96">
                 <label>{ "Input" }</label>
-                <textarea class="acm-input resize-none" {oninput} {value}>
+                <textarea class="rounded border border-neutral-300 bg-neutral-100 outline-0 transition-shadow focus:ring-2 ring-neutral-300 resize-none p-2 lg:flex-auto" {oninput} {value}>
                 </textarea>
                 <CustomInputButton {id} />
             </div>
 
-            <CustomTestResult {id} />
+            <div class="lg:w-96">
+                <CustomTestResult {id} />
+            </div>
         </div>
     }
 }
@@ -146,7 +148,7 @@ fn CustomInputButton(props: &InputTesterProps) -> Html {
 
     html! {
         <LoadingButton
-            class="blue button run-button"
+            class="px-4 py-2 rounded-full bg-blue-700 hover:bg-blue-500 transition-colors text-sm text-blue-100 mr-auto"
             loading={*loading}
             {onclick}
         >

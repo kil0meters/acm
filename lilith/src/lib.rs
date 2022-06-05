@@ -18,7 +18,7 @@ mod views;
 use components::{ErrorBox, Modal};
 use state::State;
 use views::{
-    AccountView, HomeView, LeaderboardView, LoginView, MeetingEditorView, MeetingsView,
+    AccountView, HomeView, LeaderboardView, LoginView, LogoutView, MeetingEditorView, MeetingsView,
     ProblemEditorView, ProblemListView, ProblemView, SignupView,
 };
 
@@ -35,6 +35,9 @@ enum Route {
 
     #[at("/login")]
     Login,
+
+    #[at("/logout")]
+    Logout,
 
     #[at("/problems/:id")]
     Problem { id: i64 },
@@ -75,6 +78,7 @@ fn switch(routes: Route) -> Html {
         Route::MeetingEditorNew => html! { <MeetingEditorView /> },
         Route::ProblemEditor => html! { <ProblemEditorView /> },
         Route::Signup => html! { <SignupView /> },
+        Route::Logout => html! { <LogoutView /> },
     }
 }
 

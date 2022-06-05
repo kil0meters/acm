@@ -46,15 +46,28 @@ fn ActivityEntry(props: &ActivityEntryProps) -> Html {
         state.meeting_editor.get_mut(&id).unwrap().activities[index].activity_type = activity_type;
     });
 
+    let form_classes="border-neutral-300 border rounded p-2 bg-neutral-50 outline-0 transition-shadow focus:ring ring-neutral-300";
+
     html! {
-        <div class="padded card activity-editor">
-            <input oninput={update_title} value={props.activity.title.to_string()} class="title-input acm-input card-input" />
-            <select class="acm-input card-input" oninput={update_activity_type}>
-                <option value="LECT" selected={props.activity.activity_type == ActivityType::LECT}>{ "Lecture" }</option>
-                <option value="PAIR" selected={props.activity.activity_type == ActivityType::PAIR}>{ "Pair Programming" }</option>
-                <option value="SOLO" selected={props.activity.activity_type == ActivityType::SOLO}>{ "Solo Competition" }</option>
-            </select>
-            <textarea oninput={update_description} value={props.activity.description.to_string()} class="acm-input card-input description-editor"></textarea>
+        <div class="bg-white border-y md:border border-neutral-300 p-2 md:rounded-md grid grid-cols-2 gap-2">
+            <div class="flex flex-col">
+                <label>{"Name"}</label>
+                <input oninput={update_title} value={props.activity.title.to_string()} class={form_classes} />
+            </div>
+
+            <div class="flex flex-col">
+                <label>{"Type"}</label>
+                <select class={form_classes} oninput={update_activity_type}>
+                    <option value="LECT" selected={props.activity.activity_type == ActivityType::LECT}>{ "Lecture" }</option>
+                    <option value="PAIR" selected={props.activity.activity_type == ActivityType::PAIR}>{ "Pair Programming" }</option>
+                    <option value="SOLO" selected={props.activity.activity_type == ActivityType::SOLO}>{ "Solo Competition" }</option>
+                </select>
+            </div>
+
+            <div class="flex flex-col col-span-2">
+                <label>{"Description"}</label>
+                <textarea oninput={update_description} value={props.activity.description.clone()} class={form_classes}></textarea>
+            </div>
         </div>
     }
 }
@@ -92,23 +105,23 @@ fn ActivitiesEditor(props: &MeetingEditorViewProps) -> Html {
         .iter()
         .enumerate()
         .map(|(index, activity)| {
-            html! {
+            html! {<>
+                if index == 0 {
+                    <h2 class="text-lg font-bold">{ "Activities" }</h2>
+                }
+
                 <ActivityEntry {index} {id} activity={activity.clone()} />
-            }
+            </>}
         })
         .collect::<Html>();
 
     html! {
         <>
-            <h2>{ "Activities" }</h2>
+            { activities_html }
 
-            <div class="activities-editor">
-                { activities_html }
-
-                <div class="activities-buttons">
-                    <button class="blue button" onclick={add_activity}>{"Add activity"}</button>
-                    <button class="red button" onclick={remove_activity}>{"Remove activity"}</button>
-                </div>
+            <div class="flex gap-2 mx-2 md:m-0">
+                <button class="transition-shadow rounded-md border hover:ring px-4 py-2 border-blue-700 bg-blue-500 ring-blue-700 text-blue-50" onclick={add_activity}>{"Add activity"}</button>
+                <button class="transition-shadow rounded-md border hover:ring px-4 py-2 border-red-700 bg-red-500 ring-red-700 text-red-50" onclick={remove_activity}>{"Remove activity"}</button>
             </div>
         </>
     }
@@ -218,36 +231,38 @@ pub fn MeetingEditorView(props: &MeetingEditorViewProps) -> Html {
 
     let time = form.meeting_time.format("%Y-%m-%dT%H:%M:%S").to_string();
 
+    let form_classes="border-neutral-300 border rounded p-2 bg-neutral-50 outline-0 transition-shadow focus:ring ring-neutral-300";
+
     html! {
-        <div class="container">
+        <>
             <Navbar />
 
-            <div class="meeting-editor-wrapper">
-                <div class="button-title">
-                    <h1>{ "New Meeting" }</h1>
-                    <button onclick={submit} class="green button">{ "Submit" }</button>
+            <div class="max-w-screen-md mx-auto my-2 flex flex-col gap-2">
+                <div class="flex items-center mx-2 md:m-0">
+                    <h1 class="text-2xl font-bold">{ "New Meeting" }</h1>
+                    <button onclick={submit} class="ml-auto bg-green-700 hover:bg-green-500 text-green-50 transition-colors rounded-full px-4 py-2 text-sm">{ "Submit" }</button>
                 </div>
 
-                <div class="meeting-editor-form">
-                    <div>
+                <div class="bg-white border-y md:border border-neutral-300 p-2 md:rounded-md grid grid-cols-2 gap-2">
+                    <div class="flex flex-col">
                         <label>{"Title"}</label>
-                        <input class="acm-input title-input" value={form.title.clone()} oninput={update_title} />
+                        <input class={form_classes} value={form.title.clone()} oninput={update_title} />
                     </div>
 
-                    <div>
+                    <div class="flex flex-col">
                         <label>{"Meeting Time"}</label>
-                        <input class="acm-input" type="datetime-local" value={time} oninput={update_meeting_time} />
+                        <input class={form_classes} type="datetime-local" value={time} oninput={update_meeting_time} />
                     </div>
 
-                    <div class="description-editor">
+                    <div class="flex flex-col col-span-2">
                         <label>{"Description"}</label>
-                        <textarea class="acm-input" value={form.description.clone()} oninput={update_description} />
+                        <textarea class={form_classes} value={form.description.clone()} oninput={update_description} />
                     </div>
                 </div>
 
                 <ActivitiesEditor id={props.id} />
 
             </div>
-        </div>
+        </>
     }
 }
