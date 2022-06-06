@@ -11,7 +11,7 @@ use api::{
     account::user_info,
     leaderboard::leaderboard,
     meetings::{edit_meeting, meeting, meeting_activities, meeting_list, next_meeting},
-    problems::{create_problem, problem, problem_list, problem_tests},
+    problems::{create_problem, problem, problem_history, problem_list, problem_tests},
     run::{custom_input, generate_tests, run_tests},
     signup::{login, signup},
 };
@@ -60,6 +60,7 @@ async fn main() -> std::io::Result<()> {
             .service(problem_list)
             .service(problem)
             .service(problem_tests)
+            .service(problem_history)
             .service(create_problem)
             .service(run_tests)
             .service(generate_tests)

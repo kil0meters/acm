@@ -1,7 +1,7 @@
 //! Queries involving problems
 
 use super::State;
-use acm::models::{forms::CreateProblemForm, test::Test, Problem};
+use acm::models::{forms::CreateProblemForm, test::Test, Problem, Submission};
 
 impl State {
     /// Adds a problem to the database, returning the id of the problem or an error.
@@ -118,6 +118,33 @@ impl State {
                 tests
             WHERE
                 problem_id = ?"#,
+            problem_id
+        )
+        .fetch_all(&self.conn)
+        .await
+        .unwrap_or_else(|_| vec![])
+    }
+
+    /// Gets problem history for a particular user
+    pub async fn problem_history(&self, problem_id: i64, user_id: i64) -> Vec<Submission> {
+        sqlx::query_as!(
+            Submission,
+            r#"
+            SELECT
+                problem_id,
+                success,
+                runtime,
+                error,
+                time,
+                code
+            FROM
+                submissions
+            WHERE
+                user_id = ? and problem_id = ?
+            ORDER BY
+                time DESC
+            "#,
+            user_id,
             problem_id
         )
         .fetch_all(&self.conn)

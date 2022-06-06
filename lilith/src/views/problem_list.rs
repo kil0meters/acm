@@ -33,7 +33,7 @@ fn ProblemListing(props: &ProblemListingProps) -> Html {
     div.set_inner_html(&parse_markdown(&props.problem.description));
 
     html! {
-        <Link<Route> classes="sm:rounded-md border-neutral-300 border-y sm:border sm:mx-2 md:m-0 bg-white p-4 hover:shadow-md transition-shadow"
+        <Link<Route> classes="sm:rounded-md border-neutral-300 border-y sm:border sm:mx-2 md:m-0 bg-white p-4 hover:shadow-md max-h-52 hover:max-h-64 overflow-hidden transition-all"
                      to={Route::Problem { id: props.problem.id }}>
             <h1 class="text-2xl font-bold">{ &props.problem.title }</h1>
 

@@ -23,6 +23,7 @@ impl State {
                 problem_id,
                 success,
                 runtime,
+                time,
                 error,
                 code
             FROM

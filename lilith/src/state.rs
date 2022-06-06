@@ -4,6 +4,7 @@ use acm::models::{
     test::TestResult,
     Session,
 };
+use monaco::api::TextModel;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use yewdux::store::Store;
@@ -39,6 +40,10 @@ pub struct State {
 #[derive(Deserialize, Default, Serialize, PartialEq, Clone)]
 pub struct ProblemState {
     pub implementation: String,
+
+    #[serde(skip)]
+    pub model: Option<TextModel>,
+
     pub custom_input: String,
     pub docker_shown: bool,
     pub custom_test_result: Option<TestResult>,

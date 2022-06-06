@@ -1,5 +1,6 @@
 //! An editor view showing a single problem.
 
+use acm::models::Submission;
 use acm::models::{forms::RunTestsForm, Problem};
 use gloo_net::http::Request;
 use monaco::api::TextModel;
@@ -11,7 +12,7 @@ use yewdux::prelude::*;
 use crate::api_url;
 use crate::state::State;
 use crate::{
-    components::{CodeEditor, InputTester, LoadingButton, Navbar, TestList},
+    components::{CodeEditor, InputTester, LoadingButton, Navbar, TestList, Tabbed},
     helpers::{parse_markdown, themed_editor_with_model},
 };
 
@@ -34,12 +35,94 @@ fn Description(props: &DescriptionProps) -> Html {
     div.set_class_name("prose prose-neutral");
 
     html! {
-        <div class="grow bg-white border-y md:border-b-0 border-neutral-300 p-4 max-h-full overflow-y-auto">
+        <div class="grow bg-white p-4 h-full max-h-full overflow-y-auto">
             <h1 class="text-3xl font-bold">{ props.title.clone() }</h1>
 
             { Html::VRef(div.into()) }
         </div>
     }
+}
+
+fn make_submission(problem_id: i64, submission: &Submission) -> Html {
+    let dispatch = Dispatch::<State>::new();
+
+    let implementation = submission.code.clone();
+    let btn = html! {
+        <button class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-500 rounded-full font-bold text-blue-50 transition-colors"
+            onclick={dispatch.reduce_mut_callback(move |state| {
+                state.problems.entry(problem_id).or_default().model.as_ref().expect("Expected a model").set_value(&implementation);
+            })}>
+            { "Load" }
+        </button>
+    };
+
+    let time_str = submission.time.format("%B %-d, %Y @ %-I:%M %p").to_string();
+
+    if let Some(_) = &submission.error {
+        html! {
+            <div class="flex gap-2 items-center bg-red-100 p-4 border-neutral-300 border-b">
+                <span class="text-red-600 font-bold text-lg">{ "Error" }</span>
+                <span class="ml-auto text-red-600 text-sm">{ time_str }</span>
+                { btn }
+            </div>
+        }
+    } else if submission.success {
+        html! {
+            <div class="flex gap-2 items-center bg-green-100 p-4 border-neutral-300 border-b">
+                <span class="text-green-600 font-bold text-lg">{ "Passed" }</span>
+                <span class="ml-auto text-green-600 text-sm">{ time_str }</span>
+                { btn }
+            </div>
+        }
+    } else {
+        html! {
+            <div class="flex gap-2 items-center bg-neutral-50 p-4 border-neutral-300 border-b">
+                <span class="text-red-600 font-bold text-lg">{ "Failed" }</span>
+                <span class="ml-auto text-neutral-400 text-sm">{ time_str }</span>
+                { btn }
+            </div>
+        }
+    }
+}
+
+#[derive(Properties, PartialEq)]
+struct SubmissionHistoryProps {
+    id: i64,
+}
+
+#[function_component]
+fn SubmissionHistory(props: &SubmissionHistoryProps) -> HtmlResult {
+    let id = props.id;
+    let state = Dispatch::<State>::new().get();
+
+    let token = match state.session.as_ref() {
+        Some(session) => session.token.clone(),
+        None => {
+            return Ok(html!{ "You must be logged in" });
+        }
+    };
+
+    let history = use_future(|| async move {
+        Request::get(api_url!("/problems/{}/history", id))
+            .header("Authorization", &format!("Bearer {}", token))
+            .send()
+            .await?
+            .json::<Vec<Submission>>()
+            .await
+    })?;
+
+    let history_html = match &*history {
+        Ok(history) => history.iter().map(|submission| make_submission(id, submission)).collect::<Html>(),
+        Err(_) => html!{
+            <span>{ "Failed to load." }</span>
+        }
+    };
+
+    Ok(html! {
+        <div class="h-full bg-white overflow-y-auto">
+            {history_html}
+        </div>
+    })
 }
 
 #[derive(PartialEq, Properties)]
@@ -64,15 +147,23 @@ fn ProblemEditor(props: &ProblemEditorProps) -> Html {
         }
     };
 
-    let code = TextModel::create(code, Some("cpp"), None).unwrap();
-    let options = themed_editor_with_model(code.clone());
+    let model = TextModel::create(code, Some("cpp"), None).unwrap();
+
+    {
+        let model = model.clone();
+        dispatch.reduce_mut(move |state| {
+            state.problems.entry(id).or_default().model = Some(model);
+        });
+    }
+
+    let options = themed_editor_with_model(model.clone());
 
     let onfocusout = dispatch.reduce_mut_callback(move |state| {
         let entry = state
             .problems
             .entry(id)
             .or_insert_with(|| Default::default());
-        entry.implementation = code.get_value();
+        entry.implementation = model.get_value();
     });
 
     html! {
@@ -216,10 +307,15 @@ pub fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
                     <Suspense>
                         <TestList problem_id={id} />
                     </Suspense>
-                    <Description title={ problem.title.clone() } content={ problem.description.clone() } />
+                    <Tabbed class="h-full border-y md:border-b-0 border-neutral-300 overflow-y-auto" titles={ vec!["Description", "History"] }>
+                        <Description title={ problem.title.clone() } content={ problem.description.clone() } />
+                        <Suspense>
+                            <SubmissionHistory {id} />
+                        </Suspense>
+                    </Tabbed>
                 </div>
 
-                <ProblemEditor {id} template={ problem.template.clone() } />
+                <ProblemEditor {id} template={problem.template.clone()} />
                 <CodeRunner {id} />
             </div>
         }),

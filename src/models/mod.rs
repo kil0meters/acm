@@ -74,6 +74,7 @@ pub struct Submission {
     pub success: bool,
     pub runtime: i64,
     pub error: Option<String>,
+    pub time: NaiveDateTime,
     pub code: String,
 }
 
