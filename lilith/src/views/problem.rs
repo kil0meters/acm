@@ -1,7 +1,7 @@
 //! An editor view showing a single problem.
 
 use acm::models::Submission;
-use acm::models::{forms::RunTestsForm, Problem};
+use acm::models::{forms::SubmitProblemForm, Problem};
 use gloo_net::http::Request;
 use monaco::api::TextModel;
 
@@ -12,7 +12,7 @@ use yewdux::prelude::*;
 use crate::api_url;
 use crate::state::State;
 use crate::{
-    components::{CodeEditor, InputTester, LoadingButton, Navbar, TestList, Tabbed},
+    components::{CodeEditor, InputTester, LoadingButton, Navbar, SubmissionTestList, Tabbed},
     helpers::{parse_markdown, themed_editor_with_model},
 };
 
@@ -50,7 +50,11 @@ fn make_submission(problem_id: i64, submission: &Submission) -> Html {
     let btn = html! {
         <button class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-500 rounded-full font-bold text-blue-50 transition-colors"
             onclick={dispatch.reduce_mut_callback(move |state| {
-                state.problems.entry(problem_id).or_default().model.as_ref().expect("Expected a model").set_value(&implementation);
+                let implementation = implementation.clone();
+                state.problems.entry(problem_id).and_modify(move |problem| {
+                    problem.model.as_ref().expect("Expected a model").set_value(&implementation);
+                    problem.implementation = implementation;
+                });
             })}>
             { "Load" }
         </button>
@@ -98,7 +102,7 @@ fn SubmissionHistory(props: &SubmissionHistoryProps) -> HtmlResult {
     let token = match state.session.as_ref() {
         Some(session) => session.token.clone(),
         None => {
-            return Ok(html!{ "You must be logged in" });
+            return Ok(html! { "You must be logged in" });
         }
     };
 
@@ -112,10 +116,13 @@ fn SubmissionHistory(props: &SubmissionHistoryProps) -> HtmlResult {
     })?;
 
     let history_html = match &*history {
-        Ok(history) => history.iter().map(|submission| make_submission(id, submission)).collect::<Html>(),
-        Err(_) => html!{
+        Ok(history) => history
+            .iter()
+            .map(|submission| make_submission(id, submission))
+            .collect::<Html>(),
+        Err(_) => html! {
             <span>{ "Failed to load." }</span>
-        }
+        },
     };
 
     Ok(html! {
@@ -203,12 +210,12 @@ fn SubmitButton(props: &ProblemViewProps) -> Html {
                     .implementation
                     .to_string();
 
-                let form = RunTestsForm {
+                let form = SubmitProblemForm {
                     problem_id: id,
-                    test_code: problem_code,
+                    implementation: problem_code,
                 };
 
-                match Request::post(api_url!("/run-tests"))
+                match Request::post(api_url!("/submit-problem"))
                     .header("Authorization", &format!("Bearer {}", token))
                     .json(&form)
                     .expect("Failed to serialize json")
@@ -218,8 +225,10 @@ fn SubmitButton(props: &ProblemViewProps) -> Html {
                     Ok(res) => {
                         let res = res.json().await.expect("Request is in an invalid format");
 
-                        state.test_results.insert(id, res);
-                        state.tests_shown = true;
+                        state
+                            .problems
+                            .entry(id)
+                            .and_modify(|p| p.submission = Some(res));
                     }
                     Err(_) => {
                         state.error = Some("Could not connect to server".to_string());
@@ -305,7 +314,7 @@ pub fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
             <div class="md:grid md:grid-cols-[400px_minmax(0,1fr)] lg:grid-cols-[500px_minmax(0,1fr)] md:grid-rows-full-min md:h-full">
                 <div class="md:border-r border-neutral-300 pt-2 md:p-0 row-span-2 flex flex-col">
                     <Suspense>
-                        <TestList problem_id={id} />
+                        <SubmissionTestList problem_id={id} />
                     </Suspense>
                     <Tabbed class="h-full border-y md:border-b-0 border-neutral-300 overflow-y-auto" titles={ vec!["Description", "History"] }>
                         <Description title={ problem.title.clone() } content={ problem.description.clone() } />

@@ -7,6 +7,8 @@ mod input_tester;
 mod loading_button;
 mod modal;
 mod navbar;
+mod share_button;
+mod submission;
 mod tabbed;
 mod tests;
 
@@ -17,5 +19,7 @@ pub use input_tester::InputTester;
 pub use loading_button::LoadingButton;
 pub use modal::Modal;
 pub use navbar::Navbar;
+pub use share_button::ShareButton;
+pub use submission::SubmissionFeedback;
 pub use tabbed::Tabbed;
-pub use tests::{TestList, TestResultContents, TestsEditor};
+pub use tests::{SubmissionTestList, TestResultContents, TestsEditor};

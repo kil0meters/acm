@@ -6,7 +6,7 @@ use actix_web::{
     http::StatusCode,
     post,
     web::{Json, Path},
-    Responder, HttpResponse,
+    HttpResponse, Responder,
 };
 use serde_json::json;
 
@@ -71,10 +71,19 @@ pub async fn problem_tests(id: Path<i64>, state: AppState) -> impl Responder {
 ///
 /// **AUTHORIZATION**: Member
 #[get("/problems/{problem_id}/history")]
-pub async fn problem_history(problem_id: Path<i64>, state: AppState, claims: Claims) -> HttpResponse {
+pub async fn problem_history(
+    problem_id: Path<i64>,
+    state: AppState,
+    claims: Claims,
+) -> HttpResponse {
     let user_id = match state.get_user_id(&claims.username).await {
         Ok(id) => id,
-        Err(_) => return api_error(StatusCode::UNAUTHORIZED, "No user with your username exists")
+        Err(_) => {
+            return api_error(
+                StatusCode::UNAUTHORIZED,
+                "No user with your username exists",
+            )
+        }
     };
 
     api_success(state.problem_history(*problem_id, user_id).await)

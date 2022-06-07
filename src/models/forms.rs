@@ -66,9 +66,9 @@ pub struct RunnerForm {
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct RunTestsForm {
+pub struct SubmitProblemForm {
     pub problem_id: i64,
-    pub test_code: String,
+    pub implementation: String,
 }
 
 #[derive(Deserialize, Clone, PartialEq, Serialize)]

@@ -1,34 +1,15 @@
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeSet;
 use thiserror::Error;
 
 use crate::models::test::TestResult;
 
 #[derive(Deserialize, Serialize, PartialEq, Clone, Default)]
 pub struct RunnerResponse {
-    pub failed_tests: BTreeSet<TestResult>,
-    pub passed_tests: BTreeSet<TestResult>,
+    pub tests: Vec<TestResult>,
+    pub passed: bool,
 
     // runtime, stored as milliseconds
     pub runtime: i64,
-}
-
-impl RunnerResponse {
-    pub fn new() -> Self {
-        Self {
-            failed_tests: BTreeSet::new(),
-            passed_tests: BTreeSet::new(),
-            runtime: 0,
-        }
-    }
-
-    pub fn insert(&mut self, test: TestResult) {
-        if test.output == test.expected_output {
-            self.passed_tests.insert(test);
-        } else {
-            self.failed_tests.insert(test);
-        }
-    }
 }
 
 #[derive(Deserialize, Serialize, Error, Debug, Clone, PartialEq)]

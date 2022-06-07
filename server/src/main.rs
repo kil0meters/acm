@@ -12,8 +12,9 @@ use api::{
     leaderboard::leaderboard,
     meetings::{edit_meeting, meeting, meeting_activities, meeting_list, next_meeting},
     problems::{create_problem, problem, problem_history, problem_list, problem_tests},
-    run::{custom_input, generate_tests, run_tests},
+    run::{custom_input, generate_tests, submit_problem},
     signup::{login, signup},
+    submissions::{submission, submission_tests},
 };
 use state::State;
 
@@ -62,7 +63,8 @@ async fn main() -> std::io::Result<()> {
             .service(problem_tests)
             .service(problem_history)
             .service(create_problem)
-            .service(run_tests)
+            .service(submit_problem)
+            .service(submission)
             .service(generate_tests)
             .service(custom_input)
             .service(user_info)
@@ -70,6 +72,7 @@ async fn main() -> std::io::Result<()> {
             .service(meeting_list)
             .service(next_meeting)
             .service(meeting_activities)
+            .service(submission_tests)
             .service(meeting)
             .service(edit_meeting)
     })

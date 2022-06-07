@@ -15,13 +15,14 @@ impl Test {
         TestResult {
             id: self.id,
             index: self.index,
+            success: output == self.expected_output,
             input: self.input,
             expected_output: self.expected_output,
             output,
 
             // TODO: This breaks if any test takes longer than 1 second. Realistically this should
             // not be a big deal.
-            time: time.subsec_nanos().into(),
+            runtime: time.subsec_nanos().into(),
         }
     }
 }
@@ -31,8 +32,9 @@ pub struct TestResult {
     #[serde(default)]
     pub id: i64,
     pub index: i64,
+    pub success: bool,
     pub input: String,
     pub expected_output: String,
     pub output: String,
-    pub time: i64,
+    pub runtime: i64,
 }

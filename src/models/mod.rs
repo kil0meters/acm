@@ -68,9 +68,11 @@ pub struct Pagination {
     pub count: Option<u32>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, PartialEq, Clone)]
 pub struct Submission {
+    pub id: i64,
     pub problem_id: i64,
+    pub user_id: i64,
     pub success: bool,
     pub runtime: i64,
     pub error: Option<String>,

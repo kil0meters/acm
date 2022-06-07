@@ -1,8 +1,8 @@
 use acm::models::{
     forms::{CreateProblemForm, EditMeetingForm},
-    runner::{RunnerError, RunnerResponse},
+    runner::RunnerError,
     test::TestResult,
-    Session,
+    Session, Submission,
 };
 use monaco::api::TextModel;
 use serde::{Deserialize, Serialize};
@@ -15,16 +15,10 @@ pub struct State {
     pub problem_editor: CreateProblemForm,
     pub session: Option<Session>,
 
-    /// Associates test results with problem IDs
-    pub test_results: HashMap<i64, Result<RunnerResponse, RunnerError>>,
-
     /// Stores the code for a problem
     #[serde(skip_serializing_if = "HashMap::is_empty")]
     #[serde(default)]
     pub problems: HashMap<i64, ProblemState>,
-
-    /// Stores whether or not a the tests menu is shown
-    pub tests_shown: bool,
 
     /// Stores in-progress editing
     #[serde(skip_serializing_if = "HashMap::is_empty")]
@@ -40,11 +34,12 @@ pub struct State {
 #[derive(Deserialize, Default, Serialize, PartialEq, Clone)]
 pub struct ProblemState {
     pub implementation: String,
+    pub submission: Option<Submission>,
 
     #[serde(skip)]
     pub model: Option<TextModel>,
 
     pub custom_input: String,
     pub docker_shown: bool,
-    pub custom_test_result: Option<TestResult>,
+    pub custom_test_result: Option<Result<TestResult, RunnerError>>,
 }

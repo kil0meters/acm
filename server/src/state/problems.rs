@@ -131,6 +131,8 @@ impl State {
             Submission,
             r#"
             SELECT
+                id,
+                user_id,
                 problem_id,
                 success,
                 runtime,

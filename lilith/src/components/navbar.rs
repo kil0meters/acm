@@ -42,7 +42,7 @@ pub fn Navbar() -> Html {
     let hidden_style = if *menu_shown { "" } else { "hidden" };
 
     html! {
-        <div class="sticky top-0 z-50">
+        <div class="sticky top-0 z-50 w-full">
             <div class="p-4 flex flex-col gap-4 md:flex-row bg-white/90 backdrop-blur-lg border-neutral-300 border-b">
                 <div class="flex">
                     <Link<Route> classes="font-extrabold text-2xl hover:text-neutral-600 transition-colors ease-in-out flex items-center"

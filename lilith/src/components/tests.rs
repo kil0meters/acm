@@ -12,7 +12,7 @@ use yewdux::prelude::*;
 
 use crate::{
     api_url,
-    components::{CodeEditor, LoadingButton, Modal},
+    components::{CodeEditor, LoadingButton, Modal, SubmissionFeedback},
     helpers::themed_editor_with_model,
     state::State,
 };
@@ -207,20 +207,20 @@ fn TestEntry(props: &TestEntryProps) -> Html {
 #[derive(Clone, Debug, PartialEq, Properties)]
 pub struct TestResultProps {
     pub result: TestResult,
-    pub failed: bool,
+    pub class: Option<Classes>,
 }
 
 #[function_component]
 pub fn TestResultContents(props: &TestResultProps) -> Html {
     html! {
-        <div class="flex flex-col gap-2">
+        <div class={classes!(&props.class, "flex", "flex-col", "gap-2")}>
             <div class="flex items-center gap-2">
-                if props.failed {
-                    <span class="text-red-600 text-2xl">{ "Failed" }</span>
-                    <span class="text-red-600">{ props.result.time / 1000 } {"µs"}</span>
-                } else {
+                if props.result.success {
                     <span class="text-red-600 text-2xl">{ "Passed" }</span>
-                    <span class="text-green-600">{ props.result.time / 1000 } {"µs"}</span>
+                    <span class="text-green-600">{ props.result.runtime / 1000 } {"µs"}</span>
+                } else {
+                    <span class="text-red-600 text-2xl">{ "Failed" }</span>
+                    <span class="text-red-600">{ props.result.runtime / 1000 } {"µs"}</span>
                 }
             </div>
 
@@ -271,13 +271,19 @@ fn TestResultEntry(props: &TestResultProps) -> Html {
     html! {
         <>
             <button class={
-                classes!(base_button_styles, if props.failed { "bg-red-200 border-red-400 ring-red-400 text-red-900" } else { "bg-green-200 border-green-400 ring-green-400 text-green-900" } )
+                classes!(base_button_styles,
+                    if props.result.success {
+                        "bg-green-200 border-green-400 ring-green-400 text-green-900"
+                    } else {
+                        "bg-red-200 border-red-400 ring-red-400 text-red-900"
+                    }
+                )
             }
             onclick={show_modal}>{ format!("Test #{}", props.result.index) }</button>
 
             <Modal shown={*modal_shown} onclose={hide_modal}>
                 <div class="bg-white rounded-md border border-neutral-300 p-4">
-                    <TestResultContents result={props.result.clone()} failed={props.failed} />
+                    <TestResultContents result={props.result.clone()} />
                 </div>
             </Modal>
         </>
@@ -285,20 +291,41 @@ fn TestResultEntry(props: &TestResultProps) -> Html {
 }
 
 #[derive(PartialEq, Properties)]
-pub struct TestsProps {
-    pub problem_id: i64,
+struct TestResultListProps {
+    submission_id: i64,
 }
 
 #[function_component]
-pub fn TestList(props: &TestsProps) -> HtmlResult {
+fn TestResultList(props: &TestResultListProps) -> HtmlResult {
+    let submission_id = props.submission_id;
+
+    let tests = use_future(|| async move {
+        Request::get(api_url!("/submissions/{}/tests", submission_id))
+            .send()
+            .await?
+            .json::<Vec<TestResult>>()
+            .await
+    })?;
+
+    match &*tests {
+        Ok(tests) => Ok(html! {
+            <div class="grid grid-cols-3 lg:grid-cols-4 p-2 gap-2">
+                {
+                    for tests.iter().map(|t| {
+                        html! {
+                            <TestResultEntry result={t.clone()} />
+                        }
+                    })
+                }
+            </div>
+        }),
+        Err(e) => Ok(html! { e.to_string() }),
+    }
+}
+
+#[function_component]
+fn TestList(props: &TestsProps) -> HtmlResult {
     let problem_id = props.problem_id;
-    let dispatch = Dispatch::<State>::new();
-
-    let test_results =
-        use_selector(move |state: &State| state.test_results.get(&problem_id).map(|x| x.clone()));
-    let shown = use_selector(move |state: &State| state.tests_shown);
-
-    let onclick = dispatch.reduce_mut_callback(|state| state.tests_shown = !state.tests_shown);
 
     let tests = use_future(|| async move {
         Request::get(api_url!("/problems/{}/tests", problem_id))
@@ -308,103 +335,106 @@ pub fn TestList(props: &TestsProps) -> HtmlResult {
             .await
     })?;
 
-    // Render the contents of the test widget conditionally based on the current state.
-    //
-    // 1. If the most recent submission ran fine, we display the test results
-    //
-    //     a. If the code worked without error
-    //
-    // 2. If the most recent submission contains a compilation or runtime error, we display that at
-    //    the top of the message
-    //
-    // 3. If the user has not yet run code, we simply show all of the tested in a greyed out state.
-    let tests_html = match &*test_results {
-        Some(Ok(res)) => {
-            if res.failed_tests.is_empty() {
-                html! {
-                    <div class="flex-col flex p-4 bg-green-500 text-green-50">
-                        <span class="font-bold text-2xl">{ "Congratulations!" }</span>
-                        <span>{ "Your code passed all of the supplied tests." }</span>
-                        <span>{ "Ran in " } { res.runtime } { " ms." }</span>
-                    </div>
-                }
-            } else {
-                html! {
-                    <div class="grid grid-cols-3 lg:grid-cols-4 p-2 gap-2">
-                        {
-                            res.failed_tests.iter()
-                            .map(|t| {
-                                html! {
-                                    <TestResultEntry failed={true} result={t.clone()} />
-                                }
-                            })
-                            .collect::<Html>()
-                        }
-
-                        {
-                            res.passed_tests.iter()
-                            .map(|t| {
-                                html! {
-                                    <TestResultEntry failed={false} result={t.clone()} />
-                                }
-                            })
-                            .collect::<Html>()
-                        }
-                    </div>
-                }
+    match &*tests {
+        Ok(tests) => Ok(html! {
+            <div class="grid grid-cols-3 lg:grid-cols-4 p-2 gap-2">
+            {
+                tests
+                .into_iter()
+                .map(|t| {
+                    html! {
+                        <TestEntry test={t.clone()} />
+                    }
+                })
+                .collect::<Html>()
             }
-        }
-        Some(Err(e)) => html! {
-            html! {
-                <div class="bg-red-500 text-red-50 p-2 flex flex-col gap-2">
-                    <h1 class="text-2xl font-bold">{ "error." }</h1>
+            </div>
+        }),
+        Err(_) => Ok(html! {}),
+    }
+}
 
-                    <pre class="bg-red-700 overflow-x-auto p-2 rounded">
-                        <code>{ e }</code>
-                    </pre>
-                </div>
-            }
-        },
-        None => match *tests {
-            Ok(ref tests) => html! {
-                <div class="grid grid-cols-3 lg:grid-cols-4 p-2 gap-2">
-                {
-                    tests
-                    .into_iter()
-                    .map(|t| {
-                        html! {
-                            <TestEntry test={t.clone()} />
-                        }
-                    })
-                    .collect::<Html>()
-                }
-                </div>
-            },
-            Err(ref failure) => failure.to_string().into(),
-        },
+#[derive(PartialEq, Properties)]
+pub struct TestsProps {
+    pub problem_id: i64,
+}
+
+#[function_component]
+pub fn SubmissionTestList(props: &TestsProps) -> HtmlResult {
+    let problem_id = props.problem_id;
+
+    let submission = use_selector(move |state: &State| {
+        state
+            .problems
+            .get(&problem_id)
+            .map(|x| x.submission.clone())
+            .flatten()
+    });
+
+    let shown = use_state(|| false);
+    let onclick = {
+        let shown = shown.clone();
+        Callback::from(move |_| {
+            shown.set(!*shown);
+        })
     };
 
     let collapse_styles = if *shown {
-        "p-4 bg-neutral-200 hover:bg-neutral-100 cursor-pointer select-none transition-colors border-b border-neutral-300 rounded-t-md md:rounded-none"
+        "p-4 bg-neutral-200 hover:bg-neutral-100 cursor-pointer select-none transition-colors border-b last:border-b-0 border-neutral-300 rounded-t-md md:rounded-none"
     } else {
         "p-4 bg-neutral-200 hover:bg-neutral-100 cursor-pointer select-none transition-colors rounded-md md:rounded-none"
     };
 
     Ok(html! {
-        <div class="flex flex-col border border-neutral-300 rounded-md mx-2 mb-2 md:m-0 md:border-0">
-            <a class={collapse_styles} onclick={onclick}>
-                if *shown {
-                    {"Hide tests"}
-                } else {
-                    {"Show tests"}
-                }
-            </a>
+        <div class="flex flex-col">
+            <Suspense>
+                <SubmissionResult {problem_id} />
+            </Suspense>
 
-            if *shown {
-                <div class="max-h-96 overflow-y-auto">
-                    { tests_html }
-                </div>
-            } else {}
+            <div class="flex flex-col border border-neutral-300 rounded-md mx-2 mb-2 md:m-0 md:border-0">
+                <a class={collapse_styles} onclick={onclick}>
+                    if *shown {
+                        {"Hide tests"}
+                    } else {
+                        {"Show tests"}
+                    }
+                </a>
+
+                if *shown {
+                    <Suspense>
+                        <div class="max-h-96 overflow-y-auto peer">
+                            if let Some(submission) = &*submission {
+                                <TestResultList submission_id={submission.id} />
+                            } else {
+                                <TestList {problem_id} />
+                            }
+                        </div>
+                    </Suspense>
+                }
+            </div>
         </div>
     })
+}
+
+#[function_component]
+fn SubmissionResult(props: &TestsProps) -> Html {
+    let id = props.problem_id;
+
+    let submission = use_selector(move |state: &State| {
+        state
+            .problems
+            .get(&id)
+            .map(|p| p.submission.clone())
+            .flatten()
+    });
+
+    if let Some(submission) = &*submission {
+        html! {
+            <div class="border-b border-neutral-300">
+                <SubmissionFeedback submission={submission.clone()} />
+            </div>
+        }
+    } else {
+        html! {}
+    }
 }

@@ -25,12 +25,22 @@ fn ActivityEntry(props: &ActivityEntryProps) -> Html {
 
     let update_title = dispatch.reduce_mut_callback_with(move |state, e: InputEvent| {
         let title = e.target_unchecked_into::<HtmlInputElement>().value();
-        state.meeting_editor.entry(id).or_insert_with(Default::default).activities[index].title = title;
+        state
+            .meeting_editor
+            .entry(id)
+            .or_insert_with(Default::default)
+            .activities[index]
+            .title = title;
     });
 
     let update_description = dispatch.reduce_mut_callback_with(move |state, e: InputEvent| {
         let description = e.target_unchecked_into::<HtmlTextAreaElement>().value();
-        state.meeting_editor.entry(id).or_insert_with(Default::default).activities[index].description = description;
+        state
+            .meeting_editor
+            .entry(id)
+            .or_insert_with(Default::default)
+            .activities[index]
+            .description = description;
     });
 
     let update_activity_type = dispatch.reduce_mut_callback_with(move |state, e: InputEvent| {
@@ -43,7 +53,12 @@ fn ActivityEntry(props: &ActivityEntryProps) -> Html {
             _ => panic!("THIS SHOULD NOT HAPPEN"),
         };
 
-        state.meeting_editor.entry(id).or_insert_with(Default::default).activities[index].activity_type = activity_type;
+        state
+            .meeting_editor
+            .entry(id)
+            .or_insert_with(Default::default)
+            .activities[index]
+            .activity_type = activity_type;
     });
 
     let form_classes="border-neutral-300 border rounded p-2 bg-neutral-50 outline-0 transition-shadow focus:ring ring-neutral-300";
@@ -97,7 +112,12 @@ fn ActivitiesEditor(props: &MeetingEditorViewProps) -> Html {
     });
 
     let remove_activity = dispatch.reduce_mut_callback(move |state| {
-        state.meeting_editor.entry(id).or_insert_with(Default::default).activities.pop();
+        state
+            .meeting_editor
+            .entry(id)
+            .or_insert_with(Default::default)
+            .activities
+            .pop();
     });
 
     let activities_html = state.meeting_editor[&id]
@@ -211,12 +231,20 @@ pub fn MeetingEditorView(props: &MeetingEditorViewProps) -> Html {
 
     let update_title = dispatch.reduce_mut_callback_with(move |state, e: InputEvent| {
         let title = e.target_unchecked_into::<HtmlInputElement>().value();
-        state.meeting_editor.entry(id).or_insert_with(Default::default).title = title;
+        state
+            .meeting_editor
+            .entry(id)
+            .or_insert_with(Default::default)
+            .title = title;
     });
 
     let update_description = dispatch.reduce_mut_callback_with(move |state, e: InputEvent| {
         let description = e.target_unchecked_into::<HtmlTextAreaElement>().value();
-        state.meeting_editor.entry(id).or_insert_with(Default::default).description = description;
+        state
+            .meeting_editor
+            .entry(id)
+            .or_insert_with(Default::default)
+            .description = description;
     });
 
     let update_meeting_time = dispatch.reduce_mut_callback_with(move |state, e: InputEvent| {

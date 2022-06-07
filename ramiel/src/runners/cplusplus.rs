@@ -1,5 +1,6 @@
 use acm::models::{
     forms::{GenerateTestsForm, RunnerCustomProblemInputForm, RunnerForm},
+    runner::{RunnerError, RunnerResponse},
     test::{Test, TestResult},
 };
 use async_trait::async_trait;
@@ -10,7 +11,7 @@ use tokio::{
     process::Command,
 };
 
-use super::{run_command, run_test_timed, Runner, RunnerError, RunnerResponse};
+use super::{run_command, run_test_timed, Runner, TestResults};
 
 pub struct CPlusPlus;
 
@@ -21,16 +22,16 @@ impl Runner for CPlusPlus {
 
         let command = compile_problem(&prefix, &form.implementation, &form.runner).await?;
 
-        let mut res = RunnerResponse::new();
+        let mut test_results = TestResults::new();
 
         let start = Instant::now();
         for test in form.tests {
             let test = run_test_timed(&command, test).await?;
-            res.insert(test);
+            test_results.insert(test);
         }
-        res.runtime = start.elapsed().as_millis().try_into().unwrap();
+        test_results.runtime = start.elapsed().as_millis().try_into().unwrap();
 
-        Ok(res)
+        Ok(test_results.into())
     }
 
     async fn generate_tests(&self, form: GenerateTestsForm) -> Result<Vec<Test>, RunnerError> {

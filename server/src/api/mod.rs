@@ -10,6 +10,7 @@ pub mod meetings;
 pub mod problems;
 pub mod run;
 pub mod signup;
+pub mod submissions;
 
 /// A utility function for easily returning an error in a consistent format
 fn api_error(code: StatusCode, error: impl Serialize) -> HttpResponse {

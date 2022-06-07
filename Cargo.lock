@@ -1318,6 +1318,7 @@ name = "lilith"
 version = "0.1.0"
 dependencies = [
  "acm",
+ "base64",
  "chrono",
  "gloo-net",
  "gloo-timers",

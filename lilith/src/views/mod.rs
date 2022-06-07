@@ -10,6 +10,7 @@ mod problem;
 mod problem_editor;
 mod problem_list;
 mod signup;
+mod submission;
 
 pub use account::AccountView;
 pub use home::HomeView;
@@ -21,3 +22,4 @@ pub use problem::{ProblemView, ProblemViewInner};
 pub use problem_editor::ProblemEditorView;
 pub use problem_list::ProblemListView;
 pub use signup::{LoginView, SignupView};
+pub use submission::SubmissionView;

@@ -1,8 +1,8 @@
 use acm::{
     models::{
         forms::{
-            CustomProblemInputForm, GenerateTestsForm, RunTestsForm, RunnerCustomProblemInputForm,
-            RunnerForm,
+            CustomProblemInputForm, GenerateTestsForm, RunnerCustomProblemInputForm, RunnerForm,
+            SubmitProblemForm,
         },
         runner::{RunnerError, RunnerResponse},
         test::{Test, TestResult},
@@ -23,9 +23,9 @@ use crate::{
     state::{auth::Claims, AppState},
 };
 
-#[post("/run-tests")]
-pub async fn run_tests(
-    form: Json<RunTestsForm>,
+#[post("/submit-problem")]
+pub async fn submit_problem(
+    form: Json<SubmitProblemForm>,
     state: AppState,
     client: Data<Client>,
     claims: Claims,
@@ -43,7 +43,7 @@ pub async fn run_tests(
                     problem_id: problem.id,
                     username: claims.username.clone(),
                     runner: problem.runner,
-                    implementation: form.test_code.clone(),
+                    implementation: form.implementation.clone(),
                     tests,
                 })
                 .send()
@@ -55,12 +55,12 @@ pub async fn run_tests(
 
             // Saves the result in the database
             // TODO: Handle errors
-            state
-                .save_submission(&res, &form.test_code, &claims.username, problem.id)
+            let submission = state
+                .save_submission(&res, &form.implementation, &claims.username, problem.id)
                 .await
                 .unwrap();
 
-            api_success(res)
+            api_success(submission)
         }
         None => api_error(StatusCode::NOT_FOUND, "problem not found"),
     }

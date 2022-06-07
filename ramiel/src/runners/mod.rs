@@ -4,7 +4,7 @@ use acm::models::{
     test::{Test, TestResult},
 };
 use async_trait::async_trait;
-use std::process::Stdio;
+use std::{collections::BTreeSet, process::Stdio};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt, BufReader},
     process::Command,
@@ -23,6 +23,46 @@ pub trait Runner {
         &self,
         form: RunnerCustomProblemInputForm,
     ) -> Result<TestResult, RunnerError>;
+}
+
+struct TestResults {
+    failed_tests: BTreeSet<TestResult>,
+    passed_tests: BTreeSet<TestResult>,
+
+    runtime: i64,
+}
+
+impl TestResults {
+    fn new() -> Self {
+        Self {
+            failed_tests: BTreeSet::new(),
+            passed_tests: BTreeSet::new(),
+            runtime: 0,
+        }
+    }
+
+    fn insert(&mut self, test: TestResult) {
+        if test.output == test.expected_output {
+            self.passed_tests.insert(test);
+        } else {
+            self.failed_tests.insert(test);
+        }
+    }
+}
+
+impl Into<RunnerResponse> for TestResults {
+    fn into(self) -> RunnerResponse {
+        let mut tests = Vec::with_capacity(self.failed_tests.len() + self.passed_tests.len());
+        let passed = self.failed_tests.is_empty();
+        tests.extend(self.failed_tests);
+        tests.extend(self.passed_tests);
+
+        RunnerResponse {
+            tests,
+            runtime: self.runtime,
+            passed,
+        }
+    }
 }
 
 /// Runs a command with a specified input, returning a RuntimeError if the process returns an
