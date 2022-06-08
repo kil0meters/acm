@@ -34,9 +34,11 @@ async fn signup(form: Json<SignupForm>, state: AppState) -> impl Responder {
     let mut form = form.into_inner();
 
     // If the login is not valid, we return an error
-    if let Err(e) = form.validate() {
-        error!("signup {:?} error: {:?}", form, e);
-        return api_error(StatusCode::BAD_REQUEST, e);
+    if form.validate().is_err() {
+        return api_error(
+            StatusCode::BAD_REQUEST,
+            "Your username or password is invalid",
+        );
     }
 
     form.password = hash_password(&form.username, &form.password);
