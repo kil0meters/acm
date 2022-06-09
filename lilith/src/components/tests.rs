@@ -7,7 +7,7 @@ use gloo_net::http::Request;
 use monaco::api::TextModel;
 use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
-use yew::suspense::use_future;
+use yew::suspense::{use_future, use_future_with_deps, Suspense};
 use yewdux::prelude::*;
 
 use crate::{
@@ -299,13 +299,16 @@ struct TestResultListProps {
 fn TestResultList(props: &TestResultListProps) -> HtmlResult {
     let submission_id = props.submission_id;
 
-    let tests = use_future(|| async move {
-        Request::get(api_url!("/submissions/{}/tests", submission_id))
-            .send()
-            .await?
-            .json::<Vec<TestResult>>()
-            .await
-    })?;
+    let tests = use_future_with_deps(
+        |submission_id| async move {
+            Request::get(api_url!("/submissions/{}/tests", submission_id))
+                .send()
+                .await?
+                .json::<Vec<TestResult>>()
+                .await
+        },
+        submission_id,
+    )?;
 
     match &*tests {
         Ok(tests) => Ok(html! {
