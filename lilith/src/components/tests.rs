@@ -120,10 +120,10 @@ fn TestEditorList() -> Html {
                 }).collect::<Html>()
             }
 
-            <div class="flex items-center gap-1 justify-center">
-                <button class="px-4 py-2 rounded-l-full bg-blue-600 hover:bg-blue-500 text-blue-50 transition-colors text-sm w-36" onclick={add_test}>{ "Add test" }</button>
-                <button class="px-4 py-2 bg-red-600 hover:bg-red-500 text-red-50 transition-colors text-sm w-36" onclick={remove_test}>{ "Remove test" }</button>
-                <LoadingButton loading={*loading} class="px-4 py-2 rounded-r-full bg-neutral-600 hover:bg-neutral-500 text-neutral-50 transition-colors text-sm min-w-[9rem] justify-center whitespace-nowrap" onclick={populate_tests}>{ "Populate output" }</LoadingButton>
+            <div class="grid grid-cols-3 gap-1 mx-auto max-w-sm w-full">
+                <button class="py-2 rounded-l-full bg-blue-600 hover:bg-blue-500 text-blue-50 transition-colors text-sm whitespace-nowrap" onclick={add_test}>{ "Add" }</button>
+                <button class="py-2 bg-red-600 hover:bg-red-500 text-red-50 transition-colors text-sm whitespace-nowrap" onclick={remove_test}>{ "Remove" }</button>
+                <LoadingButton loading={*loading} class="px-4 py-2 rounded-r-full bg-neutral-600 hover:bg-neutral-500 text-neutral-50 transition-colors text-sm justify-center whitespace-nowrap" onclick={populate_tests}>{ "Populate" }</LoadingButton>
             </div>
         </div>
     }
@@ -189,13 +189,13 @@ fn TestEntry(props: &TestEntryProps) -> Html {
 
                     <label>{ "Input" }</label>
 
-                    <pre class="p-2 bg-blue-50 rounded-md">
+                    <pre class="p-2 bg-blue-50 rounded-md border-blue-200 border overflow-auto">
                         <code>{ &props.test.input }</code>
                     </pre>
 
                     <label>{ "Expected" }</label>
 
-                    <pre class="p-2 bg-blue-50 rounded-md">
+                    <pre class="p-2 bg-blue-50 rounded-md border-blue-200 border overflow-auto">
                         <code>{ &props.test.expected_output }</code>
                     </pre>
                 </div>
@@ -226,19 +226,19 @@ pub fn TestResultContents(props: &TestResultProps) -> Html {
 
             <label>{ "Input" }</label>
 
-            <pre class="p-2 bg-blue-50 rounded-md">
+            <pre class="p-2 bg-blue-50 rounded-md border-blue-200 overflow-auto border">
                 <code>{ &props.result.input }</code>
             </pre>
 
             <label>{ "Expected" }</label>
 
-            <pre class="p-2 bg-blue-50 rounded-md">
+            <pre class="p-2 bg-blue-50 rounded-md border-blue-200 overflow-auto border">
                 <code>{ &props.result.expected_output }</code>
             </pre>
 
             <label>{ "Output" }</label>
 
-            <pre class="p-2 bg-blue-50 rounded-md">
+            <pre class="p-2 bg-blue-50 rounded-md border-blue-200 overflow-auto border">
                 <code>{ &props.result.output }</code>
             </pre>
         </div>
@@ -430,7 +430,7 @@ fn SubmissionResult(props: &TestsProps) -> Html {
 
     if let Some(submission) = &*submission {
         html! {
-            <div class="border-b border-neutral-300">
+            <div class="border-b border-neutral-300 mb-2 md:m-0">
                 <SubmissionFeedback submission={submission.clone()} />
             </div>
         }

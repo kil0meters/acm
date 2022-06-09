@@ -70,7 +70,7 @@ pub fn LeaderboardView() -> Html {
         <>
             <Navbar />
             <div class="max-w-screen-md mx-auto">
-                <h1 class="text-2xl font-bold p-2">{"Leaderboard"}</h1>
+                <h1 class="text-3xl font-extrabold p-2">{"Leaderboard"}</h1>
 
                 <Suspense>
                     <LeaderboardViewInner />

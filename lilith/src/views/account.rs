@@ -42,7 +42,7 @@ fn RecentSubmissions(props: &AccountViewProps) -> HtmlResult {
                             </Link<Route>>
                         </div>
 
-                        <pre class="rounded-md bg-blue-50 p-2">
+                        <pre class="rounded-md bg-blue-50 p-2 overflow-auto max-h-72 border border-blue-200">
                             { &s.code }
                         </pre>
                     </div>
@@ -81,7 +81,7 @@ pub fn AccountViewInner(props: &AccountViewProps) -> HtmlResult {
 
     if let Ok(user) = &*user {
         Ok(html! {
-            <div class="grid lg:grid-flow-col lg:gap-4 lg:p-4 lg:grid-cols-[300px_1fr] max-w-screen-md lg:max-w-screen-lg mx-auto">
+            <div class="grid grid-rows-min-full grid-cols-[minmax(0,1fr)] lg:grid-rows-1 lg:grid-flow-col lg:gap-4 lg:p-4 lg:grid-cols-[300px_minmax(0,1fr)] max-w-screen-md lg:max-w-screen-lg mx-auto">
                 <div class="flex flex-col gap-2 p-4 lg:p-0">
                     <h1 class="text-2xl font-bold">{ &user.name }</h1>
                     <h3 class="text-neutral-500">{ &user.username }</h3>

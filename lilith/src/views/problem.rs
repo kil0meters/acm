@@ -36,7 +36,7 @@ fn Description(props: &DescriptionProps) -> Html {
 
     html! {
         <div class="grow bg-white p-4 h-full max-h-full overflow-y-auto">
-            <h1 class="text-3xl font-bold">{ props.title.clone() }</h1>
+            <h1 class="text-4xl font-extrabold mb-4">{ props.title.clone() }</h1>
 
             { Html::VRef(div.into()) }
         </div>

@@ -23,11 +23,18 @@ pub struct LoadingButtonProps {
 }
 
 #[function_component]
-pub fn LoadingButton(props: &LoadingButtonProps) -> Html {
-    let loading = props.loading;
+pub fn LoadingButton(
+    LoadingButtonProps {
+        class,
+        children,
+        loading,
+        onclick,
+    }: &LoadingButtonProps,
+) -> Html {
+    let loading = *loading;
 
-    let onclick = props.onclick.clone();
-    let onclick = Callback::from(move |_| {
+    let onclick = onclick.to_owned();
+    let btn_click = Callback::from(move |_| {
         if !loading {
             onclick.emit(());
         }
@@ -36,8 +43,8 @@ pub fn LoadingButton(props: &LoadingButtonProps) -> Html {
     let loading_button_classes = "flex gap-2 items-center";
 
     html! {
-        <button onclick={onclick}
-                class={classes!(loading_button_classes, props.class.clone())}>
+        <button onclick={btn_click}
+                class={classes!(loading_button_classes, class.clone())}>
 
             if loading {
             // if true {
@@ -48,7 +55,7 @@ pub fn LoadingButton(props: &LoadingButtonProps) -> Html {
             }
 
             <span class="h-5 flex items-center">
-                {props.children.clone()}
+                {children.clone()}
             </span>
 
 

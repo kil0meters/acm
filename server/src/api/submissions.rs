@@ -7,12 +7,21 @@ use actix_web::{
 };
 
 use super::{api_error, api_success};
-use crate::state::AppState;
+use crate::{state::AppState, MAX_TEST_LENGTH};
 
 /// **AUTHORIZATION**: Any
 #[get("/submissions/{submission_id}/tests")]
 pub async fn submission_tests(submission_id: Path<i64>, state: AppState) -> Json<Vec<TestResult>> {
-    Json(state.tests_for_submission(submission_id.into_inner()).await)
+    let mut tests = state
+        .tests_for_submission(*submission_id)
+        .await;
+
+    tests.iter_mut()
+        .for_each(|test| {
+            test.truncate(MAX_TEST_LENGTH);
+        });
+
+    Json(tests)
 }
 
 /// **AUTHORIZATION**: Any

@@ -200,7 +200,7 @@ fn MeetingView(props: &MeetingViewProps) -> HtmlResult {
         Ok(meeting) => html! {
             <>
                 <div class="px-2 sm:p-0">
-                    <h1 class="text-2xl font-bold">{ &meeting.title }</h1>
+                    <h1 class="text-3xl font-extrabold">{ &meeting.title }</h1>
                     <span class="text-neutral-600 text-sm">{ meeting.meeting_time.format("%A, %B %-d @ %-I:%M %p") }</span>
                 </div>
 

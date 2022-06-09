@@ -47,7 +47,7 @@ fn SubmissionViewInner(props: &SubmisisonViewProps) -> HtmlResult {
             });
 
             Ok(html! {
-                <div class="bg-white md:rounded-xl border border-neutral-300 flex flex-col mt-4 md:grid md:grid-cols-5 overflow-hidden max-w-screen-md md:mx-auto md:mt-[20vh]">
+                <div class="bg-white md:rounded-xl border border-neutral-300 flex flex-col mt-4 md:grid md:grid-cols-5 overflow-hidden max-w-screen-md md:mx-auto md:mt-8">
                     <div class="p-4 col-span-3 border-neutral-300 border-b md:border-b-0 md:border-r flex flex-col gap-4">
                         <div class="flex flex-col gap-1">
                             <h1 class="text-3xl font-extrabold">{ "Problem " } { submission.problem_id }</h1>

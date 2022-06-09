@@ -21,6 +21,7 @@ use state::State;
 mod api;
 mod state;
 
+pub const MAX_TEST_LENGTH: usize = 500;
 pub type SqlPool = sqlx::SqlitePool;
 
 #[derive(Parser)]

@@ -11,7 +11,10 @@ use actix_web::{
 use serde_json::json;
 
 use super::{api_error, api_success};
-use crate::state::{auth::Claims, AppState};
+use crate::{
+    state::{auth::Claims, AppState},
+    MAX_TEST_LENGTH,
+};
 
 /// Creates a new problem
 ///
@@ -64,7 +67,13 @@ pub async fn problem(id: Path<i64>, state: AppState) -> impl Responder {
 /// **AUTHORIZATION**: Any
 #[get("/problems/{id}/tests")]
 pub async fn problem_tests(id: Path<i64>, state: AppState) -> impl Responder {
-    Json(state.tests_get_for_problem_id(*id).await)
+    let mut tests = state.tests_get_for_problem_id(*id).await;
+
+    tests
+        .iter_mut()
+        .for_each(|test| test.truncate(MAX_TEST_LENGTH));
+
+    Json(tests)
 }
 
 /// Gets the

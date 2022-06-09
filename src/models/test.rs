@@ -25,6 +25,18 @@ impl Test {
             runtime: time.subsec_nanos().into(),
         }
     }
+
+    pub fn truncate(&mut self, size: usize) {
+        if self.input.len() > size {
+            self.input.truncate(size);
+            self.input.push_str("\n...");
+        }
+
+        if self.expected_output.len() > size {
+            self.expected_output.truncate(size);
+            self.expected_output.push_str("\n...");
+        }
+    }
 }
 
 #[derive(Deserialize, Debug, Clone, Serialize, PartialEq, PartialOrd, Eq, Ord)]
@@ -37,4 +49,23 @@ pub struct TestResult {
     pub expected_output: String,
     pub output: String,
     pub runtime: i64,
+}
+
+impl TestResult {
+    pub fn truncate(&mut self, size: usize) {
+        if self.input.len() > size {
+            self.input.truncate(size);
+            self.input.push_str("\n...");
+        }
+
+        if self.expected_output.len() > size {
+            self.expected_output.truncate(size);
+            self.expected_output.push_str("\n...");
+        }
+
+        if self.output.len() > size {
+            self.output.truncate(size);
+            self.output.push_str("\n...");
+        }
+    }
 }

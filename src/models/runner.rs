@@ -14,7 +14,7 @@ pub struct RunnerResponse {
 
 #[derive(Deserialize, Serialize, Error, Debug, Clone, PartialEq)]
 pub enum RunnerError {
-    #[error("line {line}:\n{message}")]
+    #[error("{message}")]
     CompilationError { line: u64, message: String },
 
     #[error("encountered a runtime error")]
