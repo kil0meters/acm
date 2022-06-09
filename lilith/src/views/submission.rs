@@ -62,7 +62,7 @@ fn SubmissionViewInner(props: &SubmisisonViewProps) -> HtmlResult {
                             </span>
                         </div>
 
-                        <pre class="bg-blue-50 p-4 rounded-md">
+                        <pre class="bg-blue-50 p-4 rounded-md border-blue-200 border overflow-x-auto">
                             <code>{ &submission.code }</code>
                         </pre>
 
