@@ -148,7 +148,11 @@ fn ProblemEditor(props: &ProblemEditorProps) -> Html {
 
     let code = {
         if let Some(problem) = state.problems.get(&id) {
-            &problem.implementation
+            if problem.implementation.is_empty() {
+                &props.template
+            } else {
+                &problem.implementation
+            }
         } else {
             &props.template
         }
