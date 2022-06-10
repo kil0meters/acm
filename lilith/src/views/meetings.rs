@@ -101,9 +101,9 @@ fn ScheduleList() -> HtmlResult {
             .map(|m| {
                 html! {
                     <Link<Route> to={Route::Meeting { id: m.id }}
-                                 classes="border-b last:border-0 border-neutral-300 p-2 sm:first:rounded-t-md sm:last:rounded-b-md hover:bg-neutral-100 transition-colors">
+                                 classes="border-b last:border-0 border-neutral-300 dark:border-neutral-700 p-2 sm:first:rounded-t-md sm:last:rounded-b-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
                         <h3 class="font-bold">{ &m.title }</h3>
-                        <span class="text-neutral-600 text-sm">{ m.meeting_time.format("%A, %B %-d @ %-I:%M %p") }</span>
+                        <span class="text-neutral-600 dark:text-neutral-400 text-sm">{ m.meeting_time.format("%A, %B %-d @ %-I:%M %p") }</span>
                     </Link<Route>>
                 }
             })
@@ -115,7 +115,7 @@ fn ScheduleList() -> HtmlResult {
         <div class="sm:px-2 flex flex-col gap-2">
             <h2 class="text-2xl font-bold px-2 sm:p-0">{ "Schedule" }</h2>
 
-            <div class="bg-white sm:rounded-md border-y sm:border border-neutral-300 flex flex-col">
+            <div class="bg-white dark:bg-black sm:rounded-md border-y sm:border border-neutral-300 dark:border-neutral-700 flex flex-col">
                 { meetings_list }
             </div>
 
@@ -155,10 +155,10 @@ fn Activities(props: &ActivitiesProps) -> HtmlResult {
         .iter()
         .map(|activity| {
             html! {
-                <div class="bg-white ring-1 sm:rounded-md ring-neutral-300 p-2">
+                <div class="bg-white dark:bg-black border sm:rounded-md border-neutral-300 dark:border-neutral-700 p-2">
                     <h3 class="text-lg font-bold">{ &activity.title }</h3>
 
-                    <span class="text-neutral-500">{ &activity.description }</span>
+                    <span class="text-neutral-500 dark:text-neutral-400">{ &activity.description }</span>
                 </div>
             }
         })
@@ -201,7 +201,7 @@ fn MeetingView(props: &MeetingViewProps) -> HtmlResult {
             <>
                 <div class="px-2 sm:p-0">
                     <h1 class="text-3xl font-extrabold">{ &meeting.title }</h1>
-                    <span class="text-neutral-600 text-sm">{ meeting.meeting_time.format("%A, %B %-d @ %-I:%M %p") }</span>
+                    <span class="text-neutral-600 dark:text-neutral-400 text-sm">{ meeting.meeting_time.format("%A, %B %-d @ %-I:%M %p") }</span>
                 </div>
 
                 <Countdown event_time={ meeting.meeting_time } />

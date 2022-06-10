@@ -27,7 +27,7 @@ pub fn HomeView() -> Html {
 
                 <p class="text-lg text-center mb-4">{ "We aren't meeting at the moment, but feel free to try your hand at a programming challenge." }</p>
 
-                <div class="border-y md:border md:rounded-lg border-neutral-300 overflow-hidden md:shadow-md md:h-[40rem]">
+                <div class="border-y md:border md:rounded-lg border-neutral-300 dark:border-neutral-700 overflow-hidden md:shadow-md md:h-[40rem]">
                     <Suspense>
                         <ProblemViewInner id={1} />
                     </Suspense>

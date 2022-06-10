@@ -32,10 +32,10 @@ fn Description(props: &DescriptionProps) -> Html {
         .unwrap();
 
     div.set_inner_html(&parse_markdown(&props.content));
-    div.set_class_name("prose prose-neutral");
+    div.set_class_name("prose prose-neutral dark:prose-invert");
 
     html! {
-        <div class="grow bg-white p-4 h-full max-h-full overflow-y-auto">
+        <div class="grow bg-white dark:bg-black p-4 h-full max-h-full overflow-y-auto">
             <h1 class="text-4xl font-extrabold mb-4">{ props.title.clone() }</h1>
 
             { Html::VRef(div.into()) }
@@ -64,25 +64,25 @@ fn make_submission(problem_id: i64, submission: &Submission) -> Html {
 
     if let Some(_) = &submission.error {
         html! {
-            <div class="flex gap-2 items-center bg-red-100 p-4 border-neutral-300 border-b">
-                <span class="text-red-600 font-bold text-lg">{ "Error" }</span>
-                <span class="ml-auto text-red-600 text-sm">{ time_str }</span>
+            <div class="flex gap-2 items-center bg-red-100 dark:bg-red-900 p-4 border-neutral-300 dark:border-red-700 border-b">
+                <span class="text-red-600 dark:text-red-200 font-bold text-lg">{ "Error" }</span>
+                <span class="ml-auto text-red-600 dark:text-red-200 text-sm">{ time_str }</span>
                 { btn }
             </div>
         }
     } else if submission.success {
         html! {
-            <div class="flex gap-2 items-center bg-green-100 p-4 border-neutral-300 border-b">
-                <span class="text-green-600 font-bold text-lg">{ "Passed" }</span>
-                <span class="ml-auto text-green-600 text-sm">{ time_str }</span>
+            <div class="flex gap-2 items-center bg-green-100 dark:bg-emerald-900 p-4 border-neutral-300 dark:border-emerald-700 border-b">
+                <span class="font-bold text-lg text-green-600 dark:text-emerald-200">{ "Passed" }</span>
+                <span class="ml-auto text-sm text-green-600 dark:text-emerald-200">{ time_str }</span>
                 { btn }
             </div>
         }
     } else {
         html! {
-            <div class="flex gap-2 items-center bg-neutral-50 p-4 border-neutral-300 border-b">
-                <span class="text-red-600 font-bold text-lg">{ "Failed" }</span>
-                <span class="ml-auto text-neutral-400 text-sm">{ time_str }</span>
+            <div class="flex gap-2 items-center bg-neutral-50 dark:bg-neutral-900 p-4 border-neutral-300 dark:border-neutral-700 border-b">
+                <span class="text-red-600 dark:text-red-400 font-bold text-lg">{ "Failed" }</span>
+                <span class="ml-auto text-neutral-400 dark:text-red-300 text-sm">{ time_str }</span>
                 { btn }
             </div>
         }
@@ -126,7 +126,7 @@ fn SubmissionHistory(props: &SubmissionHistoryProps) -> HtmlResult {
     };
 
     Ok(html! {
-        <div class="h-full bg-white overflow-y-auto">
+        <div class="h-full bg-white dark:bg-black overflow-y-auto">
             {history_html}
         </div>
     })
@@ -247,7 +247,7 @@ fn SubmitButton(props: &ProblemViewProps) -> Html {
     html! {
         <LoadingButton
             loading={*loading}
-            class="p-4 border-l border-neutral-300 bg-green-500 hover:bg-green-400 transition-colors text-white"
+            class="p-4 border-l border-neutral-300 dark:border-neutral-700 bg-green-500 dark:bg-green-600 hover:bg-green-400 dark:hover:bg-green-500 transition-colors text-white"
             onclick={submit}>
             { "Submit" }
         </LoadingButton>
@@ -281,8 +281,8 @@ fn CodeRunner(props: &ProblemViewProps) -> Html {
                 <InputTester {id} />
             }
 
-            <div class="flex bg-white border-t border-neutral-300">
-                <button class="mr-auto p-4 border-r border-neutral-300 hover:bg-neutral-200 transition-colors" onclick={toggle_console}>
+            <div class="flex bg-white dark:bg-black border-t border-neutral-300 dark:border-neutral-700">
+                <button class="mr-auto p-4 border-r border-neutral-300 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors" onclick={toggle_console}>
                 if *docker_shown {
                     { "Hide console" }
                 } else {
@@ -316,11 +316,11 @@ pub fn ProblemViewInner(props: &ProblemViewProps) -> HtmlResult {
     match &*problem {
         Ok(problem) => Ok(html! {
             <div class="md:grid md:grid-cols-[400px_minmax(0,1fr)] lg:grid-cols-[500px_minmax(0,1fr)] md:grid-rows-full-min md:h-full">
-                <div class="md:border-r border-neutral-300 pt-2 md:p-0 row-span-2 flex flex-col">
+                <div class="md:border-r border-neutral-300 dark:border-neutral-700 pt-2 md:p-0 row-span-2 flex flex-col">
                     <Suspense>
                         <SubmissionTestList problem_id={id} />
                     </Suspense>
-                    <Tabbed class="h-full border-y md:border-b-0 border-neutral-300 overflow-y-auto" titles={ vec!["Description", "History"] }>
+                    <Tabbed class="h-full border-y md:border-b-0 border-neutral-300 dark:border-neutral-700 overflow-y-auto" titles={ vec!["Description", "History"] }>
                         <Description title={ problem.title.clone() } content={ problem.description.clone() } />
                         <Suspense>
                             <SubmissionHistory {id} />

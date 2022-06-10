@@ -18,18 +18,18 @@ pub fn Tabbed(props: &TabbedProps) -> Html {
     let focused_window_n = *focused_window;
     let focused_window = focused_window.clone();
 
-    let styles = "bg-white grid grid-rows-min-full grid-cols-full";
+    let styles = "bg-white grid grid-rows-min-full grid-cols-full dark:bg-black";
 
     html! {
         <div class={ classes!(styles, props.class.clone()) }>
-            <div class="flex border-neutral-300 border-b">
+            <div class="flex border-neutral-300 dark:border-neutral-700 border-b">
                 {
                     props.titles.iter().enumerate().map(move |(i, title)| {
 
                         let class_string = if *focused_window == i {
-                            "px-4 py-2 bg-neutral-300 transition-colors hover:bg-neutral-100 border-neutral-300 border-r"
+                            "px-4 py-2 bg-neutral-300 transition-colors dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-neutral-100 border-neutral-300 dark:border-neutral-700 border-r"
                         } else {
-                            "px-4 py-2 bg-neutral-200 transition-colors hover:bg-neutral-50 border-neutral-300 border-r"
+                            "px-4 py-2 bg-neutral-200 transition-colors dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-neutral-50 border-neutral-300 dark:border-neutral-700 border-r"
                         };
 
                         let focused_window = focused_window.clone();

@@ -28,7 +28,7 @@ pub fn ShareButton(props: &ShareButtonProps) -> Html {
                 {"Share"}
             </button>
             if *shown {
-                <div class="absolute top-12 right-0 md:left-0 md:right-auto bg-white border-neutral-300 border p-4 rounded-md shadow-md text-neutral-800 z-50">
+                <div class="absolute top-12 right-0 md:left-0 md:right-auto bg-white dark:bg-neutral-900 dark:border-neutral-700 border-neutral-300 border p-4 rounded-md shadow-md text-neutral-800 dark:text-neutral-50 z-50">
                     <pre>
                         <code>{ &share_url }</code>
                     </pre>

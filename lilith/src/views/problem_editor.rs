@@ -40,8 +40,8 @@ fn MarkdownEditor() -> Html {
 
     let preview_tmp = preview.clone();
     html! {
-        <div class="grid grid-rows-min-full grid-cols-full border-y border-neutral-300 bg-white" onfocusout={update_description}>
-            <div class="flex items-center border-b border-neutral-300 p-2">
+        <div class="grid grid-rows-min-full grid-cols-full border-y border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black" onfocusout={update_description}>
+            <div class="flex items-center border-b border-neutral-300 dark:border-neutral-700 p-2">
                 <span class="font-bold">{ "Problem Description" }</span>
 
                 <button class="ml-auto rounded-full bg-blue-700 hover:bg-blue-500 text-sm font-bold text-blue-50 transition-colors px-4 py-2"
@@ -159,9 +159,9 @@ fn MeetingActivitySelector() -> HtmlResult {
     };
 
     Ok(html! {
-        <div class="w-full grid grid-cols-min-full lg:flex lg:g gap-2 border-b border-neutral-300 bg-white p-2 items-center">
+        <div class="w-full grid grid-cols-min-full lg:flex lg:g gap-2 border-b border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black p-2 items-center">
             <label class="font-bold">{ "Meeting" }</label>
-            <select class="border-neutral-300 border rounded p-2 bg-neutral-50 outline-0 transition-shadow focus:ring ring-neutral-300" oninput={update_meeting}>
+            <select class="border-neutral-300 dark:border-neutral-700 border rounded p-2 bg-neutral-50 dark:bg-neutral-900 outline-0 transition-shadow focus:ring dark:ring-neutral-700 ring-neutral-300" oninput={update_meeting}>
                 <option value="-1" selected={true}>{ "None" }</option>
 
                 { meetings_list }
@@ -216,7 +216,7 @@ fn ActivitySelector(props: &ActivitySelectorProps) -> HtmlResult {
     Ok(html! {
         <>
             <label class="font-bold">{ "Activity" }</label>
-            <select class="border-neutral-300 border rounded p-2 bg-neutral-50 outline-0 transition-shadow focus:ring ring-neutral-300" oninput={update_activity}>
+            <select class="border-neutral-300 dark:border-neutral-700 border rounded p-2 bg-neutral-50 dark:bg-neutral-900 outline-0 transition-shadow focus:ring dark:ring-neutral-700 ring-neutral-300" oninput={update_activity}>
                 <option value="None" selected={true}>{ "None" }</option>
                 { activities_list }
             </select>
@@ -269,16 +269,16 @@ pub fn ProblemEditorView() -> Html {
             <Navbar />
 
             <div class="flex flex-col gap-2 lg:gap-0 lg:grid lg:grid-cols-[450px_minmax(0,1fr)] lg:grid-rows-full-min">
-                <div class="grid grid-rows-min-full grid-cols-full gap-2 lg:gap-0 lg:border-r border-neutral-300 row-span-2">
-                    <div class="border-y lg:border-0 bg-white border-neutral-300 flex flex-col gap-2 p-2">
+                <div class="grid grid-rows-min-full grid-cols-full gap-2 lg:gap-0 lg:border-r border-neutral-300 dark:border-neutral-700 row-span-2">
+                    <div class="border-y lg:border-0 bg-white dark:bg-black border-neutral-300 dark:border-neutral-700 flex flex-col gap-2 p-2">
                         <label class="font-bold">{ "Title" }</label>
-                        <input class="border-neutral-300 border rounded p-2 bg-neutral-50 outline-0 transition-shadow focus:ring ring-neutral-300"
+                        <input class="border-neutral-300 dark:border-neutral-700 border rounded p-2 bg-neutral-50 dark:bg-neutral-900 outline-0 transition-shadow focus:ring dark:ring-neutral-700 ring-neutral-300"
                                oninput={edit_title} value={title} placeholder="Title" />
                     </div>
                     <MarkdownEditor />
                 </div>
 
-                <Tabbed class="border-y border-neutral-300 lg:border-0" titles={ vec!["Runner", "Template", "Tests"] }>
+                <Tabbed class="border-y border-neutral-300 dark:border-neutral-700 lg:border-0" titles={ vec!["Runner", "Template", "Tests"] }>
                     <div onfocusout={update_runner} class="h-[40vh] lg:h-full">
                         <CodeEditor classes="h-full" options = { runner_editor_options } />
                     </div>
@@ -290,7 +290,7 @@ pub fn ProblemEditorView() -> Html {
                     <TestsEditor />
                 </Tabbed>
 
-                <div class="border-t border-neutral-300 flex flex-col items-center gap-2 lg:bg-white lg:flex-row">
+                <div class="border-t border-neutral-300 dark:border-neutral-700 flex flex-col items-center gap-2 lg:bg-white dark:lg:bg-black lg:flex-row">
                     <Suspense fallback={html!{<div></div>}}>
                         <MeetingActivitySelector />
                     </Suspense>

@@ -61,10 +61,10 @@ fn ActivityEntry(props: &ActivityEntryProps) -> Html {
             .activity_type = activity_type;
     });
 
-    let form_classes="border-neutral-300 border rounded p-2 bg-neutral-50 outline-0 transition-shadow focus:ring ring-neutral-300";
+    let form_classes="border-neutral-300 dark:border-neutral-700 border rounded p-2 bg-neutral-50 dark:bg-neutral-900 outline-0 transition-shadow focus:ring dark:ring-neutral-700 ring-neutral-300";
 
     html! {
-        <div class="bg-white border-y md:border border-neutral-300 p-2 md:rounded-md grid grid-cols-2 gap-2">
+        <div class="bg-white dark:bg-black border-y md:border border-neutral-300 dark:border-neutral-700 p-2 md:rounded-md grid grid-cols-2 gap-2">
             <div class="flex flex-col">
                 <label>{"Name"}</label>
                 <input oninput={update_title} value={props.activity.title.to_string()} class={form_classes} />
@@ -264,7 +264,7 @@ pub fn MeetingEditorView(props: &MeetingEditorViewProps) -> Html {
 
     let time = form.meeting_time.format("%Y-%m-%dT%H:%M").to_string();
 
-    let form_classes="border-neutral-300 border rounded p-2 bg-neutral-50 outline-0 transition-shadow focus:ring ring-neutral-300";
+    let form_classes="border-neutral-300 dark:border-neutral-700 border rounded p-2 bg-neutral-50 dark:bg-neutral-900 outline-0 transition-shadow focus:ring dark:ring-neutral-700 ring-neutral-300";
 
     html! {
         <>
@@ -276,7 +276,7 @@ pub fn MeetingEditorView(props: &MeetingEditorViewProps) -> Html {
                     <button onclick={submit} class="ml-auto bg-green-700 hover:bg-green-500 text-green-50 transition-colors rounded-full px-4 py-2 text-sm">{ "Submit" }</button>
                 </div>
 
-                <div class="bg-white border-y md:border border-neutral-300 p-2 md:rounded-md grid grid-cols-2 gap-2">
+                <div class="bg-white dark:bg-black border-y md:border border-neutral-300 dark:border-neutral-700 p-2 md:rounded-md grid grid-cols-2 gap-2">
                     <div class="flex flex-col">
                         <label>{"Title"}</label>
                         <input class={form_classes} value={form.title.clone()} oninput={update_title} />

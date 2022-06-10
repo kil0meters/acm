@@ -11,22 +11,28 @@
     <link data-trunk rel="rust" data-cargo-features="yew/csr" data-bin="lilith" data-wasm-opt="z" />
 </head>
 
-<body class="bg-neutral-50 text-neutral-800">
+<body
+    class="bg-neutral-50 text-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">
     <div class="sticky top-0 z-50">
         <div class="p-4 flex flex-col gap-4 md:flex-row bg-white/90 backdrop-blur-lg border-neutral-300 border-b">
             <div class="flex">
-                <a class="font-extrabold text-2xl hover:text-neutral-600 transition-colors ease-in-out flex items-center" href="/">
+                <a class="font-extrabold text-2xl hover:text-neutral-600 transition-colors ease-in-out flex items-center"
+                    href="/">
                     Chico ACM
                 </a>
 
-                <button class="md:hidden ml-auto rounded-full p-2 px-5 bg-blue-700 text-blue-50 hover:bg-blue-500 transition-colors">
+                <button
+                    class="md:hidden ml-auto rounded-full p-2 px-5 bg-blue-700 text-blue-50 hover:bg-blue-500 transition-colors">
                     Menu
                 </button>
             </div>
 
-            <a class="font-bold text-lg self-start md:self-center hover:text-neutral-600 transition-colors ease-in-out hidden md:block" href="/problems">Problems</a>
-            <a class="font-bold text-lg self-start md:self-center hover:text-neutral-600 transition-colors ease-in-out hidden md:block" href="/meetings">Meetings</a>
-            <a class="font-bold text-lg self-start md:self-center hover:text-neutral-600 transition-colors ease-in-out hidden md:block" href="/leaderboard">Leaderboard</a>
+            <a class="font-bold text-lg self-start md:self-center hover:text-neutral-600 transition-colors ease-in-out hidden md:block"
+                href="/problems">Problems</a>
+            <a class="font-bold text-lg self-start md:self-center hover:text-neutral-600 transition-colors ease-in-out hidden md:block"
+                href="/meetings">Meetings</a>
+            <a class="font-bold text-lg self-start md:self-center hover:text-neutral-600 transition-colors ease-in-out hidden md:block"
+                href="/leaderboard">Leaderboard</a>
         </div>
     </div>
     <div class="text-3xl mt-16 font-extrabold animate-fade-in text-center">Loading...</div>

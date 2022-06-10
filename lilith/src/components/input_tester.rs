@@ -34,10 +34,10 @@ fn CustomTestResult(props: &CustomTestResultProps) -> Html {
                 html! { <TestResultContents class={classes!("m-4", "lg:ml-0")} result={result.clone()} /> }
             }
             Err(error) => html! {
-                <div class="m-4 lg:ml-0 bg-red-500 text-red-50 p-4 flex flex-col gap-2 rounded-md border-red-600 border">
+                <div class="m-4 lg:ml-0 bg-red-500 text-red-50 p-4 flex flex-col gap-2 rounded-md border-red-600 dark:border-red-500 dark:bg-red-700 border">
                     <h1 class="text-2xl font-bold">{ "error." }</h1>
 
-                    <pre class="bg-red-700 overflow-auto p-2 rounded">
+                    <pre class="bg-red-700 dark:bg-red-800 overflow-auto p-2 rounded">
                         <code>{ error }</code>
                     </pre>
                 </div>
@@ -75,10 +75,10 @@ pub fn InputTester(props: &InputTesterProps) -> Html {
         .unwrap_or_default();
 
     html! {
-        <div class="border-t border-neutral-300 bg-white flex flex-col lg:flex-row min-h-0">
+        <div class="border-t border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black flex flex-col lg:flex-row min-h-0">
             <div class="flex flex-col gap-2 lg:w-96 p-4">
                 <label>{ "Input" }</label>
-                <textarea class="rounded border border-neutral-300 bg-neutral-100 outline-0 transition-shadow focus:ring-2 ring-neutral-300 resize-none p-2 lg:flex-auto" {oninput} {value}>
+                <textarea class="rounded border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 outline-0 transition-shadow focus:ring-2 ring-neutral-300 dark:ring-neutral-700 resize-none p-2 lg:flex-auto" {oninput} {value}>
                 </textarea>
                 <CustomInputButton {id} />
             </div>

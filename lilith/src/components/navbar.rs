@@ -17,7 +17,7 @@ struct NavbarLinkProps {
 
 #[function_component]
 fn NavbarLink(props: &NavbarLinkProps) -> Html {
-    let link_styles = "font-bold text-lg self-start md:self-center hover:text-neutral-600 transition-colors ease-in-out md:block";
+    let link_styles = "font-bold text-lg self-start md:self-center hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors ease-in-out md:block";
 
     html! {
         <Link<Route> classes={classes!(link_styles, props.class.clone())}
@@ -43,9 +43,9 @@ pub fn Navbar() -> Html {
 
     html! {
         <div class="sticky top-0 z-50 w-full">
-            <div class="p-4 flex flex-col gap-4 md:flex-row bg-white/90 backdrop-blur-lg border-neutral-300 border-b">
+            <div class="p-4 flex flex-col gap-4 md:flex-row bg-white/90 dark:bg-black/90 backdrop-blur-lg border-neutral-300 dark:border-neutral-800 border-b">
                 <div class="flex">
-                    <Link<Route> classes="font-extrabold text-2xl hover:text-neutral-600 transition-colors ease-in-out flex items-center"
+                    <Link<Route> classes="font-extrabold text-2xl hover:text-neutral-600 transition-colors ease-in-out flex items-center dark:hover:text-neutral-400"
                                  to={Route::Home}>
                         { "Chico ACM" }
                     </Link<Route>>

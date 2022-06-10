@@ -23,11 +23,11 @@ struct LeaderboardEntryProps {
 fn LeaderboardEntry(props: &LeaderboardEntryProps) -> Html {
     html! {
         <Link<Route> to={Route::Account { username: props.item.username.clone() }}
-                     classes="border-b border-neutral-300 p-4 last:border-b-0 flex flex-row gap-4 first:rounded-t-md last:rounded-b-md hover:bg-neutral-100 transition-colors">
+                     classes="border-b border-neutral-300 dark:border-neutral-700 p-4 last:border-b-0 flex flex-row gap-4 hover:bg-neutral-100 dark:bg-black dark:hover:bg-neutral-800 transition-colors">
             <div class="bg-blue-700 text-neutral-50 flex items-center justify-center rounded-full w-9 h-9 text-xl font-bold self-center">{ props.position }</div>
             <div class="flex flex-col">
-                <span class="text-xl font-bold text-neutral-800">{ &props.item.name }</span>
-                <span class="text-neutral-500">{ &props.item.username }</span>
+                <span class="text-xl font-bold">{ &props.item.name }</span>
+                <span class="text-neutral-500 dark:text-neutral-400">{ &props.item.username }</span>
             </div>
             <span class="ml-auto bg-yellow-300 text-yellow-800 rounded-full px-4 h-9 self-center flex items-center">{ props.item.count } { if props.item.count > 1 { " Stars" } else { " Star" } } </span>
         </Link<Route>>
@@ -58,7 +58,7 @@ fn LeaderboardViewInner() -> HtmlResult {
     };
 
     Ok(html! {
-        <div class="flex flex-col border-y sm:rounded-md sm:border sm:m-2 md:m-0 border-neutral-300 bg-white">
+        <div class="flex flex-col border-y sm:rounded-md sm:border sm:m-2 md:m-0 border-neutral-300 dark:border-neutral-700 bg-white overflow-hidden">
             { list_html }
         </div>
     })

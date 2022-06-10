@@ -41,12 +41,12 @@ fn TestEditor(props: &TestEditorProps) -> Html {
         <div class="grid grid-cols-2 gap-2">
             <div class="flex flex-col gap-2">
                 <span>{"Input"}</span>
-                <textarea class="h-32 resize-none border-neutral-300 border rounded p-2 bg-neutral-50 outline-0 transition-shadow focus:ring ring-neutral-300" oninput={input_changed} value={props.test.input.clone()} />
+                <textarea class="h-32 resize-none border-neutral-300 dark:border-neutral-700 border rounded p-2 bg-neutral-50 dark:bg-neutral-900 outline-0 transition-shadow focus:ring dark:ring-neutral-700 ring-neutral-300" oninput={input_changed} value={props.test.input.clone()} />
             </div>
 
             <div class="flex flex-col gap-2">
                 <span>{"Expected Output"}</span>
-                <textarea class="h-32 resize-none border-neutral-300 border rounded p-2 bg-neutral-50 outline-0 transition-shadow focus:ring ring-neutral-300" oninput={expected_output_changed} value={props.test.expected_output.clone()} />
+                <textarea class="h-32 resize-none border-neutral-300 dark:border-neutral-700 border rounded p-2 bg-neutral-50 dark:bg-neutral-900 outline-0 transition-shadow focus:ring dark:ring-neutral-700 ring-neutral-300" oninput={expected_output_changed} value={props.test.expected_output.clone()} />
             </div>
         </div>
 
@@ -143,7 +143,7 @@ pub fn TestsEditor() -> Html {
 
     html! {
         <div class="grid grid-rows-2 grid-cols-1 xl:grid-rows-1 xl:grid-cols-3">
-            <div class="xl:col-span-2 border-b border-neutral-300 xl:border-b-0 xl:border-r" {onfocusout}>
+            <div class="xl:col-span-2 border-b border-neutral-300 dark:border-neutral-700 xl:border-b-0 xl:border-r" {onfocusout}>
                 <CodeEditor classes="min-h-[40vh] lg:h-full" {options} />
             </div>
             <TestEditorList />
@@ -178,24 +178,24 @@ fn TestEntry(props: &TestEntryProps) -> Html {
 
     html! {
         <>
-            <button class="aspect-square bg-neutral-200 border border-neutral-400 b rounded transition-shadow hover:shadow-md hover:ring-2 ring-neutral-400"
+            <button class="aspect-square bg-neutral-200 dark:bg-slate-700 border border-neutral-400 dark:border-slate-800 b rounded transition-shadow hover:shadow-md hover:ring-2 ring-neutral-400 dark:ring-slate-800"
                     onclick={show_modal}>
                 { format!("Test #{}", props.test.index) }
             </button>
 
             <Modal shown={*modal_shown} onclose={hide_modal}>
-                <div class="bg-white rounded-md border border-neutral-300 p-4 flex flex-col gap-2">
+                <div class="bg-white rounded-md border border-neutral-300 dark:bg-black dark:border-neutral-700 p-4 flex flex-col gap-2">
                     <h2 class="text-2xl">{ "Test #" } { props.test.index }</h2>
 
                     <label>{ "Input" }</label>
 
-                    <pre class="p-2 bg-blue-50 rounded-md border-blue-200 border overflow-auto">
+                    <pre class="p-2 bg-blue-50 rounded-md border-blue-200 dark:border-slate-700 dark:bg-slate-800 border overflow-auto">
                         <code>{ &props.test.input }</code>
                     </pre>
 
                     <label>{ "Expected" }</label>
 
-                    <pre class="p-2 bg-blue-50 rounded-md border-blue-200 border overflow-auto">
+                    <pre class="p-2 bg-blue-50 rounded-md border-blue-200 dark:border-slate-700 dark:bg-slate-800 border overflow-auto">
                         <code>{ &props.test.expected_output }</code>
                     </pre>
                 </div>
@@ -216,7 +216,7 @@ pub fn TestResultContents(props: &TestResultProps) -> Html {
         <div class={classes!(&props.class, "flex", "flex-col", "gap-2")}>
             <div class="flex items-center gap-2">
                 if props.result.success {
-                    <span class="text-red-600 text-2xl">{ "Passed" }</span>
+                    <span class="text-green-600 text-2xl">{ "Passed" }</span>
                     <span class="text-green-600">{ props.result.runtime / 1000 } {"µs"}</span>
                 } else {
                     <span class="text-red-600 text-2xl">{ "Failed" }</span>
@@ -226,19 +226,19 @@ pub fn TestResultContents(props: &TestResultProps) -> Html {
 
             <label>{ "Input" }</label>
 
-            <pre class="p-2 bg-blue-50 rounded-md border-blue-200 overflow-auto border">
+            <pre class="p-2 bg-blue-50 rounded-md border-blue-200 dark:border-slate-700 dark:bg-slate-800 border overflow-auto">
                 <code>{ &props.result.input }</code>
             </pre>
 
             <label>{ "Expected" }</label>
 
-            <pre class="p-2 bg-blue-50 rounded-md border-blue-200 overflow-auto border">
+            <pre class="p-2 bg-blue-50 rounded-md border-blue-200 dark:border-slate-700 dark:bg-slate-800 border overflow-auto">
                 <code>{ &props.result.expected_output }</code>
             </pre>
 
             <label>{ "Output" }</label>
 
-            <pre class="p-2 bg-blue-50 rounded-md border-blue-200 overflow-auto border">
+            <pre class="p-2 bg-blue-50 rounded-md border-blue-200 dark:border-slate-700 dark:bg-slate-800 border overflow-auto">
                 <code>{ &props.result.output }</code>
             </pre>
         </div>
@@ -273,16 +273,16 @@ fn TestResultEntry(props: &TestResultProps) -> Html {
             <button class={
                 classes!(base_button_styles,
                     if props.result.success {
-                        "bg-green-200 border-green-400 ring-green-400 text-green-900"
+                        "bg-green-200 dark:bg-green-800 dark:border-green-600 dark:ring-green-600 dark:text-green-100 border-green-400 ring-green-400 text-green-900"
                     } else {
-                        "bg-red-200 border-red-400 ring-red-400 text-red-900"
+                        "bg-red-200 dark:bg-red-800 dark:border-red-600 dark:ring-red-600 dark:text-red-100 border-red-400 ring-red-400 text-red-900"
                     }
                 )
             }
             onclick={show_modal}>{ format!("Test #{}", props.result.index) }</button>
 
             <Modal shown={*modal_shown} onclose={hide_modal}>
-                <div class="bg-white rounded-md border border-neutral-300 p-4">
+                <div class="bg-white dark:bg-black rounded-md border border-neutral-300 dark:border-neutral-700 p-4">
                     <TestResultContents result={props.result.clone()} />
                 </div>
             </Modal>
@@ -383,9 +383,9 @@ pub fn SubmissionTestList(props: &TestsProps) -> HtmlResult {
     };
 
     let collapse_styles = if *shown {
-        "p-4 bg-neutral-200 hover:bg-neutral-100 cursor-pointer select-none transition-colors border-b last:border-b-0 border-neutral-300 rounded-t-md md:rounded-none"
+        "p-4 bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-neutral-100 cursor-pointer select-none transition-colors border-b last:border-b-0 border-neutral-300 dark:border-neutral-700 rounded-t-md md:rounded-none"
     } else {
-        "p-4 bg-neutral-200 hover:bg-neutral-100 cursor-pointer select-none transition-colors rounded-md md:rounded-none"
+        "p-4 bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-neutral-100 cursor-pointer select-none transition-colors rounded-md md:rounded-none"
     };
 
     Ok(html! {
@@ -394,7 +394,7 @@ pub fn SubmissionTestList(props: &TestsProps) -> HtmlResult {
                 <SubmissionResult {problem_id} />
             </Suspense>
 
-            <div class="flex flex-col border border-neutral-300 rounded-md mx-2 mb-2 md:m-0 md:border-0">
+            <div class="flex flex-col border border-neutral-300 dark:border-neutral-700 rounded-md mx-2 mb-2 md:m-0 md:border-0">
                 <a class={collapse_styles} onclick={onclick}>
                     if *shown {
                         {"Hide tests"}
@@ -433,7 +433,7 @@ fn SubmissionResult(props: &TestsProps) -> Html {
 
     if let Some(submission) = &*submission {
         html! {
-            <div class="border-b border-neutral-300 mb-2 md:m-0">
+            <div class="border-b border-neutral-300 dark:border-neutral-700 mb-2 md:m-0">
                 <SubmissionFeedback submission={submission.clone()} />
             </div>
         }

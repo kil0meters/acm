@@ -3,6 +3,7 @@ dist = "../dist/"
 
 [watch]
 watch = [
+    "tailwind.config.js",
     "./index.html",
     "src/"
 ]
