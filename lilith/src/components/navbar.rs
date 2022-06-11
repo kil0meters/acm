@@ -43,7 +43,7 @@ pub fn Navbar() -> Html {
 
     html! {
         <div class="sticky top-0 z-50 w-full">
-            <div class="p-4 flex flex-col gap-4 md:flex-row bg-white/90 dark:bg-black/90 backdrop-blur-lg border-neutral-300 dark:border-neutral-800 border-b">
+            <div class="p-4 flex flex-col gap-4 md:flex-row bg-white/90 dark:bg-black/90 backdrop-blur-lg border-neutral-300 dark:border-neutral-700 border-b">
                 <div class="flex">
                     <Link<Route> classes="font-extrabold text-2xl hover:text-neutral-600 transition-colors ease-in-out flex items-center dark:hover:text-neutral-400"
                                  to={Route::Home}>

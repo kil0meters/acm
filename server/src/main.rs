@@ -14,7 +14,7 @@ use api::{
     problems::{create_problem, problem, problem_history, problem_list, problem_tests},
     run::{custom_input, generate_tests, submit_problem},
     signup::{login, signup},
-    submissions::{submission, submission_tests},
+    submissions::{submission, submission_tests, first_time_completions},
 };
 use state::State;
 
@@ -65,6 +65,7 @@ async fn main() -> std::io::Result<()> {
             .service(problem_history)
             .service(create_problem)
             .service(submit_problem)
+            .service(first_time_completions)
             .service(submission)
             .service(generate_tests)
             .service(custom_input)

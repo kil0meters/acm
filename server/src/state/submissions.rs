@@ -1,8 +1,10 @@
 use acm::models::{
     runner::{RunnerError, RunnerResponse},
     test::TestResult,
-    Submission,
+    Submission, User,
 };
+use chrono::{NaiveDateTime, Utc};
+use futures::future::join_all;
 use sqlx::{Sqlite, Transaction};
 
 use super::State;
@@ -145,6 +147,43 @@ impl State {
         .fetch_all(&self.conn)
         .await
         .unwrap_or_default()
+    }
+
+    pub async fn first_completions(&self, time: Option<NaiveDateTime>) -> Vec<(User, Submission)> {
+        let time = time.unwrap_or_else(|| Utc::now().naive_local());
+
+        let submissions = sqlx::query_as_unchecked!(
+            Submission,
+            r#"
+            SELECT
+                id,
+                problem_id,
+                user_id,
+                success,
+                runtime,
+                error,
+                code,
+                min(time) as time
+            FROM
+                submissions
+            WHERE
+                success = true AND DATETIME(time) > DATETIME(?, 'localtime')
+            GROUP BY
+                user_id,
+                problem_id
+            "#,
+            time
+        )
+        .fetch_all(&self.conn)
+        .await
+        .unwrap_or_default();
+
+        join_all(submissions.into_iter().map(|submission| async {
+            let user = self.user_query_by_id(submission.user_id).await.unwrap();
+
+            (user, submission)
+        }))
+        .await
     }
 
     pub async fn get_submission(&self, submission_id: i64) -> sqlx::Result<Submission> {

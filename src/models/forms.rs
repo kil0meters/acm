@@ -119,3 +119,10 @@ pub struct RunnerCustomProblemInputForm {
     pub reference: String,
     pub input: String,
 }
+
+
+#[derive(Deserialize, Serialize)]
+pub struct FirstTimeCompletionsForm {
+    pub since: Option<NaiveDateTime>
+}
+

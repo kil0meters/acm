@@ -3,6 +3,7 @@ use acm::models::{
     runner::{RunnerError, RunnerResponse},
     test::{Test, TestResult},
 };
+use futures::future::join_all;
 use async_trait::async_trait;
 use std::{path::Path, time::Instant};
 use tokio::{
@@ -25,10 +26,15 @@ impl Runner for CPlusPlus {
         let mut test_results = TestResults::new();
 
         let start = Instant::now();
-        for test in form.tests {
-            let test = run_test_timed(&command, test).await?;
-            test_results.insert(test);
+
+        let tests = join_all(form.tests.into_iter().map(|test| async {
+            run_test_timed(&command, test).await
+        })).await;
+
+        for test in tests {
+            test_results.insert(test?);
         }
+
         test_results.runtime = start.elapsed().as_millis().try_into().unwrap();
 
         Ok(test_results.into())
