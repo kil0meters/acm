@@ -1,0 +1,17 @@
+FROM rustlang/rust:nightly as builder
+WORKDIR /usr/src/acm
+COPY . .
+
+RUN cargo +nightly install --path server
+
+
+
+FROM debian:bullseye-slim
+
+RUN apt-get update; \
+    apt-get install -y openssl; \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /usr/local/cargo/bin/server /usr/local/bin/server
+
+CMD ["server"]

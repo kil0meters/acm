@@ -2,10 +2,13 @@ FROM rustlang/rust:nightly as builder
 WORKDIR /usr/src/acm
 COPY . .
 
-RUN cargo +nightly install --path server; \
-    cargo +nightly install --path ramiel
+RUN cargo +nightly install --path ramiel
+
+
+
 
 FROM debian:bullseye-slim
+
 RUN apt-get update; \
     apt-get install -y openssl libxml2 wget libxkbcommon-x11-0 libncurses5
 
@@ -26,4 +29,4 @@ COPY --from=builder /usr/local/cargo/bin/server /usr/local/bin/server
 COPY --from=builder /usr/local/cargo/bin/ramiel /usr/local/bin/ramiel
 COPY scripts/start_acm.sh /usr/local/bin/start_acm
 
-CMD ["start_acm"]
+CMD ["server", ""]
