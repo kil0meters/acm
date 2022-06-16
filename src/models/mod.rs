@@ -39,6 +39,7 @@ pub struct Problem {
     pub runner: String,
 
     /// Reference implementation
+    #[serde(skip)]
     pub reference: String,
 
     /// Template that's shown when you start a problem
@@ -111,8 +112,11 @@ impl Default for ActivityType {
     }
 }
 
+fn zero() -> i64 { 0 }
+
 #[derive(Deserialize, PartialEq, Serialize, Clone, Default)]
 pub struct Activity {
+    #[serde(default = "zero")]
     pub id: i64,
     pub title: String,
     pub description: String,

@@ -89,25 +89,35 @@ async fn run_command(command: &str, input: &str) -> Result<String, RunnerError> 
         Ok(exit_status) => exit_status?,
         Err(_) => {
             child.kill().await?;
-            return Err(RunnerError::TimeoutError);
+            return Err(RunnerError::TimeoutError { message: "Process took too long to execute.".to_string() });
         }
     };
 
-    let stdout = child
-        .stdout
-        .take()
-        .expect("child process did not have handle to stdout");
-
-    let mut reader = BufReader::new(stdout);
-
-    let mut bytes = vec![];
-    reader.read_to_end(&mut bytes).await?;
-
     if exit_status.success() {
+        let stdout = child
+            .stdout
+            .take()
+            .expect("child process did not have handle to stdout");
+
+        let mut reader = BufReader::new(stdout);
+
+        let mut bytes = vec![];
+        reader.read_to_end(&mut bytes).await?;
+
         Ok(String::from_utf8_lossy(&bytes).to_string())
     } else {
-        Err(RunnerError::RuntimeError(
-            String::from_utf8_lossy(&bytes).to_string(),
-        ))
+        let stderr = child
+            .stderr
+            .take()
+            .expect("child process did not have handle to stdout");
+
+        let mut reader = BufReader::new(stderr);
+
+        let mut bytes = vec![];
+        reader.read_to_end(&mut bytes).await?;
+
+        Err(RunnerError::RuntimeError {
+            message: String::from_utf8_lossy(&bytes).to_string(),
+        })
     }
 }

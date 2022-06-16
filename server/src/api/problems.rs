@@ -30,7 +30,7 @@ pub async fn create_problem(
             Ok(id) => api_success(json!({ "id": id })),
             Err(_) => api_error(
                 StatusCode::BAD_REQUEST,
-                "A problem with that title already exists",
+                json!({"error": "A problem with that title already exists"}),
             ),
         },
         Auth::MEMBER => api_error(

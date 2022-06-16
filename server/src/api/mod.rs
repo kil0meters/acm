@@ -14,7 +14,7 @@ pub mod submissions;
 
 /// A utility function for easily returning an error in a consistent format
 fn api_error(code: StatusCode, error: impl Serialize) -> HttpResponse {
-    HttpResponse::build(code).json(json!({ "error": error }))
+    HttpResponse::build(code).json(error)
 }
 
 /// A utility function for returning a JSON object whenever api_error is used

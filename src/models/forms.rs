@@ -125,4 +125,3 @@ pub struct RunnerCustomProblemInputForm {
 pub struct FirstTimeCompletionsForm {
     pub since: Option<NaiveDateTime>
 }
-

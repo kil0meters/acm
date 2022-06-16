@@ -86,7 +86,11 @@ pub async fn generate_tests(
                 .unwrap();
 
             let tests: Result<Vec<Test>, RunnerError> = res.json().await.unwrap();
-            api_success(tests)
+
+            match tests {
+                Ok(res) => api_success(res),
+                Err(err) => api_error(StatusCode::UNPROCESSABLE_ENTITY, err)
+            }
         }
         Auth::MEMBER => api_error(
             StatusCode::UNAUTHORIZED,
@@ -122,7 +126,10 @@ pub async fn custom_input(
 
         let result: Result<TestResult, RunnerError> = res.json().await.unwrap();
 
-        api_success(result)
+        match result {
+            Ok(res) =>  api_success(res),
+            Err(res) => api_error(StatusCode::UNPROCESSABLE_ENTITY, res),
+        }
     } else {
         api_error(StatusCode::NOT_FOUND, "Problem not found")
     }

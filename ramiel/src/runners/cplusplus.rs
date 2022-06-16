@@ -172,9 +172,9 @@ async fn compile_problem(
     if output.status.success() {
         Ok(executable_filename)
     } else {
-        Err(RunnerError::InternalServerError(
-            "Failed to compile.".to_string(),
-        ))
+        Err(RunnerError::InternalServerError{
+            message: "Failed to compile.".to_string(),
+        })
     }
 }
 
