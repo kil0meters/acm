@@ -1,0 +1,871 @@
+{
+  "db": "SQLite",
+  "115920c18df755a2383eac515539aab374d67461587d8d7b786fed6a728f1b47": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "meeting_time",
+          "ordinal": 3,
+          "type_info": "Datetime"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT\n                id,\n                title,\n                description,\n                meeting_time\n            FROM\n                meetings\n            WHERE\n                DATETIME('now', 'localtime', 'start of day') < DATETIME(meeting_time)\n            ORDER BY\n                DATETIME(meeting_time) ASC\n            "
+  },
+  "206d4116eb68c1a17be86b189f43bed40e26a4373319708b2fc35fb3b0911a29": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "runner",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "reference",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "template",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "visible",
+          "ordinal": 6,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT\n                id,\n                title,\n                description,\n                runner,\n                reference,\n                template,\n                visible\n            FROM\n                problems\n            ORDER BY\n                update_dt DESC"
+  },
+  "21f713bbbed8e9891c548db06c5d6ca2a4eebbaa8f272e691bf41c5fa78871a4": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "meeting_time",
+          "ordinal": 3,
+          "type_info": "Datetime"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT\n                id,\n                title,\n                description,\n                meeting_time\n            FROM\n                meetings\n            WHERE\n                DATETIME('now', 'localtime', 'start of day') < DATETIME(meeting_time)\n            ORDER BY\n                meeting_time ASC\n            "
+  },
+  "2e61cd30a6cd3e0937dd096b4f94493e8bcb8c10687d0f8c0592fe38ed956fa6": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "SELECT id FROM users WHERE username = ?"
+  },
+  "3eae37a186ff6d0f22747b3ba57e845ae83bccf0f100d886deb54501451cedb8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "index",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "input",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "expected_output",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n            SELECT\n                id,\n                test_number as [index],\n                input,\n                expected_output\n            FROM\n                tests\n            WHERE\n                problem_id = ?"
+  },
+  "433f19145c1361d972c7f343b5bf5d5613d2365d2ac08bc603dc37e547ea8592": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "problem_id",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "success",
+          "ordinal": 3,
+          "type_info": "Bool"
+        },
+        {
+          "name": "runtime",
+          "ordinal": 4,
+          "type_info": "Int64"
+        },
+        {
+          "name": "error",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "code",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "time",
+          "ordinal": 7,
+          "type_info": "Datetime"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 6
+      }
+    },
+    "query": "\n                    INSERT INTO submissions (\n                        problem_id,\n                        user_id,\n                        success,\n                        runtime,\n                        error,\n                        code\n                    ) VALUES (?, ?, ?, ?, ?, ?)\n                    RETURNING *"
+  },
+  "4614633a302d018dea97f5e15da77a0f0b8f8d9ce60167a603179763ac044430": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 5
+      }
+    },
+    "query": "\n            INSERT INTO test_results (\n                submission_id,\n                test_id,\n                runtime,\n                output,\n                success\n            ) VALUES (?, ?, ?, ?, ?)\n            "
+  },
+  "4cef658883a23a3e4e3ad914f02e0662308c4c38c60f8c6b1173802a9a8acd49": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Right": 6
+      }
+    },
+    "query": "\n            INSERT INTO problems (\n                title,\n                description,\n                runner,\n                reference,\n                template,\n                activity_id\n            ) VALUES (?, ?, ?, ?, ?, ?)\n            RETURNING id\n            "
+  },
+  "50e9849a921bc9404119c98adae5c449098b3b1d39fa305ab692560f3ea383b9": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "\n                INSERT INTO activities (\n                    meeting_id,\n                    title,\n                    description,\n                    activity_type\n                )\n                VALUES (?, ?, ?, ?)\n                "
+  },
+  "55254321ebcd239903687e8f4ab3cf9484667ec96d24ad30d2fedf1cc343d079": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "INSERT INTO users (name, auth, username, password) VALUES (?, ?, ?, ?)"
+  },
+  "563b0939fdf0c0b32d9d9d9f0e2669b896643743b643b5c48cb308b041a19241": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "username",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "password",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "auth: Auth",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "SELECT name, username, password, auth as \"auth: Auth\" FROM users WHERE username = ?"
+  },
+  "758dff5514d4c30de21c93c484f951e2fe2427c5e1a8753f2ecc62adb1271bf1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "runner",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "reference",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "template",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "visible",
+          "ordinal": 6,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n            SELECT\n                id,\n                title,\n                description,\n                runner,\n                reference,\n                template,\n                visible\n            FROM\n                problems\n            WHERE\n                id = ?\n            "
+  },
+  "818fbdd40ca4cd0d9465b07f7c1271a726d48d1684d2ac5f06ad588fe12811b3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "\n                INSERT INTO meetings (\n                    title,\n                    description,\n                    meeting_time\n                )\n                VALUES (?, ?, ?)\n                RETURNING id\n                "
+  },
+  "8b2020c5698e8fc2712b66a131f6a79851799cb306eb17172de1800f08290220": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "username",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "password",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "auth: Auth",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "SELECT name, username, password, auth as \"auth: Auth\" FROM users WHERE id = ?"
+  },
+  "9058ab628832a5c9cdb9a9a991fd0827b455b6c0afe6bba547e8f55a239666a3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "problem_id",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "success",
+          "ordinal": 3,
+          "type_info": "Bool"
+        },
+        {
+          "name": "runtime",
+          "ordinal": 4,
+          "type_info": "Int64"
+        },
+        {
+          "name": "error",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "code",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "time",
+          "ordinal": 7,
+          "type_info": "Datetime"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n            SELECT\n                *\n            FROM\n                submissions\n            WHERE\n                id = ?\n            "
+  },
+  "9af4289f35844b356054929dc4dccc091293b58238c9801b912276f9271730f7": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "\n                INSERT INTO tests (\n                    problem_id,\n                    test_number,\n                    input,\n                    expected_output\n                )\n                VALUES (?, ?, ?, ?)\n                "
+  },
+  "a32c2341f19d048d265af2ad9c71528b937bb314da47e4a26f119ca0e8084ac7": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "success",
+          "ordinal": 1,
+          "type_info": "Bool"
+        },
+        {
+          "name": "output",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "runtime",
+          "ordinal": 3,
+          "type_info": "Int64"
+        },
+        {
+          "name": "input",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "expected_output",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "index",
+          "ordinal": 6,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n            SELECT\n                test_results.id as id,\n                test_results.success as success,\n                test_results.output as output,\n                test_results.runtime as runtime,\n                tests.input as input,\n                tests.expected_output as expected_output,\n                tests.test_number as [index]\n            FROM\n                test_results INNER JOIN tests\n                ON test_results.test_id = tests.id\n            WHERE\n                test_results.submission_id = ?\n            ORDER BY\n                tests.test_number ASC, test_results.success\n            "
+  },
+  "a666726b39ccf5ac977106b617cc7c878e9e7d7422f580494f79ed1f7d8c08b1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "problem_id",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "success",
+          "ordinal": 3,
+          "type_info": "Bool"
+        },
+        {
+          "name": "runtime",
+          "ordinal": 4,
+          "type_info": "Int64"
+        },
+        {
+          "name": "time",
+          "ordinal": 5,
+          "type_info": "Datetime"
+        },
+        {
+          "name": "error",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "code",
+          "ordinal": 7,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "\n            SELECT\n                id,\n                problem_id,\n                user_id,\n                success,\n                runtime,\n                time,\n                error,\n                code\n            FROM\n                submissions\n            WHERE\n                user_id = ?\n            ORDER BY\n                time DESC\n            LIMIT ? OFFSET ?\n            "
+  },
+  "c767fc4c33f0953dcf19aa30178fca135af470361372f4e9f75ef314ed5e5b4e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "activity_type: ActivityType",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n            SELECT\n                id,\n                title,\n                description,\n                activity_type as \"activity_type: ActivityType\"\n            FROM\n                activities\n            WHERE\n                meeting_id = ?\n            "
+  },
+  "da5f589afded16b3eb2dcd4e27f36fe74b2ff5cbfb3e058928a495dcfb0809fe": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "meeting_time",
+          "ordinal": 3,
+          "type_info": "Datetime"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n            SELECT\n                id,\n                title,\n                description,\n                meeting_time\n            FROM\n                meetings\n            WHERE\n                id = ?\n            "
+  },
+  "dd17621f33600158b2846e7c684eb3c5063ecfad856c42cc04ae61f4c70a7ed1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "problem_id",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "success",
+          "ordinal": 3,
+          "type_info": "Bool"
+        },
+        {
+          "name": "runtime",
+          "ordinal": 4,
+          "type_info": "Int64"
+        },
+        {
+          "name": "error",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "code",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "time",
+          "ordinal": 7,
+          "type_info": "Datetime"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 5
+      }
+    },
+    "query": "\n                    INSERT INTO submissions (\n                        problem_id,\n                        user_id,\n                        success,\n                        runtime,\n                        code\n                    )\n                    VALUES (?, ?, ?, ?, ?)\n                    RETURNING *\n                    "
+  },
+  "dd26716a1bdee293e467380605ed97fc003732593800818ca70a73e4e681216f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "problem_id",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "success",
+          "ordinal": 3,
+          "type_info": "Bool"
+        },
+        {
+          "name": "runtime",
+          "ordinal": 4,
+          "type_info": "Int64"
+        },
+        {
+          "name": "error",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "code",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "time",
+          "ordinal": 7,
+          "type_info": "Null"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        null
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n            SELECT\n                id,\n                problem_id,\n                user_id,\n                success,\n                runtime,\n                error,\n                code,\n                min(time) as time\n            FROM\n                submissions\n            WHERE\n                success = true AND DATETIME(time) > DATETIME(?, 'localtime')\n            GROUP BY\n                user_id,\n                problem_id\n            "
+  },
+  "ee92baba0a49fa20fe65e1129fce13b5aaec8067b6d857e42eebdedc72ad7811": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "problem_id",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "success",
+          "ordinal": 3,
+          "type_info": "Bool"
+        },
+        {
+          "name": "runtime",
+          "ordinal": 4,
+          "type_info": "Int64"
+        },
+        {
+          "name": "error",
+          "ordinal": 5,
+          "type_info": "Text"
+        },
+        {
+          "name": "time",
+          "ordinal": 6,
+          "type_info": "Datetime"
+        },
+        {
+          "name": "code",
+          "ordinal": 7,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 2
+      }
+    },
+    "query": "\n            SELECT\n                id,\n                user_id,\n                problem_id,\n                success,\n                runtime,\n                error,\n                time,\n                code\n            FROM\n                submissions\n            WHERE\n                user_id = ? and problem_id = ?\n            ORDER BY\n                time DESC\n            "
+  }
+}
