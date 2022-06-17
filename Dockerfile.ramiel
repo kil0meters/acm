@@ -25,8 +25,6 @@ RUN apt-get purge -y wget; \
     apt-get autoremove -y; \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /usr/local/cargo/bin/server /usr/local/bin/server
 COPY --from=builder /usr/local/cargo/bin/ramiel /usr/local/bin/ramiel
-COPY scripts/start_acm.sh /usr/local/bin/start_acm
 
-CMD ["server", ""]
+CMD ["ramiel"]

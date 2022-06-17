@@ -1,5 +1,0 @@
-/meetings/new /meetings/new
-/meetings/* /meetings/[[...id]]
-/problems/new /problems/new
-/problems/* /problems/[id]
-/submissions/* /submissions/[id]
