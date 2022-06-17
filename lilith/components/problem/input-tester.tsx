@@ -17,7 +17,7 @@ export default function InputTester(): JSX.Element {
   const token = useStore((state) => state.token);
   const problem_id = useContext(ProblemIDContext);
   const implementation = useStore((state) =>
-    problem_id ? state.problems[problem_id]?.implementation : undefined
+    problem_id ? state.problemImpls[problem_id] : undefined
   );
 
   const testInput = async () => {

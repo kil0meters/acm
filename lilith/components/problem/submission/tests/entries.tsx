@@ -3,7 +3,7 @@ import useSWR from "swr";
 import { SUBMISISON_TESTS_QUERY, Test, TestResult } from ".";
 import { ProblemIDContext } from "../..";
 import { api_url, fetcher } from "../../../../utils/fetcher";
-import { useStore } from "../../../../utils/state";
+import { useSession, useStore } from "../../../../utils/state";
 import Modal from "../../../modal";
 import TestResultInfo from "../test-result";
 
@@ -80,8 +80,8 @@ function TestResultEntry(test: TestResult): JSX.Element {
 
 export default function TestEntries(): JSX.Element {
   let problemId = useContext(ProblemIDContext);
-  const submissionId = useStore(
-    (state) => problemId && state.problems[problemId]?.submission?.id
+  const submissionId = useSession(
+    (state) => problemId && state.submissions[problemId]?.id
   );
 
   const { data, error } = useSWR<Test[] | TestResult[]>(
