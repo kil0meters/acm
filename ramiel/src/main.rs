@@ -8,7 +8,6 @@ use acm::{
         forms::{GenerateTestsForm, RunnerForm},
         test::Test,
     },
-    RAMIEL_URL,
 };
 use actix_web::{middleware::Logger, post, web::Json, App, HttpServer};
 
@@ -46,7 +45,7 @@ async fn main() -> std::io::Result<()> {
             .service(cplusplus_generate_tests)
             .service(cplusplus_custom_input)
     })
-    .bind(RAMIEL_URL)?
+    .bind("127.0.0.1:8082")?
     .run()
     .await
 }

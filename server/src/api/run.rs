@@ -8,7 +8,6 @@ use acm::{
         test::{Test, TestResult},
         Auth,
     },
-    RAMIEL_URL,
 };
 use actix_web::{
     http::StatusCode,
@@ -28,6 +27,7 @@ pub async fn submit_problem(
     form: Json<SubmitProblemForm>,
     state: AppState,
     client: Data<Client>,
+    ramiel_url: Data<String>,
     claims: Claims,
 ) -> impl Responder {
     let form = form.into_inner();
@@ -38,7 +38,7 @@ pub async fn submit_problem(
             let tests = state.tests_get_for_problem_id(problem.id).await;
 
             let res = client
-                .post(&format!("http://{RAMIEL_URL}/run/c++"))
+                .post(&format!("{}/run/c++", *ramiel_url))
                 .json(&RunnerForm {
                     problem_id: problem.id,
                     username: claims.username.clone(),
@@ -70,6 +70,7 @@ pub async fn submit_problem(
 pub async fn generate_tests(
     form: Json<GenerateTestsForm>,
     client: Data<Client>,
+    ramiel_url: Data<String>,
     claims: Claims,
 ) -> impl Responder {
     let form = form.into_inner();
@@ -78,7 +79,7 @@ pub async fn generate_tests(
     match claims.auth {
         Auth::ADMIN | Auth::OFFICER => {
             let res = client
-                .post(&format!("http://{RAMIEL_URL}/generate-tests/c++"))
+                .post(&format!("{}/generate-tests/c++", *ramiel_url))
                 .json(&form)
                 .send()
                 .await
@@ -104,13 +105,14 @@ pub async fn custom_input(
     form: Json<CustomProblemInputForm>,
     client: Data<Client>,
     state: AppState,
+    ramiel_url: Data<String>,
     claims: Claims,
 ) -> impl Responder {
     let form = form.into_inner();
 
     if let Some(problem) = state.problems_get_by_id(form.problem_id).await {
         let res = client
-            .post(&format!("http://{RAMIEL_URL}/custom-input/c++"))
+            .post(&format!("{}/custom-input/c++", *ramiel_url))
             .json(&RunnerCustomProblemInputForm {
                 problem_id: problem.id,
                 runner: problem.runner,

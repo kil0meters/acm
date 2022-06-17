@@ -35,6 +35,9 @@ struct Args {
 
     #[clap(long, default_value = "./db.sqlite")]
     database_url: String,
+
+    #[clap(long, default_value = "http://127.0.0.1:8082")]
+    ramiel_url: String,
 }
 
 #[actix_web::main]
@@ -52,6 +55,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(Logger::default())
             .wrap(Cors::permissive())
+            .app_data(web::Data::new(args.ramiel_url.clone()))
             .app_data(web::Data::new(state.clone()))
             // TODO: Benchmark storing client in web::Data vs creating a new one per request
             .app_data(web::Data::new(client.clone()))
