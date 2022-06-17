@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: server
+  IMAGE_NAME: kil0meters/server
 
 jobs:
   build-and-push-image:
