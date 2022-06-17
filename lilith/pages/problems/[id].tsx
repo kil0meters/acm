@@ -1,7 +1,6 @@
-import type { GetStaticProps, NextPage } from "next";
+import type { NextPage } from "next";
 import Navbar from "../../components/navbar";
 import { useRouter } from "next/router";
-import { useStore } from "../../utils/state";
 import ProblemView from "../../components/problem";
 
 const ProblemPage: NextPage = () => {

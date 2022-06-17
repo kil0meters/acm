@@ -2,13 +2,13 @@ import { useTransition, animated } from "@react-spring/web";
 import { useContext, useState } from "react";
 import SubmissionFeedback from "..";
 import { ProblemIDContext } from "../..";
-import { useStore } from "../../../../utils/state";
+import { useSession } from "../../../../utils/state";
 import TestEntries from "./entries";
 
 export default function TestContainer(): JSX.Element {
   const [isVisible, setIsVisible] = useState<Boolean>(false);
   const id = useContext(ProblemIDContext);
-  const submission = useStore((state) => id && state.problems[id]?.submission);
+  const submission = useSession((state) => id && state.submissions[id]);
 
   function toggleVisibility() {
     setIsVisible(!isVisible);

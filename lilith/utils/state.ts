@@ -20,18 +20,13 @@ export interface Submission {
   time: string;
 }
 
-interface ProblemState {
-  implementation?: string;
-  submission?: Submission;
-}
-
 export interface Store {
   token?: string;
   user?: User;
-  problems: { [key: number]: ProblemState };
+
+  problemImpls: { [key: number]: string };
 
   setProblemImpl: (id: number, impl: string) => void;
-  setProblemSubmission: (id: number, submission: Submission) => void;
 
   logIn: (user: User, token: string) => void;
   logOut: () => void;
@@ -42,31 +37,12 @@ export const useStore = create<Store>()(
     (set) => ({
       token: undefined,
       user: undefined,
-      problems: {},
+      problemImpls: {},
 
       setProblemImpl: (id, impl) =>
         set(
           produce((state: Store) => {
-            let problem = state.problems[id];
-
-            if (!problem) {
-              state.problems[id] = { implementation: impl };
-            } else {
-              problem.implementation = impl;
-            }
-          })
-        ),
-
-      setProblemSubmission: (id, submission) =>
-        set(
-          produce((state: Store) => {
-            let problem = state.problems[id];
-
-            if (!problem) {
-              state.problems[id] = { submission };
-            } else {
-              problem.submission = submission;
-            }
+            state.problemImpls[id] = impl
           })
         ),
 
@@ -97,12 +73,24 @@ export interface Session {
   error: string;
   errorShown: boolean;
 
+  submissions: { [key: number]: Submission };
+  setSubmission: (id: number, submission: Submission) => void;
+
   setError: (error: string, shown: boolean) => void;
 }
 
 export const useSession = create<Session>()((set) => ({
   error: "",
   errorShown: false,
+
+  submissions: {},
+
+  setSubmission: (id, submission) =>
+    set(
+      produce((state: Session) => {
+        state.submissions[id] = submission;
+      })
+    ),
 
   setError: (error, shown) =>
     set(

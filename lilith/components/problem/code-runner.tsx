@@ -12,12 +12,12 @@ export default function CodeRunner(): JSX.Element {
 
   function SubmitButton(): JSX.Element {
     const token = useStore((state) => state.token);
-    const setProblemSubmission = useStore(
-      (state) => state.setProblemSubmission
+    const setSubmission = useSession(
+      (state) => state.setSubmission
     );
     const id = useContext(ProblemIDContext)!;
     const implementation = useStore(
-      (state) => id && state.problems[id]?.implementation
+      (state) => id && state.problemImpls[id]
     );
     const setError = useSession((session) => session.setError);
     const [loading, setLoading] = useState(false);
@@ -49,7 +49,7 @@ export default function CodeRunner(): JSX.Element {
       })
         .then((res) => res.json())
         .then((res: Submission) => {
-          setProblemSubmission(id, res);
+          setSubmission(id, res);
           setLoading(false);
 
           // make sure we queue after the submission id is updated

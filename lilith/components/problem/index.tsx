@@ -35,7 +35,7 @@ export default function ProblemView({ id }: ProblemViewProps): JSX.Element {
     // bad
     let content =
       useStore((state) =>
-        id ? state.problems[id]?.implementation : undefined
+        id ? state.problemImpls[id] : undefined
       ) ??
       data?.template ??
       "";
