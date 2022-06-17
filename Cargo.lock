@@ -1608,6 +1608,7 @@ dependencies = [
  "acm",
  "actix-web",
  "async-trait",
+ "clap",
  "env_logger",
  "futures",
  "md5",

@@ -27,16 +27,16 @@ pub type SqlPool = sqlx::SqlitePool;
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
-    #[clap(short, long, default_value_t = 8081)]
+    #[clap(short, env, long, default_value_t = 8081)]
     port: u16,
 
-    #[clap(short, long, default_value = "127.0.0.1")]
+    #[clap(short, long, env, default_value = "127.0.0.1")]
     hostname: String,
 
-    #[clap(long, default_value = "./db.sqlite")]
+    #[clap(long, env, default_value = "./db.sqlite")]
     database_url: String,
 
-    #[clap(long, default_value = "http://127.0.0.1:8082")]
+    #[clap(long, env, default_value = "http://127.0.0.1:8082")]
     ramiel_url: String,
 }
 
@@ -50,6 +50,8 @@ async fn main() -> std::io::Result<()> {
     state.migrate().await;
 
     let client = Client::new();
+
+    log::info!("Starting server on {}:{}", args.hostname, args.port);
 
     HttpServer::new(move || {
         App::new()
