@@ -35,7 +35,6 @@ async fn cplusplus_custom_input(
     Json(CPlusPlus.run_custom_input(form.into_inner()).await)
 }
 
-
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
 struct Args {

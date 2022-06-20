@@ -13,7 +13,7 @@ pub struct RunnerResponse {
 }
 
 #[derive(Deserialize, Serialize, Error, Debug, Clone, PartialEq)]
-#[serde(tag="type")]
+#[serde(tag = "type")]
 pub enum RunnerError {
     #[error("{message}")]
     CompilationError { line: u64, message: String },
@@ -30,6 +30,8 @@ pub enum RunnerError {
 
 impl From<std::io::Error> for RunnerError {
     fn from(e: std::io::Error) -> Self {
-        RunnerError::InternalServerError { message: e.to_string() }
+        RunnerError::InternalServerError {
+            message: e.to_string(),
+        }
     }
 }

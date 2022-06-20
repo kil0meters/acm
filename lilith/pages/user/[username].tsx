@@ -17,7 +17,7 @@ type Submission = {
 
 function RecentSubmissions({ username }: { username: string }): JSX.Element {
   const { data: submissions, error } = useSWR<Submission[]>(
-    api_url(`/user-info/${username}/submissions`),
+    api_url(`/user/${username}/submissions`),
     fetcher
   );
 
@@ -84,7 +84,7 @@ const UserPage: NextPage = () => {
   const username = query.username;
 
   const { data: user, error } = useSWR<User>(
-    isReady ? api_url(`/user-info/${username}`) : null,
+    isReady ? api_url(`/user/${username}`) : null,
     fetcher
   );
 

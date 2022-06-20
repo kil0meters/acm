@@ -89,7 +89,9 @@ async fn run_command(command: &str, input: &str) -> Result<String, RunnerError> 
         Ok(exit_status) => exit_status?,
         Err(_) => {
             child.kill().await?;
-            return Err(RunnerError::TimeoutError { message: "Process took too long to execute.".to_string() });
+            return Err(RunnerError::TimeoutError {
+                message: "Process took too long to execute.".to_string(),
+            });
         }
     };
 

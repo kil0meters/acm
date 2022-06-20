@@ -4,7 +4,7 @@ import shallow from "zustand/shallow";
 import { api_url } from "../../utils/fetcher";
 import { useAdminStore, useSession, useStore } from "../../utils/state";
 import LoadingButton from "../loading-button";
-import { isError, RunnerError } from "../problem/submission/error";
+import { isRunnerError, RunnerError } from "../problem/submission/error";
 import { Test } from "../problem/submission/tests";
 const Editor = dynamic(import("../../components/editor"), { ssr: false });
 
@@ -72,7 +72,7 @@ function TestsEditorList(): JSX.Element {
         })
       })).json();
 
-      if (isError(res)) {
+      if (isRunnerError(res)) {
         setError(res.message, true);
       } else {
         setTests(res);

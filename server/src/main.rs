@@ -1,28 +1,25 @@
 //! The backend.
 
-use actix_cors::Cors;
-use actix_web::{middleware::Logger, web, App, HttpServer};
-use api::account::user_submissions;
-use api::leaderboard::first_place_finishes;
+use std::{net::SocketAddr, process::exit};
+
+use axum::{Extension, Router, Server};
 use clap::Parser;
-use reqwest::Client;
-
-use api::{
-    account::user_info,
-    leaderboard::leaderboard,
-    meetings::{edit_meeting, meeting, meeting_activities, meeting_list, next_meeting},
-    problems::{create_problem, problem, problem_history, problem_list, problem_tests},
-    run::{custom_input, generate_tests, submit_problem},
-    signup::{login, signup},
-    submissions::{submission, submission_tests, first_time_completions},
+use sqlx::SqlitePool;
+use tower_http::{
+    cors::CorsLayer,
+    trace::TraceLayer,
 };
-use state::State;
 
-mod api;
-mod state;
+mod auth;
+mod error;
+mod leaderboard;
+mod meetings;
+mod problems;
+mod run;
+mod submissions;
+mod user;
 
 pub const MAX_TEST_LENGTH: usize = 500;
-pub type SqlPool = sqlx::SqlitePool;
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -38,54 +35,51 @@ struct Args {
 
     #[clap(long, env, default_value = "http://127.0.0.1:8082")]
     ramiel_url: String,
+
+    #[clap(env)]
+    jwt_secret: String,
 }
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
+#[tokio::main]
+async fn main() {
     let args = Args::parse();
 
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+    tracing_subscriber::fmt()
+        .with_env_filter("info,tower_http=debug,sqlx=warn")
+        .init();
 
-    let state = State::new(&args.database_url).await;
-    state.migrate().await;
+    tracing::info!("Connecting to database at \"{}\"", args.database_url);
+    let pool = match SqlitePool::connect(&args.database_url).await {
+        Ok(conn) => conn,
+        Err(e) => {
+            tracing::error!("{e}");
+            exit(1);
+        }
+    };
 
-    let client = Client::new();
+    if let Err(e) = sqlx::migrate!("../migrations").run(&pool).await {
+        log::error!("Migration error: {e:?}");
+        exit(1);
+    }
 
-    log::info!("Starting server on {}:{}", args.hostname, args.port);
+    let addr = SocketAddr::new(args.hostname.parse().unwrap(), args.port);
+    tracing::info!("Started server on {addr}");
 
-    HttpServer::new(move || {
-        App::new()
-            .wrap(Logger::default())
-            .wrap(Cors::permissive())
-            .app_data(web::Data::new(args.ramiel_url.clone()))
-            .app_data(web::Data::new(state.clone()))
-            // TODO: Benchmark storing client in web::Data vs creating a new one per request
-            .app_data(web::Data::new(client.clone()))
-            .service(leaderboard)
-            .service(first_place_finishes)
-            .service(login)
-            .service(signup)
-            .service(problem_list)
-            .service(problem)
-            .service(problem_tests)
-            .service(problem_history)
-            .service(create_problem)
-            .service(submit_problem)
-            .service(first_time_completions)
-            .service(submission)
-            .service(generate_tests)
-            .service(custom_input)
-            .service(user_info)
-            .service(user_submissions)
-            .service(meeting_list)
-            .service(next_meeting)
-            .service(meeting_activities)
-            .service(submission_tests)
-            .service(meeting)
-            .service(edit_meeting)
-    })
-    .bind(&format!("{}:{}", args.hostname, args.port))?
-    .run()
-    .await
+    let app = Router::new()
+        .nest("/auth", auth::routes())
+        .nest("/user", user::routes())
+        .nest("/leaderboard", leaderboard::routes())
+        .nest("/submissions", submissions::routes())
+        .nest("/run", run::routes())
+        .nest("/problems", problems::routes())
+        .nest("/meetings", meetings::routes())
+        .layer(Extension(args.ramiel_url))
+        .layer(Extension(pool))
+        .layer(TraceLayer::new_for_http())
+        .layer(CorsLayer::very_permissive());
 
+    Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
 }

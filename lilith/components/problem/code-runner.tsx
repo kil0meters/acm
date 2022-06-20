@@ -36,7 +36,7 @@ export default function CodeRunner(): JSX.Element {
 
       setLoading(true);
 
-      fetch(api_url("/submit-problem"), {
+      fetch(api_url("/run/submit"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

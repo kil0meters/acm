@@ -30,7 +30,7 @@ const Signup: NextPage = () => {
     const username: string = form["Username"].value;
     const password: string = form["Password"].value;
 
-    fetch(api_url("/signup"), {
+    fetch(api_url("/auth/signup"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

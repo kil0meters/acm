@@ -3,8 +3,8 @@ use acm::models::{
     runner::{RunnerError, RunnerResponse},
     test::{Test, TestResult},
 };
-use futures::future::join_all;
 use async_trait::async_trait;
+use futures::future::join_all;
 use std::{path::Path, time::Instant};
 use tokio::{
     fs::{self, File},
@@ -27,9 +27,12 @@ impl Runner for CPlusPlus {
 
         let start = Instant::now();
 
-        let tests = join_all(form.tests.into_iter().map(|test| async {
-            run_test_timed(&command, test).await
-        })).await;
+        let tests = join_all(
+            form.tests
+                .into_iter()
+                .map(|test| async { run_test_timed(&command, test).await }),
+        )
+        .await;
 
         for test in tests {
             test_results.insert(test?);
@@ -172,7 +175,7 @@ async fn compile_problem(
     if output.status.success() {
         Ok(executable_filename)
     } else {
-        Err(RunnerError::InternalServerError{
+        Err(RunnerError::InternalServerError {
             message: "Failed to compile.".to_string(),
         })
     }

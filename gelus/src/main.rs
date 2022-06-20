@@ -1,15 +1,18 @@
-use acm::models::{Submission, User, forms::FirstTimeCompletionsForm};
-use chrono::{Utc, NaiveDateTime};
-use futures::future::join_all;
+use acm::models::{forms::FirstTimeCompletionsForm, Submission, User};
+use chrono::{NaiveDateTime, Utc};
 use clap::Parser;
+use futures::future::join_all;
 
 use serenity::{
-    framework::standard::{CommandResult, StandardFramework, macros::{command, group}},
-    model::{Timestamp, channel::Message, id::ChannelId},
+    async_trait,
+    framework::standard::{
+        macros::{command, group},
+        CommandResult, StandardFramework,
+    },
+    http::Http,
+    model::{channel::Message, id::ChannelId, Timestamp},
     prelude::*,
     utils::MessageBuilder,
-    async_trait,
-    http::Http,
 };
 use tokio::{
     task,
@@ -25,7 +28,7 @@ struct Args {
 
     /// The ID of the channel to send updates in
     #[clap(short, long)]
-    channel_id: u64
+    channel_id: u64,
 }
 
 #[group]
@@ -72,7 +75,6 @@ async fn start(ctx: &Context, _msg: &Message) -> CommandResult {
     task::spawn(async move {
         let mut interval = time::interval(Duration::from_secs(10));
 
-
         let mut prev_time = Utc::now().naive_local();
 
         loop {
@@ -89,8 +91,11 @@ async fn check_new_messages(http: &Http, prev_time: NaiveDateTime) {
     tracing::info!("Checking new messages");
 
     let client = reqwest::Client::new();
-    let res = client.get("http://localhost:8081/submissions/new-completions")
-        .query(&FirstTimeCompletionsForm { since: Some(prev_time) })
+    let res = client
+        .get("http://localhost:8081/submissions/new-completions")
+        .query(&FirstTimeCompletionsForm {
+            since: Some(prev_time),
+        })
         .send()
         .await;
 
@@ -110,9 +115,11 @@ async fn check_new_messages(http: &Http, prev_time: NaiveDateTime) {
     let args = Args::parse();
     let channel_id = args.channel_id;
 
-    join_all(data.into_iter().map(|(user, submission)| {
-        send_update_message(http, channel_id, user, submission)
-    })).await;
+    join_all(
+        data.into_iter()
+            .map(|(user, submission)| send_update_message(http, channel_id, user, submission)),
+    )
+    .await;
 }
 
 async fn send_update_message(http: &Http, channel_id: u64, user: User, submission: Submission) {
@@ -120,16 +127,18 @@ async fn send_update_message(http: &Http, channel_id: u64, user: User, submissio
         .push_codeblock_safe(submission.code, Some("cpp"))
         .build();
 
-    let err = ChannelId(channel_id).send_message(http, |m| {
-            m.content(&format!("{} just completed a problem!", user.name)).embed(|e| {
-                e.title(&format!("Problem {}", submission.problem_id))
-                    .description(code)
-                    .fields(vec![
-                        ("Runtime", format!("{}ms", submission.runtime), true),
-                        ("Username", user.username, true),
-                    ])
-                    .timestamp(Timestamp::now())
-            })
+    let err = ChannelId(channel_id)
+        .send_message(http, |m| {
+            m.content(&format!("{} just completed a problem!", user.name))
+                .embed(|e| {
+                    e.title(&format!("Problem {}", submission.problem_id))
+                        .description(code)
+                        .fields(vec![
+                            ("Runtime", format!("{}ms", submission.runtime), true),
+                            ("Username", user.username, true),
+                        ])
+                        .timestamp(Timestamp::now())
+                })
         })
         .await;
 

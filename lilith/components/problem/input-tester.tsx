@@ -3,7 +3,7 @@ import { ProblemIDContext } from ".";
 import { api_url } from "../../utils/fetcher";
 import { useSession, useStore } from "../../utils/state";
 import LoadingButton from "../loading-button";
-import ErrorDisplay, { isError, RunnerError } from "./submission/error";
+import ErrorDisplay, { isRunnerError, RunnerError } from "./submission/error";
 import TestResultInfo, { TestResult } from "./submission/test-result";
 
 export default function InputTester(): JSX.Element {
@@ -27,7 +27,7 @@ export default function InputTester(): JSX.Element {
     }
 
     setLoading(true);
-    fetch(api_url("/custom-input"), {
+    fetch(api_url("/run/custom"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -73,7 +73,7 @@ export default function InputTester(): JSX.Element {
 
       <div className="lg:w-96 lg:h-80 overflow-y-auto m-4 lg:ml-0">
         {testResult &&
-          (isError(testResult) ? (
+          (isRunnerError(testResult) ? (
             <ErrorDisplay {...testResult} />
           ) : (
             <TestResultInfo {...testResult} />
