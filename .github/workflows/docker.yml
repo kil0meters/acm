@@ -32,7 +32,7 @@ jobs:
           images: ${{ env.REGISTRY }}/kil0meters/server
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@e551b19e49efd4e98792db7592c17c09b89db8d8
+        uses: docker/build-push-action@c84f38281176d4c9cdb1626ffafcd6b3911b5d94
         with:
           context: .
           file: Dockerfile.server
@@ -64,7 +64,7 @@ jobs:
           images: ${{ env.REGISTRY }}/kil0meters/ramiel
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@e551b19e49efd4e98792db7592c17c09b89db8d8
+        uses: docker/build-push-action@c84f38281176d4c9cdb1626ffafcd6b3911b5d94
         with:
           context: .
           file: Dockerfile.ramiel
