@@ -109,7 +109,6 @@ const MeetingEditor: NextPage = () => {
 
       console.log(body);
 
-
       const res = await (await fetch(api_url("/meetings/edit"), {
         method: "POST",
         headers: {

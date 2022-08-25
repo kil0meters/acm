@@ -47,15 +47,18 @@ export default function Navbar(): JSX.Element {
 
   let sidebar = undefined;
 
+  const oauth_url = process.env.NODE_ENV == "development"
+    ? "https://discord.com/api/oauth2/authorize?client_id=984742374112624690&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fdiscord&response_type=token&scope=identify"
+    : "https://discord.com/api/oauth2/authorize?client_id=984742374112624690&redirect_uri=https%3A%2F%2Facm.meters.sh%2Fauth%2Fdiscord&response_type=token&scope=identify";
+
   if (isComponentMounted) {
     if (!username) {
       sidebar = (
         <>
-          <NavbarLink className={`md:ml-auto ${hiddenStyle}`} href="/signup">
-            Sign up
-          </NavbarLink>
-          <NavbarLink className={hiddenStyle} href="/signin">
-            Sign in
+          <NavbarLink
+            className={`md:ml-auto bg-[#5865F2] text-white hover:text-white px-4 py-1 rounded hover:bg-[#6f7af2] ${hiddenStyle}`}
+            href={oauth_url}>
+            Log in with Discord
           </NavbarLink>
         </>
       );
@@ -105,9 +108,13 @@ export default function Navbar(): JSX.Element {
         <NavbarLink className={hiddenStyle} href="/problems">
           Problems
         </NavbarLink>
+        {/*
+        We're hiding this for now, waiting for the feature to be more mature.
+
         <NavbarLink className={hiddenStyle} href="/meetings">
-          Meetings
+           Meetings
         </NavbarLink>
+        */}
         <NavbarLink className={hiddenStyle} href="/leaderboard">
           Leaderboard
         </NavbarLink>

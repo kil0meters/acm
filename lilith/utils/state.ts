@@ -7,6 +7,7 @@ import { Activity } from "../pages/meetings/new";
 export interface User {
   name: string;
   username: string;
+  discord_id: string;
   auth: "ADMIN" | "OFFICER" | "MEMBER";
 }
 
@@ -22,13 +23,14 @@ export interface Submission {
 
 export interface Store {
   token?: string;
+  discord_token?: string;
   user?: User;
 
   problemImpls: { [key: number]: string };
 
   setProblemImpl: (id: number, impl: string) => void;
 
-  logIn: (user: User, token: string) => void;
+  logIn: (user: User, discord_token: string, token: string) => void;
   logOut: () => void;
 }
 
@@ -46,10 +48,11 @@ export const useStore = create<Store>()(
           })
         ),
 
-      logIn: (user, token) =>
+      logIn: (user, discord_token, token) =>
         set(
           produce((state: Store) => {
             state.user = user;
+            state.discord_token = discord_token;
             state.token = token;
           })
         ),

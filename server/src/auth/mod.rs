@@ -15,27 +15,11 @@ use sqlx::Type;
 
 use crate::error::{AuthError, ServerError};
 
-mod login;
-mod signup;
+mod discord;
 
 pub fn routes() -> Router {
     Router::new()
-        .route("/login", post(login::login))
-        .route("/signup", post(signup::signup))
-}
-
-// Returns the hash of a password
-fn hash_password(username: &str, password: &str) -> String {
-    // TODO: This is probably not very secure, should use a random salt stored in the database
-    // rather than the username for salt.
-    let salted_pass = format!("{}{}", username, password);
-    bcrypt::hash(salted_pass.as_bytes(), bcrypt::DEFAULT_COST).unwrap()
-}
-
-/// Verifies that a password matches a given hash
-fn verify_password(username: &str, password: &str, user: &User) -> bool {
-    let salted_pass = format!("{}{}", username, password);
-    bcrypt::verify(&salted_pass, &user.password).unwrap()
+        .route("/discord", post(discord::login))
 }
 
 #[derive(Serialize)]
@@ -43,8 +27,7 @@ struct User {
     name: String,
     username: String,
 
-    #[serde(skip)]
-    password: String,
+    discord_id: String,
     auth: Auth,
 }
 
