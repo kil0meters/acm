@@ -23,14 +23,13 @@ export interface Submission {
 
 export interface Store {
   token?: string;
-  discord_token?: string;
   user?: User;
 
   problemImpls: { [key: number]: string };
 
   setProblemImpl: (id: number, impl: string) => void;
 
-  logIn: (user: User, discord_token: string, token: string) => void;
+  logIn: (user: User, token: string) => void;
   logOut: () => void;
 }
 
@@ -48,11 +47,10 @@ export const useStore = create<Store>()(
           })
         ),
 
-      logIn: (user, discord_token, token) =>
+      logIn: (user, token) =>
         set(
           produce((state: Store) => {
             state.user = user;
-            state.discord_token = discord_token;
             state.token = token;
           })
         ),

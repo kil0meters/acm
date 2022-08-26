@@ -48,8 +48,8 @@ export default function Navbar(): JSX.Element {
   let sidebar = undefined;
 
   const oauth_url = process.env.NODE_ENV == "development"
-    ? "https://discord.com/api/oauth2/authorize?client_id=984742374112624690&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fdiscord&response_type=token&scope=identify"
-    : "https://discord.com/api/oauth2/authorize?client_id=984742374112624690&redirect_uri=https%3A%2F%2Facm.meters.sh%2Fauth%2Fdiscord&response_type=token&scope=identify";
+    ? "https://discord.com/api/oauth2/authorize?client_id=984742374112624690&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fdiscord&response_type=code&scope=identify"
+    : "https://discord.com/api/oauth2/authorize?client_id=984742374112624690&redirect_uri=https%3A%2F%2Facm.meters.sh%2Fauth%2Fdiscord&response_type=code&scope=identify";
 
   if (isComponentMounted) {
     if (!username) {

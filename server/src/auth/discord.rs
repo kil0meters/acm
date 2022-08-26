@@ -1,3 +1,5 @@
+use std::{collections::HashMap, env};
+
 use axum::{Extension, Json};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
@@ -12,14 +14,19 @@ use super::{Auth, Claims, User, KEYS};
 #[derive(Serialize)]
 pub struct LoginBody {
     user: User,
-    discord_token: String,
     token: String,
 }
 
 #[derive(Deserialize)]
 pub struct LoginForm {
-    token_type: String,
+    code: String,
+    redirect_uri: String,
+}
+
+#[derive(Deserialize)]
+struct TokenResponse {
     access_token: String,
+    token_type: String,
     expires_in: usize,
 }
 
@@ -31,17 +38,37 @@ struct DiscordUser {
 }
 
 pub async fn login(
-    Json(LoginForm { token_type, access_token, expires_in }): Json<LoginForm>,
+    Json(LoginForm { code, redirect_uri }): Json<LoginForm>,
     Extension(pool): Extension<SqlitePool>,
 ) -> Result<Json<LoginBody>, ServerError> {
 
     let client = reqwest::Client::new();
 
+    let mut params = HashMap::new();
+    params.insert("client_secret", env::var("DISCORD_SECRET").unwrap());
+    params.insert("client_id", "984742374112624690".to_string());
+    params.insert("grant_type", "authorization_code".to_string());
+    params.insert("code", code);
+    params.insert("redirect_uri", redirect_uri);
+
+
+    let TokenResponse { access_token, token_type, expires_in } = client.post("https://discord.com/api/oauth2/token")
+        .form(&params)
+        .send()
+        .await
+        .map_err(|_| AuthError::InvalidToken)?
+        .json()
+        .await
+        .map_err(|_| AuthError::InvalidToken)?;
+
     let discord_user: DiscordUser = client.get("https://discord.com/api/users/@me")
         .header("Authorization", format!("{token_type} {access_token}"))
         .send()
         .await
-        .map_err(|_| AuthError::InvalidToken)?
+        .map_err(|e| {
+            log::error!("{e}");
+            AuthError::InvalidToken
+        })?
         .json()
         .await
         .map_err(|_| ServerError::InternalError)?;
@@ -134,7 +161,6 @@ pub async fn login(
 
     Ok(Json(LoginBody {
         user,
-        discord_token: access_token,
         token,
     }))
 }

@@ -38,6 +38,9 @@ struct Args {
 
     #[clap(env)]
     jwt_secret: String,
+
+    #[clap(env)]
+    discord_secret: String
 }
 
 #[tokio::main]
