@@ -352,6 +352,16 @@
     },
     "query": "\n        SELECT\n            id,\n            problem_id,\n            user_id,\n            success,\n            runtime,\n            error,\n            code,\n            min(time) as time\n        FROM\n            submissions\n        WHERE\n            success = true AND DATETIME(time) > DATETIME(?, 'localtime')\n        GROUP BY\n            user_id,\n            problem_id\n        "
   },
+  "6104b109620772f334381cdb852ae01d24abc15f0f309925c8b17226a20bd8a0": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "\n        UPDATE users\n        SET\n            username = ?,\n            name = ?,\n            auth = ?\n        WHERE\n            username = ?\n    "
+  },
   "674426a416b85f6187aa41689f32cf9f4e43627657725229e15b72a162e1d310": {
     "describe": {
       "columns": [
