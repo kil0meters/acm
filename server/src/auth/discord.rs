@@ -59,7 +59,10 @@ pub async fn login(
         .map_err(|_| AuthError::InvalidToken)?
         .json()
         .await
-        .map_err(|_| AuthError::InvalidToken)?;
+        .map_err(|e| {
+            log::error!("{}", e);
+            ServerError::InternalError
+        })?;
 
     let discord_user: DiscordUser = client.get("https://discord.com/api/users/@me")
         .header("Authorization", format!("{token_type} {access_token}"))
