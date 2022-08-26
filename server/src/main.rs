@@ -2,7 +2,7 @@
 
 use std::{net::SocketAddr, process::exit};
 
-use axum::{Extension, Router, Server, routing::get};
+use axum::{Extension, Router, Server};
 use clap::Parser;
 use sqlx::SqlitePool;
 use tower_http::{

@@ -108,6 +108,42 @@
     },
     "query": "\n        SELECT\n            id,\n            title,\n            description,\n            meeting_time\n        FROM\n            meetings\n        WHERE\n            DATETIME('now', 'localtime', 'start of day') < DATETIME(meeting_time)\n        ORDER BY\n            DATETIME(meeting_time) ASC\n        "
   },
+  "2ccbc255fb143089027a34ef682431ea20777801cafafe5f76f670ec9f9c8803": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "username",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "discord_id",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "auth: Auth",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n        SELECT\n            name,\n            username,\n            discord_id,\n            auth as \"auth: Auth\"\n        FROM\n            users\n        WHERE discord_id = ?\n        "
+  },
   "2e61cd30a6cd3e0937dd096b4f94493e8bcb8c10687d0f8c0592fe38ed956fa6": {
     "describe": {
       "columns": [
@@ -548,42 +584,6 @@
     },
     "query": "\n            SELECT\n                *\n            FROM\n                submissions\n            WHERE\n                id = ?\n            "
   },
-  "92cff6f966f9379c7e5ed50a46c922dc46552506b25532249323eeb0f3dbee9c": {
-    "describe": {
-      "columns": [
-        {
-          "name": "name",
-          "ordinal": 0,
-          "type_info": "Text"
-        },
-        {
-          "name": "username",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "password",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "auth: Auth",
-          "ordinal": 3,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 4
-      }
-    },
-    "query": "\n        INSERT INTO users (\n            name,\n            auth,\n            username,\n            password\n        ) VALUES (?, ?, ?, ?)\n        RETURNING\n            name,\n            username,\n            password,\n            auth as \"auth: Auth\"\n        "
-  },
   "a3a5fce3baf12cb7dfac0a055052d976b389ea395132fef01a11b8702c88f3b3": {
     "describe": {
       "columns": [
@@ -620,6 +620,78 @@
     },
     "query": "\n        SELECT\n            id,\n            test_number as [index],\n            input,\n            expected_output\n        FROM\n            tests\n        WHERE\n            problem_id = ?"
   },
+  "a8b93af5fab7567607a17da5d8f567abc55bbc9fe018d9d54b4c02fd40379f13": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "username",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "discord_id",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "auth: Auth",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "\n                INSERT INTO users (\n                    name,\n                    username,\n                    discord_id\n                )\n                VALUES (?, ?, ?)\n                RETURNING\n                    name,\n                    username,\n                    discord_id,\n                    auth as \"auth: Auth\"\n                "
+  },
+  "b13afc1133ee9ef4bbc8675522f61f36d42840a32c9689e4076acfe5b436dd35": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "username",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "discord_id",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "auth: Auth",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "\n                        INSERT INTO users (\n                            name,\n                            username,\n                            discord_id\n                        )\n                        VALUES (?, ?, ?)\n                        RETURNING\n                            name,\n                            username,\n                            discord_id,\n                            auth as \"auth: Auth\"\n                        "
+  },
   "bdf357b81f5aa3edf92dc8c10c3e8b582c2548fe28590fed0856bc6d59934d62": {
     "describe": {
       "columns": [
@@ -637,42 +709,6 @@
       }
     },
     "query": "\n        INSERT INTO problems (\n            title,\n            description,\n            runner,\n            reference,\n            template,\n            activity_id\n        ) VALUES (?, ?, ?, ?, ?, ?)\n        RETURNING id\n        "
-  },
-  "c5cf6cc2bd36d36e06a2a847cc118b3d6798de40add33c3c4b6a7e233fbf979f": {
-    "describe": {
-      "columns": [
-        {
-          "name": "name",
-          "ordinal": 0,
-          "type_info": "Text"
-        },
-        {
-          "name": "username",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "password",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "auth: Auth",
-          "ordinal": 3,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 1
-      }
-    },
-    "query": "\n        SELECT\n            name,\n            username,\n            password,\n            auth as \"auth: Auth\"\n        FROM\n            users\n        WHERE username = ?\n        "
   },
   "d356fb7fb621a005b9ab3e659bddecc27ac1cefbd5ca992db7916312146d9862": {
     "describe": {
