@@ -56,7 +56,10 @@ pub async fn login(
         .form(&params)
         .send()
         .await
-        .map_err(|_| AuthError::InvalidToken)?
+        .map_err(|e| {
+            log::error!("{}", e);
+            AuthError::InvalidToken
+        })?
         .json()
         .await
         .map_err(|e| {
