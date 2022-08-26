@@ -9,7 +9,7 @@ RUN cargo +nightly install --path server
 FROM debian:bullseye-slim
 
 RUN apt-get update; \
-    apt-get install -y openssl; \
+    apt-get install -y openssl ca-certificates; \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /usr/local/cargo/bin/server /usr/local/bin/server
