@@ -4,7 +4,7 @@ import shallow from "zustand/shallow";
 import { api_url } from "../../utils/fetcher";
 import { useAdminStore, useSession, useStore } from "../../utils/state";
 import LoadingButton from "../loading-button";
-import { isRunnerError, RunnerError } from "../problem/submission/error";
+import { isRunnerError, isServerError, RunnerError } from "../problem/submission/error";
 import { Test } from "../problem/submission/tests";
 const Editor = dynamic(import("../../components/editor"), { ssr: false });
 
@@ -58,7 +58,7 @@ function TestsEditorList(): JSX.Element {
     const { problemRunner: runner, problemReference: reference, problemTests: tests } = useAdminStore.getState();
 
     try {
-      const res: Test[] | RunnerError = await (await fetch(api_url("/generate-tests"), {
+      const res: Test[] | RunnerError | ServerError = await (await fetch(api_url("/run/generate-tests"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,6 +74,8 @@ function TestsEditorList(): JSX.Element {
 
       if (isRunnerError(res)) {
         setError(res.message, true);
+      } else if (isServerError(res)) {
+        setError(res.error, true);
       } else {
         setTests(res);
       }

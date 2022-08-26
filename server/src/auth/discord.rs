@@ -3,6 +3,7 @@ use std::{collections::HashMap, env};
 use axum::{Extension, Json};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
+use chrono::Utc;
 
 use crate::{
     error::{AuthError, ServerError},
@@ -158,8 +159,7 @@ pub async fn login(
 
     let claims = Claims {
         username: user.username.clone(),
-        // TODO: Copy this from whatever discord gives
-        exp: expires_in,
+        exp: Utc::now().timestamp() as usize + expires_in,
         auth: user.auth,
     };
 

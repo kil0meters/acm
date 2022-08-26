@@ -97,11 +97,17 @@ where
         let TypedHeader(Authorization(bearer)) =
             TypedHeader::<Authorization<Bearer>>::from_request(req)
                 .await
-                .map_err(|_| AuthError::InvalidToken)?;
+            .map_err(|e| {
+                log::error!("{e}");
+                AuthError::InvalidToken
+            })?;
         // Decode the user data
         let token_data =
             jsonwebtoken::decode::<Claims>(bearer.token(), &KEYS.decoding, &Validation::default())
-                .map_err(|_| AuthError::InvalidToken)?;
+                .map_err(|e| {
+                    log::error!("{e}");
+                    AuthError::InvalidToken
+                })?;
 
         Ok(token_data.claims)
     }
