@@ -1,10 +1,11 @@
 use axum::{routing::get, Router};
 
 mod submissions;
-mod username;
+mod user_info;
 
 pub fn routes() -> Router {
     Router::new()
-        .route("/:username/submissions", get(submissions::submissions))
-        .route("/:username", get(username::username))
+        .route("/username/:username/submissions", get(submissions::submissions))
+        .route("/username/:username", get(user_info::username))
+        .route("/id/:id", get(user_info::id))
 }

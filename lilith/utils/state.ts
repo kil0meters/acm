@@ -14,6 +14,7 @@ export interface User {
 export interface Submission {
   id: number;
   problem_id: number;
+  user_id: number;
   error?: string;
   success: boolean;
   code: string;

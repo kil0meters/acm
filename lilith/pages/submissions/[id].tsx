@@ -7,8 +7,31 @@ import useSWR from "swr";
 import Navbar from "../../components/navbar";
 import SubmissionFeedback from "../../components/problem/submission";
 import { api_url, fetcher } from "../../utils/fetcher";
-import { Submission, useStore } from "../../utils/state";
+import { Submission, User, useStore } from "../../utils/state";
 import { timeFormat } from "../../utils/time";
+
+type UserInfoProps = {
+  id: number
+};
+
+function UserInfo({ id }: UserInfoProps): JSX.Element {
+  const { data, error } = useSWR<User>(
+    id ? api_url(`/user/id/${id}`) : null,
+    fetcher
+  );
+
+  if (error)
+    return <>Error</>;
+
+  if (!data)
+    return <div>loading</div>;
+
+  return (
+    <Link href={`/user/${data.username}`}>
+      { data.name }
+    </Link>
+  );
+}
 
 const SubmissionPage: NextPage = () => {
   const router = useRouter();
@@ -35,9 +58,7 @@ const SubmissionPage: NextPage = () => {
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-extrabold">{ "Problem " } { submission.problem_id }</h1>
           <span className="text-sm text-neutral-500">
-            <Link href="/users/kilometers">
-              { "Miles Benton" }
-            </Link>
+            <UserInfo id={submission.user_id} />
             {" • "}
             { timeFormat(submission.time) }
           </span>

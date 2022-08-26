@@ -38,3 +38,29 @@ pub async fn username(
 
     Ok(Json(body))
 }
+
+
+pub async fn id(
+    Path(id): Path<String>,
+    Extension(pool): Extension<SqlitePool>,
+) -> Result<Json<UserBody>, ServerError> {
+    let body = sqlx::query_as!(
+        UserBody,
+        r#"
+        SELECT
+            name,
+            username,
+            auth as "auth: Auth"
+        FROM
+            users
+        WHERE
+            id = ?
+        "#,
+        id
+    )
+    .fetch_one(&pool)
+    .await
+    .map_err(|_| UserError::NotFound(id))?;
+
+    Ok(Json(body))
+}
