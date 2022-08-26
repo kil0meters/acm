@@ -122,6 +122,7 @@ pub enum AuthError {
     WrongCredentials,
     TokenCreation,
     InvalidToken,
+    Unauthorized
 }
 
 impl IntoResponse for AuthError {
@@ -130,6 +131,7 @@ impl IntoResponse for AuthError {
             AuthError::WrongCredentials => (StatusCode::UNAUTHORIZED, "Wrong credentials"),
             AuthError::TokenCreation => (StatusCode::INTERNAL_SERVER_ERROR, "Token creation error"),
             AuthError::InvalidToken => (StatusCode::BAD_REQUEST, "Invalid token"),
+            AuthError::Unauthorized => (StatusCode::UNAUTHORIZED, "Unauthorized"),
         };
         let body = Json(json!({
             "error": error_message,

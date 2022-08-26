@@ -1,12 +1,13 @@
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import Navbar from "../../components/navbar";
 import Error from "next/error";
 import { api_url, fetcher } from "../../utils/fetcher";
 import Link from "next/link";
 import Prism from "prismjs";
-import { User } from "../../utils/state";
+import { User, useSession, useStore } from "../../utils/state";
+import { useState } from "react";
 
 type Submission = {
   problem_id: number;
@@ -82,6 +83,8 @@ function RecentSubmissions({ username }: { username: string }): JSX.Element {
 const UserPage: NextPage = () => {
   const { query, isReady } = useRouter();
   const username = query.username;
+  const [editingProfile, setEditingProfile] = useState(false);
+  const currentUser = useStore((state) => state.user);
 
   const { data: user, error } = useSWR<User>(
     isReady ? api_url(`/user/username/${username}`) : null,
@@ -89,6 +92,8 @@ const UserPage: NextPage = () => {
   );
 
   function UserInfo({ name, username, auth }: User): JSX.Element {
+    const showEditButton = currentUser?.username == username || currentUser?.auth == "ADMIN";
+
     return (
       <div className="flex flex-col gap-2 p-4 lg:p-0">
         <h1 className="text-2xl font-bold">{name}</h1>
@@ -97,8 +102,111 @@ const UserPage: NextPage = () => {
         <span className="rounded-full px-4 p-2 bg-neutral-600 text-neutral-50 self-start text-sm">
           {auth[0] + auth.slice(1).toLowerCase()}
         </span>
+
+        { showEditButton && <button
+          onClick={() => setEditingProfile(true)}
+          className="rounded outline outline-gray-300 bg-gray-200 py-2 w-full text-center mt-4 hover:bg-gray-100 transition-colors">
+          Edit profile
+        </button> }
       </div>
     );
+  }
+
+  function UserEditor({ name, username, auth }: User): JSX.Element {
+    const [newUsername, setNewUsername] = useState(username);
+    const [newName, setNewName] = useState(name);
+    const [newAuth, setNewAuth] = useState(auth);
+    const token = useStore((state) => state.token);
+    const { mutate } = useSWRConfig();
+    const setError = useSession((state) => state.setError);
+    const router = useRouter();
+
+    const formClasses = "border-neutral-300 dark:border-neutral-700 border rounded p-2 bg-neutral-50 dark:bg-neutral-900 outline-0 transition-shadow focus:ring dark:ring-neutral-700 ring-neutral-300";
+
+    function submitUserEdit() {
+      fetch(api_url(`/user/edit/${username}`), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          new_username: newUsername,
+          new_name: newName,
+          new_auth: newAuth,
+        }),
+      })
+        .then(res => {
+          if (!res.ok) {
+            setError("Error updating profile", true);
+          }
+
+          if (username == newUsername) {
+            router.replace(`/user/${username}`);
+          } else {
+            router.push(`/user/${newUsername}`);
+          }
+
+          mutate(api_url(`/user/username/${newUsername}`));
+          setEditingProfile(false);
+        })
+        .catch(() => {
+          setError("Network error", true);
+        });
+    }
+
+    return (
+      <div className="flex flex-col gap-2 p-4 lg:p-0">
+        <div className="flex flex-col gap-2">
+          <label>Name</label>
+          <input
+            value={newName}
+            onChange={e => setNewName(e.target.value)}
+            className={formClasses}
+            minLength={1}
+            maxLength={16}
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label>Username</label>
+          <input
+            value={newUsername}
+            onChange={e => setNewUsername(e.target.value)}
+            className={formClasses}
+            pattern="[a-zA-Z0-9]+"
+            minLength={1}
+            maxLength={16}
+          />
+        </div>
+
+        { currentUser?.auth == "ADMIN" && <div className="flex flex-col">
+          <label>Auth</label>
+          <select
+            className={formClasses}
+            value={newAuth}
+            // @ts-ignore
+            onChange={e => setNewAuth(e.currentTarget.value)}
+          >
+            <option value="ADMIN">Admin</option>
+            <option value="OFFICER">Officer</option>
+            <option value="MEMBER">Member</option>
+          </select>
+        </div> }
+
+        <button
+          onClick={() => submitUserEdit()}
+          className="rounded outline outline-green-400 bg-green-500 py-2 w-full text-center mt-4 hover:bg-green-600 transition-colors">
+          Save changes
+        </button>
+      </div>
+    );
+  }
+
+  function UserSidebar(user: User): JSX.Element {
+    return <>
+      { editingProfile ? <UserEditor {...user} /> : <UserInfo {...user} /> }
+    </>
   }
 
   function UserLoading(): JSX.Element {
@@ -119,7 +227,7 @@ const UserPage: NextPage = () => {
       <Navbar />
 
       <div className="grid grid-rows-min-full grid-cols-[minmax(0,1fr)] lg:grid-rows-1 lg:grid-flow-col lg:gap-4 lg:p-4 lg:grid-cols-[300px_minmax(0,1fr)] max-w-screen-md lg:max-w-screen-lg mx-auto">
-        {!user ? <UserLoading /> : <UserInfo {...user} />}
+        {!user ? <UserLoading /> : <UserSidebar {...user} />}
 
         <RecentSubmissions username={username as string} />
       </div>
