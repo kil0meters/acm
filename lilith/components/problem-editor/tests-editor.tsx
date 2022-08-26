@@ -4,7 +4,7 @@ import shallow from "zustand/shallow";
 import { api_url } from "../../utils/fetcher";
 import { useAdminStore, useSession, useStore } from "../../utils/state";
 import LoadingButton from "../loading-button";
-import { isRunnerError, isServerError, RunnerError } from "../problem/submission/error";
+import { isRunnerError, isServerError, RunnerError, ServerError } from "../problem/submission/error";
 import { Test } from "../problem/submission/tests";
 const Editor = dynamic(import("../../components/editor"), { ssr: false });
 
