@@ -6,7 +6,7 @@ create table users (
     -- MEMBER: Normal user
     auth text not null default "MEMBER",
     name text not null,
-    username text unique not null,
+    username text unique collate nocase not null,
     discord_id text not null,
 
     create_dt datetime not null default (datetime('now', 'localtime')),
