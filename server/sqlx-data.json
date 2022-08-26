@@ -656,6 +656,36 @@
     },
     "query": "\n                INSERT INTO users (\n                    name,\n                    username,\n                    discord_id\n                )\n                VALUES (?, ?, ?)\n                RETURNING\n                    name,\n                    username,\n                    discord_id,\n                    auth as \"auth: Auth\"\n                "
   },
+  "aec7e173edd7af5b8224741e7845e97f998086ff93423a1c9a03ae4180de4c69": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "username",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "auth: Auth",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n        SELECT\n            name,\n            username,\n            auth as \"auth: Auth\"\n        FROM\n            users\n        WHERE\n            id = ?\n        "
+  },
   "b13afc1133ee9ef4bbc8675522f61f36d42840a32c9689e4076acfe5b436dd35": {
     "describe": {
       "columns": [
