@@ -3,6 +3,9 @@ import { persist } from "zustand/middleware";
 import produce from "immer";
 import { Test } from "../components/problem/submission/tests";
 import { Activity } from "../pages/meetings/new";
+import { editor } from "monaco-editor";
+
+type EditorThemeType = "light" | "dark" | "system";
 
 export interface User {
   name: string;
@@ -25,8 +28,13 @@ export interface Submission {
 export interface Store {
   token?: string;
   user?: User;
+  vimEnabled: boolean,
+  editorTheme: EditorThemeType,
 
   problemImpls: { [key: number]: string };
+
+  setVimEnabled: (vimEnabled: boolean) => void;
+  setEditorTheme: (editorTheme: EditorThemeType) => void;
 
   setProblemImpl: (id: number, impl: string) => void;
 
@@ -39,12 +47,28 @@ export const useStore = create<Store>()(
     (set) => ({
       token: undefined,
       user: undefined,
+      vimEnabled: false,
+      editorTheme: "system",
       problemImpls: {},
 
       setProblemImpl: (id, impl) =>
         set(
           produce((state: Store) => {
-            state.problemImpls[id] = impl
+            state.problemImpls[id] = impl;
+          })
+        ),
+
+      setVimEnabled: (vimEnabled) =>
+        set(
+          produce((state: Store) => {
+            state.vimEnabled = vimEnabled;
+          })
+        ),
+
+      setEditorTheme: (editorTheme) =>
+        set(
+          produce((state: Store) => {
+            state.editorTheme = editorTheme;
           })
         ),
 

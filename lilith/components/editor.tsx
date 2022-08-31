@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import * as monaco from "monaco-editor";
 // @ts-ignore
 import { initVimMode } from "monaco-vim";
+import { useStore } from "../utils/state";
 
 type EditorProps = {
   language: "cpp" | "markdown";
@@ -25,6 +26,21 @@ export default function Editor({
   >(undefined);
   const editorRef = useRef<HTMLDivElement>(null);
   const statusBarRef = useRef<HTMLDivElement>(null);
+  const [vimEnabled, editorTheme] = useStore((state) => [state.vimEnabled, state.editorTheme]);
+
+  let theme: string;
+
+  if (editorTheme == "system") {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      theme = "vs-dark";
+    } else {
+      theme = "vs";
+    }
+  } else if (editorTheme == "light") {
+    theme = "vs";
+  } else {
+    theme = "vs-dark";
+  }
 
   useEffect(() => {
     if (editor && editor.getValue() != value) {
@@ -36,6 +52,7 @@ export default function Editor({
     const editor = monaco.editor.create(editorRef.current!, {
       fontSize: 18,
       language,
+      theme,
       value,
       cursorSmoothCaretAnimation: true,
       extraEditorClassName: `h-full ${className}`,
@@ -51,11 +68,15 @@ export default function Editor({
       onChange(editor.getValue(), event);
     });
 
-    const vimMode = initVimMode(editor, statusBarRef.current);
+     let vimMode: any = null;
+
+    if (vimEnabled) {
+      vimMode = initVimMode(editor, statusBarRef.current);
+    }
 
     return () => {
       editor.dispose();
-      vimMode.dispose();
+      vimMode?.dispose();
 
       const model = editor.getModel();
       if (model) {
@@ -66,7 +87,7 @@ export default function Editor({
         subscription.dispose();
       }
     };
-  }, []);
+  }, [vimEnabled, editorTheme]);
 
   return (
     <div className="h-full grid grid-rows-full-min grid-cols-full">

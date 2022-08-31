@@ -3,12 +3,15 @@ import { useSWRConfig } from "swr";
 import { ProblemIDContext } from ".";
 import { api_url } from "../../utils/fetcher";
 import { Submission, useSession, useStore } from "../../utils/state";
+import EditorPreferences from "../editor-preferences";
 import LoadingButton from "../loading-button";
+import Modal from "../modal";
 import InputTester from "./input-tester";
 import { SUBMISISON_TESTS_QUERY } from "./submission/tests";
 
 export default function CodeRunner(): JSX.Element {
   const [dockerShown, setDockerShown] = useState(false);
+  const [settingsShown, setSettingsShown] = useState(false);
 
   function SubmitButton(): JSX.Element {
     const token = useStore((state) => state.token);
@@ -74,14 +77,24 @@ export default function CodeRunner(): JSX.Element {
 
   return (
     <div className="sticky md:static bottom-0">
+      <Modal shown={settingsShown} onClose={() => setSettingsShown(false)}>
+        <EditorPreferences />
+      </Modal>
       {dockerShown && <InputTester />}
 
       <div className="flex bg-white dark:bg-black border-t border-neutral-300 dark:border-neutral-700">
         <button
-          className="mr-auto p-4 border-r border-neutral-300 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+          className="p-4 border-r border-neutral-300 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
           onClick={() => setDockerShown(!dockerShown)}
         >
           {dockerShown ? "Hide console" : "Show console"}
+        </button>
+
+        <button
+          className="mr-auto p-4 border-r border-neutral-300 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+          onClick={() => setSettingsShown(!settingsShown)}
+        >
+          Settings
         </button>
 
         <SubmitButton />

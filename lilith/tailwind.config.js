@@ -11,7 +11,8 @@ module.exports = {
       },
       gridTemplateColumns: {
         'full': 'minmax(0,1fr)',
-        'min-full': 'min-content minmax(0,1fr)'
+        'min-full': 'min-content minmax(0,1fr)',
+        'full-min': 'minmax(0,1fr) min-content'
       },
       keyframes: {
         'fade-in': {
