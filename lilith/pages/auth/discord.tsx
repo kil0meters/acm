@@ -8,7 +8,7 @@ const DiscordAuth: NextPage = () => {
   const logIn = useStore((state) => state.logIn);
   const router = useRouter();
   const redirect_uri = process.env.NODE_ENV == "production"
-    ? "https://acm.meters.sh/auth/discord"
+    ? "https://chicoacm.org/auth/discord"
     : "http://localhost:3000/auth/discord";
 
   useEffect(() => {

@@ -105,7 +105,7 @@ const UserPage: NextPage = () => {
 
         { showEditButton && <button
           onClick={() => setEditingProfile(true)}
-          className="rounded outline outline-gray-300 bg-gray-200 py-2 w-full text-center mt-4 hover:bg-gray-100 transition-colors">
+          className="rounded outline outline-gray-300 bg-gray-200 dark:bg-gray-700 dark:outline-gray-500 dark:hover:bg-gray-600 py-2 w-full text-center mt-4 hover:bg-gray-100 transition-colors">
           Edit profile
         </button> }
       </div>
