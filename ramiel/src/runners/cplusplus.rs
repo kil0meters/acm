@@ -142,6 +142,7 @@ async fn compile_problem(
             "-Wall",
             "-Wextra",
             "-Wpedantic",
+            "-fno-exceptions",
             &runner_filename,
             &implementation_filename,
             "-o",
