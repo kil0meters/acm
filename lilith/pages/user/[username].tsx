@@ -113,7 +113,7 @@ const UserPage: NextPage = () => {
     );
   }
 
-  function UserEditor({ name, username, auth }: User): JSX.Element {
+  function UserEditor({ id, name, username, auth }: User): JSX.Element {
     const [newUsername, setNewUsername] = useState(username);
     const [newName, setNewName] = useState(name);
     const [newAuth, setNewAuth] = useState(auth);
@@ -125,7 +125,7 @@ const UserPage: NextPage = () => {
     const formClasses = "border-neutral-300 dark:border-neutral-700 border rounded p-2 bg-neutral-50 dark:bg-neutral-900 outline-0 transition-shadow focus:ring dark:ring-neutral-700 ring-neutral-300";
 
     function submitUserEdit() {
-      fetch(api_url(`/user/edit/${username}`), {
+      fetch(api_url(`/user/edit/${id}`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

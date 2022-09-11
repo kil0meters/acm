@@ -3,11 +3,8 @@ use std::{collections::HashMap, env};
 use axum::{Extension, Json};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
-use chrono::Utc;
 
-use crate::{
-    error::{AuthError, ServerError},
-};
+use crate::error::{AuthError, ServerError};
 
 use super::{Auth, Claims, User, KEYS};
 
@@ -28,7 +25,6 @@ pub struct LoginForm {
 struct TokenResponse {
     access_token: String,
     token_type: String,
-    expires_in: usize,
 }
 
 #[derive(Deserialize)]
@@ -53,7 +49,7 @@ pub async fn login(
     params.insert("redirect_uri", redirect_uri);
 
 
-    let TokenResponse { access_token, token_type, expires_in } = client.post("https://discord.com/api/oauth2/token")
+    let TokenResponse { access_token, token_type } = client.post("https://discord.com/api/oauth2/token")
         .form(&params)
         .send()
         .await
@@ -84,6 +80,7 @@ pub async fn login(
         User,
         r#"
         SELECT
+            id,
             name,
             username,
             discord_id,
@@ -115,6 +112,7 @@ pub async fn login(
                 )
                 VALUES (?, ?, ?)
                 RETURNING
+                    id,
                     name,
                     username,
                     discord_id,
@@ -141,6 +139,7 @@ pub async fn login(
                         )
                         VALUES (?, ?, ?)
                         RETURNING
+                            id,
                             name,
                             username,
                             discord_id,
@@ -160,7 +159,7 @@ pub async fn login(
     };
 
     let claims = Claims {
-        username: user.username.clone(),
+        user_id: user.id,
         exp: usize::MAX,
         auth: user.auth,
     };

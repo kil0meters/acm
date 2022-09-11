@@ -2,8 +2,7 @@ use axum::{
     extract::{Path, Query},
     Extension, Json,
 };
-use chrono::NaiveDateTime;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use sqlx::SqlitePool;
 
 use crate::{

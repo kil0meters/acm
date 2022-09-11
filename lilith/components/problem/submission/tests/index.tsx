@@ -1,4 +1,4 @@
-export const SUBMISISON_TESTS_QUERY = "submissions-tests";
+export const SUBMISSION_TESTS_QUERY = "submissions-tests";
 
 export interface Test {
   id: number;

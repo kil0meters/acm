@@ -42,7 +42,7 @@ pub async fn custom(
         .json(&RunnerCustomProblemInputForm {
             problem_id: form.problem_id,
             runner,
-            username: claims.username,
+            user_id: claims.user_id,
             implementation: form.implementation,
             reference,
             input: form.input,

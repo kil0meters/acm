@@ -7,7 +7,7 @@ import EditorPreferences from "../editor-preferences";
 import LoadingButton from "../loading-button";
 import Modal from "../modal";
 import InputTester from "./input-tester";
-import { SUBMISISON_TESTS_QUERY } from "./submission/tests";
+import { SUBMISSION_TESTS_QUERY } from "./submission/tests";
 
 export default function CodeRunner(): JSX.Element {
   const [dockerShown, setDockerShown] = useState(false);
@@ -52,11 +52,13 @@ export default function CodeRunner(): JSX.Element {
       })
         .then((res) => res.json())
         .then((res: Submission) => {
+
+          console.log(res);
           setSubmission(id, res);
           setLoading(false);
 
           // make sure we queue after the submission id is updated
-          setTimeout(() => mutate(SUBMISISON_TESTS_QUERY), 0);
+          setTimeout(() => mutate(SUBMISSION_TESTS_QUERY), 0);
         })
         .catch(() => {
           // TODO: Handle network errors.

@@ -87,7 +87,7 @@ const SubmissionPage: NextPage = () => {
         </a>
       </div>
       <div className="col-span-2 border-b border-neutral-300 md:border-0">
-        <SubmissionFeedback {...submission} />
+        <SubmissionFeedback inProblemView={false} {...submission} />
       </div>
     </div>
   </>;

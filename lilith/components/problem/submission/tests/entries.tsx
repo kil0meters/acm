@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import useSWR from "swr";
-import { SUBMISISON_TESTS_QUERY, Test, TestResult } from ".";
+import { SUBMISSION_TESTS_QUERY, Test, TestResult } from ".";
 import { ProblemIDContext } from "../..";
 import { api_url, fetcher } from "../../../../utils/fetcher";
 import { useSession, useStore } from "../../../../utils/state";
@@ -85,7 +85,7 @@ export default function TestEntries(): JSX.Element {
   );
 
   const { data, error } = useSWR<Test[] | TestResult[]>(
-    SUBMISISON_TESTS_QUERY,
+    SUBMISSION_TESTS_QUERY,
     () =>
       fetcher(
         api_url(

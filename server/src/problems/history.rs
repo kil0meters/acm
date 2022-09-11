@@ -3,7 +3,7 @@ use sqlx::SqlitePool;
 
 use crate::{
     auth::Claims,
-    error::{ServerError, UserError},
+    error::{ServerError},
     submissions::Submission,
 };
 
@@ -12,12 +12,6 @@ pub async fn history(
     Extension(pool): Extension<SqlitePool>,
     claims: Claims,
 ) -> Result<Json<Vec<Submission>>, ServerError> {
-    let user_id = sqlx::query!("SELECT id FROM users WHERE username = ?", claims.username)
-        .fetch_one(&pool)
-        .await
-        .map_err(|_| UserError::InternalError)?
-        .id;
-
     let submissions = sqlx::query_as!(
         Submission,
         r#"
@@ -37,7 +31,7 @@ pub async fn history(
         ORDER BY
             time DESC
         "#,
-        user_id,
+        claims.user_id,
         problem_id
     )
     .fetch_all(&pool)

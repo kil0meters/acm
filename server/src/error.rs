@@ -24,7 +24,7 @@ impl IntoResponse for ServerError {
             ServerError::User(err) => err.into_response(),
             ServerError::Runner(err) => (
                 StatusCode::UNPROCESSABLE_ENTITY,
-                Json(json!({"error": err.to_string()})),
+                Json(err),
             )
                 .into_response(),
             ServerError::NotFound => (

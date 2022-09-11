@@ -28,7 +28,7 @@ export default function TestContainer(): JSX.Element {
 
   return (
     <div className="flex flex-col">
-      {submission && <SubmissionFeedback {...submission} />}
+      {submission && <SubmissionFeedback inProblemView={true} {...submission} />}
 
       <div className="flex flex-col border-neutral-300 dark:border-neutral-700 md:m-0 md:border-0">
         <button

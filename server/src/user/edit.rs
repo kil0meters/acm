@@ -16,12 +16,12 @@ pub struct EditUserForm {
 
 pub async fn edit(
     Json(EditUserForm { new_username, new_name, mut new_auth }): Json<EditUserForm>,
-    Path(username): Path<String>,
+    Path(user_id): Path<i64>,
     Extension(pool): Extension<SqlitePool>,
     claims: Claims,
 ) -> Result<Json<User>, ServerError> {
     if claims.auth != Auth::ADMIN {
-        if claims.username != username {
+        if claims.user_id != user_id {
             return Err(AuthError::Unauthorized.into());
         } else {
             new_auth = claims.auth;
@@ -37,8 +37,9 @@ pub async fn edit(
             name = ?,
             auth = ?
         WHERE
-            username = ?
+            id = ?
         RETURNING
+            id,
             username,
             name,
             auth as 'auth: Auth',
@@ -47,7 +48,7 @@ pub async fn edit(
         new_username,
         new_name,
         new_auth,
-        username
+        claims.user_id,
     ).fetch_one(&pool).await.map_err(|e| {
         log::error!("{e}");
         ServerError::InternalError

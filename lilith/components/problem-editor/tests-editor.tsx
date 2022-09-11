@@ -45,7 +45,7 @@ function TestEditor({ index }: { index: number }): JSX.Element {
 function TestsEditorList(): JSX.Element {
   // only rerender based on the length
   const testCount = useAdminStore((state) => state.problemTests.length);
-  const [ token, username ] = useStore((state) => [state.token, state.user!.username], shallow);
+  const [ token, user_id ] = useStore((state) => [state.token, state.user!.id], shallow);
   const setError = useSession((state) => state.setError);
   const [pushTest, popTest, updateTest, setTests] = useAdminStore(
     (state) => [state.pushProblemTest, state.popProblemTest, state.updateProblemTest, state.setProblemTests],
@@ -67,7 +67,7 @@ function TestsEditorList(): JSX.Element {
         body: JSON.stringify({
           runner,
           reference,
-          username,
+          user_id,
           inputs: tests.map((test) => test.input),
         })
       })).json();

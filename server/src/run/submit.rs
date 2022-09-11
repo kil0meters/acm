@@ -50,11 +50,12 @@ pub async fn submit(
     .map_err(|_| ServerError::NotFound)?;
 
     let client = Client::new();
+
     let res = client
         .post(&format!("{ramiel_url}/run/c++"))
         .json(&RunnerForm {
             problem_id: form.problem_id,
-            username: claims.username.clone(),
+            user_id: claims.user_id,
             runner,
             implementation: form.implementation.clone(),
             tests,
@@ -65,12 +66,6 @@ pub async fn submit(
 
     let res: Result<RunnerResponse, RunnerError> =
         res.json().await.map_err(|_| ServerError::InternalError)?;
-
-    let user_id = sqlx::query!("SELECT id FROM users WHERE username = ?", claims.username)
-        .fetch_one(&pool)
-        .await
-        .map_err(|_| ServerError::NotFound)?
-        .id;
 
     let (passed, runtime, error, tests) = match res {
         Ok(res) => (res.passed, res.runtime, None, res.tests),
@@ -93,7 +88,7 @@ pub async fn submit(
         RETURNING *
         "#,
         form.problem_id,
-        user_id,
+        claims.user_id,
         passed,
         runtime,
         error,

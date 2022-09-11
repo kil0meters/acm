@@ -3,11 +3,11 @@ import { persist } from "zustand/middleware";
 import produce from "immer";
 import { Test } from "../components/problem/submission/tests";
 import { Activity } from "../pages/meetings/new";
-import { editor } from "monaco-editor";
 
 type EditorThemeType = "light" | "dark" | "system";
 
 export interface User {
+  id: number;
   name: string;
   username: string;
   discord_id: string;
@@ -101,6 +101,7 @@ export interface Session {
 
   submissions: { [key: number]: Submission };
   setSubmission: (id: number, submission: Submission) => void;
+  hideSubmission: (id: number) => void;
 
   setError: (error: string, shown: boolean) => void;
 }
@@ -110,6 +111,13 @@ export const useSession = create<Session>()((set) => ({
   errorShown: false,
 
   submissions: {},
+
+  hideSubmission: (id) =>
+    set(
+      produce((state: Session) => {
+        delete state.submissions[id];
+      })
+    ),
 
   setSubmission: (id, submission) =>
     set(

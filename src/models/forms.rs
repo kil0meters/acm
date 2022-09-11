@@ -6,7 +6,7 @@ use crate::models::test::Test;
 #[derive(Deserialize, Serialize)]
 pub struct RunnerForm {
     pub problem_id: i64,
-    pub username: String,
+    pub user_id: i64,
     pub runner: String,
     pub implementation: String,
     pub tests: Vec<Test>,
@@ -17,7 +17,7 @@ pub struct RunnerForm {
 pub struct GenerateTestsForm {
     pub runner: String,
     pub reference: String,
-    pub username: String,
+    pub user_id: i64,
     pub inputs: Vec<String>,
 }
 
@@ -26,7 +26,7 @@ pub struct GenerateTestsForm {
 pub struct RunnerCustomProblemInputForm {
     pub problem_id: i64,
     pub runner: String,
-    pub username: String,
+    pub user_id: i64,
     pub implementation: String,
     pub reference: String,
     pub input: String,

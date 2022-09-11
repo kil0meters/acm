@@ -36,7 +36,6 @@ export default function Schedule(): JSX.Element {
 
   function ScheduleItems({meetings}: { meetings: Meeting[] | undefined }): JSX.Element {
     if (!meetings) {
-      console.log("hey")
       return <>
         <LoadingScheduleItem />
         <LoadingScheduleItem />

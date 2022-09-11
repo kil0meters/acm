@@ -71,12 +71,14 @@ export default function InputTester(): JSX.Element {
         </LoadingButton>
       </div>
 
-      <div className="lg:w-96 lg:h-80 overflow-y-auto m-4 lg:ml-0">
+      <div className="lg:w-96 lg:h-80 overflow-y-auto m-x lg:ml-0">
         {testResult &&
           (isRunnerError(testResult) ? (
             <ErrorDisplay {...testResult} />
           ) : (
-            <TestResultInfo {...testResult} />
+            <div className="my-4">
+              <TestResultInfo {...testResult} />
+            </div>
           ))}
       </div>
     </div>

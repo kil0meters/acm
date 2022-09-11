@@ -19,7 +19,7 @@ pub struct CPlusPlus;
 #[async_trait]
 impl Runner for CPlusPlus {
     async fn run_tests(&self, form: RunnerForm) -> Result<RunnerResponse, RunnerError> {
-        let prefix = format!("/tmp/acm/submissions/{}/{}", form.username, form.problem_id);
+        let prefix = format!("/tmp/acm/submissions/{}/{}", form.user_id, form.problem_id);
 
         let command = compile_problem(&prefix, &form.implementation, &form.runner).await?;
 
@@ -44,7 +44,7 @@ impl Runner for CPlusPlus {
     }
 
     async fn generate_tests(&self, form: GenerateTestsForm) -> Result<Vec<Test>, RunnerError> {
-        let prefix = format!("/tmp/acm/problem_editor/{}", form.username);
+        let prefix = format!("/tmp/acm/problem_editor/{}", form.user_id);
 
         let command = compile_problem(&prefix, &form.reference, &form.runner).await?;
 
@@ -70,12 +70,12 @@ impl Runner for CPlusPlus {
         form: RunnerCustomProblemInputForm,
     ) -> Result<TestResult, RunnerError> {
         let reference_prefix = format!(
-            "/tmp/acm/custom_input/{}/{}/reference/",
-            form.username, form.problem_id
+            "/tmp/acm/custom_input/{}/{}/reference",
+            form.user_id, form.problem_id
         );
         let implementation_prefix = format!(
-            "/tmp/acm/custom_input/{}/{}/implementation/",
-            form.username, form.problem_id
+            "/tmp/acm/custom_input/{}/{}/implementation",
+            form.user_id, form.problem_id
         );
 
         let reference_command =

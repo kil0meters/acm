@@ -24,6 +24,7 @@ pub fn routes() -> Router {
 
 #[derive(Serialize)]
 pub struct User {
+    pub id: i64,
     pub name: String,
     pub username: String,
 
@@ -70,7 +71,7 @@ impl Default for Auth {
 }
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
-    pub username: String,
+    pub user_id: i64,
     pub auth: Auth,
     pub exp: usize,
 }

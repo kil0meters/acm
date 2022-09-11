@@ -3,26 +3,27 @@ use serde::Serialize;
 use sqlx::SqlitePool;
 
 use crate::{
-    auth::Auth,
+    auth::{Auth, User},
     error::{ServerError, UserError},
 };
 
-#[derive(Serialize)]
+/* #[derive(Serialize)]
 pub struct UserBody {
     name: String,
     username: String,
     discord_id: String,
     auth: Auth,
-}
+} */
 
 pub async fn username(
     Path(username): Path<String>,
     Extension(pool): Extension<SqlitePool>,
-) -> Result<Json<UserBody>, ServerError> {
+) -> Result<Json<User>, ServerError> {
     let body = sqlx::query_as!(
-        UserBody,
+        User,
         r#"
         SELECT
+            id,
             name,
             username,
             discord_id,
@@ -45,11 +46,12 @@ pub async fn username(
 pub async fn id(
     Path(id): Path<String>,
     Extension(pool): Extension<SqlitePool>,
-) -> Result<Json<UserBody>, ServerError> {
+) -> Result<Json<User>, ServerError> {
     let body = sqlx::query_as!(
-        UserBody,
+        User,
         r#"
         SELECT
+            id,
             name,
             username,
             discord_id,
