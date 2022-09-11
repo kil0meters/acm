@@ -3,7 +3,7 @@ use serde::Deserialize;
 use sqlx::SqlitePool;
 
 use crate::{
-    auth::{Auth, Claims},
+    auth::{Auth, Claims, User},
     error::{ServerError, AuthError},
 };
 
@@ -19,7 +19,7 @@ pub async fn edit(
     Path(username): Path<String>,
     Extension(pool): Extension<SqlitePool>,
     claims: Claims,
-) -> Result<Json<()>, ServerError> {
+) -> Result<Json<User>, ServerError> {
     if claims.auth != Auth::ADMIN {
         if claims.username != username {
             return Err(AuthError::Unauthorized.into());
@@ -28,7 +28,9 @@ pub async fn edit(
         }
     }
 
-    sqlx::query!(r#"
+    let new_user = sqlx::query_as!(
+        User,
+    r#"
         UPDATE users
         SET
             username = ?,
@@ -36,15 +38,20 @@ pub async fn edit(
             auth = ?
         WHERE
             username = ?
+        RETURNING
+            username,
+            name,
+            auth as 'auth: Auth',
+            discord_id;
     "#,
         new_username,
         new_name,
         new_auth,
         username
-    ).execute(&pool).await.map_err(|e| {
+    ).fetch_one(&pool).await.map_err(|e| {
         log::error!("{e}");
         ServerError::InternalError
     })?;
 
-    Ok(Json(()))
+    Ok(Json(new_user))
 }

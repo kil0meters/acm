@@ -23,12 +23,12 @@ pub fn routes() -> Router {
 }
 
 #[derive(Serialize)]
-struct User {
-    name: String,
-    username: String,
+pub struct User {
+    pub name: String,
+    pub username: String,
 
-    discord_id: String,
-    auth: Auth,
+    pub discord_id: String,
+    pub auth: Auth,
 }
 
 static KEYS: Lazy<Keys> = Lazy::new(|| {

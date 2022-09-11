@@ -117,7 +117,7 @@ const UserPage: NextPage = () => {
     const [newUsername, setNewUsername] = useState(username);
     const [newName, setNewName] = useState(name);
     const [newAuth, setNewAuth] = useState(auth);
-    const token = useStore((state) => state.token);
+    const [token, logIn] = useStore((state) => [state.token, state.logIn]);
     const { mutate } = useSWRConfig();
     const setError = useSession((state) => state.setError);
     const router = useRouter();
@@ -137,8 +137,9 @@ const UserPage: NextPage = () => {
           new_auth: newAuth,
         }),
       })
-        .then(res => {
-          if (!res.ok) {
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
             setError("Error updating profile", true);
           }
 
@@ -148,6 +149,7 @@ const UserPage: NextPage = () => {
             router.push(`/user/${newUsername}`);
           }
 
+          logIn(data, token!);
           mutate(api_url(`/user/username/${newUsername}`));
           setEditingProfile(false);
         })

@@ -102,6 +102,8 @@ pub async fn login(
         Some(user) => user,
         // If the user does not exist
         None => {
+            let sanitized_username: String = discord_user.username.chars().filter(|c| !c.is_whitespace()).collect();
+
             // Try with base username, if that fails, include the descriminator.
             let user = sqlx::query_as!(
                 User,
@@ -118,8 +120,8 @@ pub async fn login(
                     discord_id,
                     auth as "auth: Auth"
                 "#,
-                discord_user.username,
-                discord_user.username,
+                sanitized_username,
+                sanitized_username,
                 discord_user.id
             ).fetch_one(&pool)
             .await;
@@ -127,7 +129,7 @@ pub async fn login(
             match user {
                 Ok(user) => user,
                 Err(_) => {
-                    let username = format!("{}#{}", discord_user.username, discord_user.discriminator);
+                    let username = format!("{}_{}", discord_user.username, discord_user.discriminator);
 
                     let user = sqlx::query_as!(
                         User,
@@ -159,7 +161,7 @@ pub async fn login(
 
     let claims = Claims {
         username: user.username.clone(),
-        exp: Utc::now().timestamp() as usize + expires_in,
+        exp: usize::MAX,
         auth: user.auth,
     };
 
