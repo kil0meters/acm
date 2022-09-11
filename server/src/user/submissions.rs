@@ -6,7 +6,10 @@ use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 
-use crate::error::{ServerError, UserError};
+use crate::{
+    error::{ServerError, UserError},
+    submissions::Submission
+};
 
 #[derive(Deserialize)]
 pub struct Pagination<const C: i64, const O: i64> {
@@ -21,22 +24,11 @@ fn default_value<const T: i64>() -> i64 {
     T
 }
 
-#[derive(Serialize)]
-pub struct SubmissionResult {
-    id: i64,
-    problem_id: i64,
-    success: bool,
-    runtime: i64,
-    time: NaiveDateTime,
-    error: Option<String>,
-    code: String,
-}
-
 pub async fn submissions(
     Path(username): Path<String>,
     Query(pagination): Query<Pagination<0, 10>>,
     Extension(pool): Extension<SqlitePool>,
-) -> Result<Json<Vec<SubmissionResult>>, ServerError> {
+) -> Result<Json<Vec<Submission>>, ServerError> {
     let user_id = sqlx::query!(
         r#"
         SELECT id
@@ -51,15 +43,16 @@ pub async fn submissions(
     .id;
 
     let submissions = sqlx::query_as!(
-        SubmissionResult,
+        Submission,
         r#"
         SELECT
             id,
             problem_id,
+            user_id,
             success,
             runtime,
-            time,
             error,
+            time,
             code
         FROM
             submissions

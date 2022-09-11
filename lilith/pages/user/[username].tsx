@@ -10,6 +10,7 @@ import { User, useSession, useStore } from "../../utils/state";
 import { useState } from "react";
 
 type Submission = {
+  id: number;
   problem_id: number;
   success: boolean;
   runtime: number;
@@ -23,9 +24,9 @@ function RecentSubmissions({ username }: { username: string }): JSX.Element {
   );
 
   function SubmissionEntry({
+    id,
     success,
     runtime,
-    problem_id,
     code,
   }: Submission): JSX.Element {
     return (
@@ -46,9 +47,9 @@ function RecentSubmissions({ username }: { username: string }): JSX.Element {
             </span>
           )}
 
-          <Link href={`/problems/${problem_id}`}>
+          <Link href={`/submissions/${id}`}>
             <a className="ml-auto self-center bg-blue-700 hover:bg-blue-500 transition-colors text-blue-50 px-3 py-2 text-sm rounded-full font-bold">
-              View Problem
+              View Submission
             </a>
           </Link>
         </div>
