@@ -113,7 +113,7 @@ pub async fn submit(
             test.id,
             test.runtime,
             test.output,
-            passed,
+            test.success,
         )
         .execute(&mut tx)
         .await
