@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2018"
 
 [workspace]
-members = ["server", "ramiel", "gelus"]
+members = ["server", "ramiel"]
 default-members = ["server"]
 
 [dependencies]
