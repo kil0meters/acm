@@ -11,6 +11,7 @@ use crate::{
 pub struct UserBody {
     name: String,
     username: String,
+    discord_id: String,
     auth: Auth,
 }
 
@@ -24,6 +25,7 @@ pub async fn username(
         SELECT
             name,
             username,
+            discord_id,
             auth as "auth: Auth"
         FROM
             users
@@ -50,6 +52,7 @@ pub async fn id(
         SELECT
             name,
             username,
+            discord_id,
             auth as "auth: Auth"
         FROM
             users
