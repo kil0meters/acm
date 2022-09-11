@@ -23,6 +23,8 @@ pub async fn first_place(Extension(pool): Extension<SqlitePool>) -> Json<Vec<Lea
                     MIN(time)
                 FROM
                     submissions
+                WHERE
+                    success = true
                 GROUP BY
                     problem_id
             )
