@@ -6,7 +6,7 @@ mod new_completions;
 mod submission;
 mod tests;
 
-#[derive(Deserialize, Serialize, PartialEq)]
+#[derive(Deserialize, Serialize, PartialEq, Clone)]
 pub struct Submission {
     pub id: i64,
     pub problem_id: i64,

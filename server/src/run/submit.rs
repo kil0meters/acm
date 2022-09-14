@@ -7,8 +7,9 @@ use axum::{Extension, Json};
 use reqwest::Client;
 use serde::Deserialize;
 use sqlx::SqlitePool;
+use tokio::sync::broadcast::Sender;
 
-use crate::{auth::Claims, error::ServerError, submissions::Submission};
+use crate::{auth::Claims, error::ServerError, submissions::Submission, ws::BroadcastMessage};
 
 #[derive(Deserialize)]
 pub struct SubmitForm {
@@ -20,6 +21,7 @@ pub async fn submit(
     Json(form): Json<SubmitForm>,
     Extension(pool): Extension<SqlitePool>,
     Extension(ramiel_url): Extension<String>,
+    Extension(broadcast): Extension<Sender<BroadcastMessage>>,
     claims: Claims,
 ) -> Result<Json<Submission>, ServerError> {
     let runner = sqlx::query!(
@@ -121,6 +123,26 @@ pub async fn submit(
     }
 
     tx.commit().await.map_err(|_| ServerError::InternalError)?;
+
+    // Broadcast the submission in the appropriate category
+    if submission.success {
+        // If exactly one person has
+        let subs = sqlx::query!(
+            "SELECT COUNT(id) as count FROM submissions WHERE problem_id = ? AND success = true",
+            form.problem_id
+        )
+        .fetch_one(&pool)
+        .await
+        .expect("Couldn't fetch row count");
+
+        let message = if subs.count == 1 {
+            BroadcastMessage::NewStar(submission.clone())
+        } else {
+            BroadcastMessage::NewCompletion(submission.clone())
+        };
+
+        broadcast.send(message).ok();
+    }
 
     Ok(Json(submission))
 }

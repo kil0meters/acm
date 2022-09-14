@@ -1,11 +1,7 @@
 use axum::{extract::Path, Extension, Json};
 use sqlx::SqlitePool;
 
-use crate::{
-    auth::Claims,
-    error::{ServerError},
-    submissions::Submission,
-};
+use crate::{auth::Claims, error::ServerError, submissions::Submission};
 
 pub async fn history(
     Path(problem_id): Path<i64>,

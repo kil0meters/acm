@@ -698,6 +698,24 @@
     },
     "query": "\n        SELECT\n            test_results.id as id,\n            test_results.success as success,\n            test_results.output as output,\n            test_results.runtime as runtime,\n            tests.input as input,\n            tests.expected_output as expected_output,\n            tests.test_number as [index]\n        FROM\n            test_results INNER JOIN tests\n            ON test_results.test_id = tests.id\n        WHERE\n            test_results.submission_id = ?\n        ORDER BY\n            tests.test_number ASC, test_results.success\n        "
   },
+  "8bb94b1f035f45983c2b2e4c08ad0507b2737c6159ba180bac37f7186381ea89": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "SELECT COUNT(id) as count FROM submissions WHERE problem_id = ? AND success = true"
+  },
   "9058ab628832a5c9cdb9a9a991fd0827b455b6c0afe6bba547e8f55a239666a3": {
     "describe": {
       "columns": [
@@ -794,23 +812,47 @@
     },
     "query": "\n        SELECT\n            id,\n            test_number as [index],\n            input,\n            expected_output\n        FROM\n            tests\n        WHERE\n            problem_id = ?"
   },
-  "bdf357b81f5aa3edf92dc8c10c3e8b582c2548fe28590fed0856bc6d59934d62": {
+  "b2999ef04015c194aea122ea353d34dbd8f2d06760e6dc3d967568746d587ca4": {
     "describe": {
       "columns": [
         {
           "name": "id",
           "ordinal": 0,
           "type_info": "Int64"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "runner",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "template",
+          "ordinal": 4,
+          "type_info": "Text"
         }
       ],
       "nullable": [
+        false,
+        false,
+        false,
+        false,
         false
       ],
       "parameters": {
         "Right": 6
       }
     },
-    "query": "\n        INSERT INTO problems (\n            title,\n            description,\n            runner,\n            reference,\n            template,\n            activity_id\n        ) VALUES (?, ?, ?, ?, ?, ?)\n        RETURNING id\n        "
+    "query": "\n        INSERT INTO problems (\n            title,\n            description,\n            runner,\n            reference,\n            template,\n            activity_id\n        ) VALUES (?, ?, ?, ?, ?, ?)\n        RETURNING\n            id,\n            title,\n            description,\n            runner,\n            template\n        "
   },
   "d356fb7fb621a005b9ab3e659bddecc27ac1cefbd5ca992db7916312146d9862": {
     "describe": {

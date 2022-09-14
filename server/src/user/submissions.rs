@@ -7,7 +7,7 @@ use sqlx::SqlitePool;
 
 use crate::{
     error::{ServerError, UserError},
-    submissions::Submission
+    submissions::Submission,
 };
 
 #[derive(Deserialize)]

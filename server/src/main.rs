@@ -1,14 +1,14 @@
 //! The backend.
 
 use std::{net::SocketAddr, process::exit};
+use tokio::sync::broadcast;
 
-use axum::{Extension, Router, Server};
+use axum::{routing::get, Extension, Router, Server};
 use clap::Parser;
 use sqlx::SqlitePool;
-use tower_http::{
-    cors::CorsLayer,
-    trace::TraceLayer,
-};
+use tower_http::{cors::CorsLayer, trace::TraceLayer};
+
+use crate::ws::BroadcastMessage;
 
 mod auth;
 mod error;
@@ -18,6 +18,7 @@ mod problems;
 mod run;
 mod submissions;
 mod user;
+mod ws;
 
 pub const MAX_TEST_LENGTH: usize = 500;
 
@@ -40,12 +41,15 @@ struct Args {
     jwt_secret: String,
 
     #[clap(env)]
-    discord_secret: String
+    discord_secret: String,
 }
 
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
+
+    // A broadcast channel to update new submissions in real time.
+    let (tx, _) = broadcast::channel::<BroadcastMessage>(16);
 
     tracing_subscriber::fmt()
         .with_env_filter("info,tower_http=debug,sqlx=warn")
@@ -76,8 +80,10 @@ async fn main() {
         .nest("/run", run::routes())
         .nest("/problems", problems::routes())
         .nest("/meetings", meetings::routes())
+        .route("/ws", get(ws::handler))
         .layer(Extension(args.ramiel_url))
         .layer(Extension(pool))
+        .layer(Extension(tx))
         .layer(TraceLayer::new_for_http())
         .layer(CorsLayer::very_permissive());
 

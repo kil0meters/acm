@@ -18,8 +18,7 @@ use crate::error::{AuthError, ServerError};
 mod discord;
 
 pub fn routes() -> Router {
-    Router::new()
-        .route("/discord", post(discord::login))
+    Router::new().route("/discord", post(discord::login))
 }
 
 #[derive(Serialize)]
@@ -98,10 +97,10 @@ where
         let TypedHeader(Authorization(bearer)) =
             TypedHeader::<Authorization<Bearer>>::from_request(req)
                 .await
-            .map_err(|e| {
-                log::error!("{e}");
-                AuthError::InvalidToken
-            })?;
+                .map_err(|e| {
+                    log::error!("{e}");
+                    AuthError::InvalidToken
+                })?;
         // Decode the user data
         let token_data =
             jsonwebtoken::decode::<Claims>(bearer.token(), &KEYS.decoding, &Validation::default())

@@ -1,19 +1,10 @@
 use axum::{extract::Path, Extension, Json};
-use serde::Serialize;
 use sqlx::SqlitePool;
 
 use crate::{
     auth::{Auth, User},
     error::{ServerError, UserError},
 };
-
-/* #[derive(Serialize)]
-pub struct UserBody {
-    name: String,
-    username: String,
-    discord_id: String,
-    auth: Auth,
-} */
 
 pub async fn username(
     Path(username): Path<String>,
@@ -41,7 +32,6 @@ pub async fn username(
 
     Ok(Json(body))
 }
-
 
 pub async fn id(
     Path(id): Path<String>,

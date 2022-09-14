@@ -10,7 +10,7 @@ mod new;
 mod problem;
 mod tests;
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct Problem {
     id: i64,
 

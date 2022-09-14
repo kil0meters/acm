@@ -2,8 +2,10 @@ use acm::models::test::Test;
 use axum::{Extension, Json};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
+use tokio::sync::broadcast::Sender;
 
-use crate::{auth::Claims, error::ServerError};
+use super::Problem;
+use crate::{auth::Claims, error::ServerError, ws::BroadcastMessage};
 
 #[derive(Deserialize)]
 pub struct NewForm {
@@ -24,13 +26,15 @@ pub struct NewBody {
 pub async fn new(
     Json(form): Json<NewForm>,
     Extension(pool): Extension<SqlitePool>,
+    Extension(broadcast): Extension<Sender<BroadcastMessage>>,
     claims: Claims,
 ) -> Result<Json<NewBody>, ServerError> {
     claims.validate_officer()?;
 
     let mut tx = pool.begin().await.map_err(|_| ServerError::InternalError)?;
 
-    let problem_id = sqlx::query!(
+    let problem = sqlx::query_as!(
+        Problem,
         r#"
         INSERT INTO problems (
             title,
@@ -40,7 +44,12 @@ pub async fn new(
             template,
             activity_id
         ) VALUES (?, ?, ?, ?, ?, ?)
-        RETURNING id
+        RETURNING
+            id,
+            title,
+            description,
+            runner,
+            template
         "#,
         form.title,
         form.description,
@@ -51,8 +60,7 @@ pub async fn new(
     )
     .fetch_one(&mut tx)
     .await
-    .map_err(|_| ServerError::InternalError)?
-    .id;
+    .map_err(|_| ServerError::InternalError)?;
 
     for test in &form.tests {
         sqlx::query!(
@@ -65,7 +73,7 @@ pub async fn new(
             )
             VALUES (?, ?, ?, ?)
             "#,
-            problem_id,
+            problem.id,
             test.index,
             test.input,
             test.expected_output
@@ -75,6 +83,10 @@ pub async fn new(
         .map_err(|_| ServerError::InternalError)?;
     }
 
+    broadcast
+        .send(BroadcastMessage::NewProblem(problem.clone()))
+        .ok();
+
     tx.commit().await.map_err(|_| ServerError::InternalError)?;
-    Ok(Json(NewBody { id: problem_id }))
+    Ok(Json(NewBody { id: problem.id }))
 }

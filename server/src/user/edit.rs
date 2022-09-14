@@ -4,18 +4,22 @@ use sqlx::SqlitePool;
 
 use crate::{
     auth::{Auth, Claims, User},
-    error::{ServerError, AuthError},
+    error::{AuthError, ServerError},
 };
 
 #[derive(Deserialize)]
 pub struct EditUserForm {
     new_username: String,
     new_name: String,
-    new_auth: Auth
+    new_auth: Auth,
 }
 
 pub async fn edit(
-    Json(EditUserForm { new_username, new_name, mut new_auth }): Json<EditUserForm>,
+    Json(EditUserForm {
+        new_username,
+        new_name,
+        mut new_auth,
+    }): Json<EditUserForm>,
     Path(user_id): Path<i64>,
     Extension(pool): Extension<SqlitePool>,
     claims: Claims,
@@ -30,7 +34,7 @@ pub async fn edit(
 
     let new_user = sqlx::query_as!(
         User,
-    r#"
+        r#"
         UPDATE users
         SET
             username = ?,
@@ -49,7 +53,10 @@ pub async fn edit(
         new_name,
         new_auth,
         claims.user_id,
-    ).fetch_one(&pool).await.map_err(|e| {
+    )
+    .fetch_one(&pool)
+    .await
+    .map_err(|e| {
         log::error!("{e}");
         ServerError::InternalError
     })?;

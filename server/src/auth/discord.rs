@@ -8,7 +8,6 @@ use crate::error::{AuthError, ServerError};
 
 use super::{Auth, Claims, User, KEYS};
 
-
 #[derive(Serialize)]
 pub struct LoginBody {
     user: User,
@@ -31,14 +30,13 @@ struct TokenResponse {
 struct DiscordUser {
     username: String,
     discriminator: String,
-    id: String
+    id: String,
 }
 
 pub async fn login(
     Json(LoginForm { code, redirect_uri }): Json<LoginForm>,
     Extension(pool): Extension<SqlitePool>,
 ) -> Result<Json<LoginBody>, ServerError> {
-
     let client = reqwest::Client::new();
 
     let mut params = HashMap::new();
@@ -48,8 +46,11 @@ pub async fn login(
     params.insert("code", code);
     params.insert("redirect_uri", redirect_uri);
 
-
-    let TokenResponse { access_token, token_type } = client.post("https://discord.com/api/oauth2/token")
+    let TokenResponse {
+        access_token,
+        token_type,
+    } = client
+        .post("https://discord.com/api/oauth2/token")
         .form(&params)
         .send()
         .await
@@ -64,7 +65,8 @@ pub async fn login(
             ServerError::InternalError
         })?;
 
-    let discord_user: DiscordUser = client.get("https://discord.com/api/users/@me")
+    let discord_user: DiscordUser = client
+        .get("https://discord.com/api/users/@me")
         .header("Authorization", format!("{token_type} {access_token}"))
         .send()
         .await
@@ -99,7 +101,11 @@ pub async fn login(
         Some(user) => user,
         // If the user does not exist
         None => {
-            let sanitized_username: String = discord_user.username.chars().filter(|c| !c.is_whitespace()).collect();
+            let sanitized_username: String = discord_user
+                .username
+                .chars()
+                .filter(|c| !c.is_whitespace())
+                .collect();
 
             // Try with base username, if that fails, include the descriminator.
             let user = sqlx::query_as!(
@@ -121,13 +127,15 @@ pub async fn login(
                 sanitized_username,
                 sanitized_username,
                 discord_user.id
-            ).fetch_one(&pool)
+            )
+            .fetch_one(&pool)
             .await;
 
             match user {
                 Ok(user) => user,
                 Err(_) => {
-                    let username = format!("{}_{}", discord_user.username, discord_user.discriminator);
+                    let username =
+                        format!("{}_{}", discord_user.username, discord_user.discriminator);
 
                     let user = sqlx::query_as!(
                         User,
@@ -148,14 +156,15 @@ pub async fn login(
                         discord_user.username,
                         username,
                         discord_user.id
-                    ).fetch_one(&pool)
+                    )
+                    .fetch_one(&pool)
                     .await
                     .expect("Should not happen");
 
                     user
-                },
+                }
             }
-        },
+        }
     };
 
     let claims = Claims {
@@ -166,8 +175,5 @@ pub async fn login(
 
     let token = KEYS.encode_token(claims)?;
 
-    Ok(Json(LoginBody {
-        user,
-        token,
-    }))
+    Ok(Json(LoginBody { user, token }))
 }

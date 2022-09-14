@@ -1,4 +1,7 @@
-use axum::{routing::{get, post}, Router};
+use axum::{
+    routing::{get, post},
+    Router,
+};
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use sqlx::Type;

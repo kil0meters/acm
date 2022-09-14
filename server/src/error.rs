@@ -22,11 +22,9 @@ impl IntoResponse for ServerError {
             ServerError::Auth(err) => err.into_response(),
             ServerError::Validation(err) => err.into_response(),
             ServerError::User(err) => err.into_response(),
-            ServerError::Runner(err) => (
-                StatusCode::UNPROCESSABLE_ENTITY,
-                Json(err),
-            )
-                .into_response(),
+            ServerError::Runner(err) => {
+                (StatusCode::UNPROCESSABLE_ENTITY, Json(err)).into_response()
+            }
             ServerError::NotFound => (
                 StatusCode::NOT_FOUND,
                 Json(json!({"error": "The requested data was not found"})),
@@ -122,7 +120,7 @@ pub enum AuthError {
     WrongCredentials,
     TokenCreation,
     InvalidToken,
-    Unauthorized
+    Unauthorized,
 }
 
 impl IntoResponse for AuthError {
