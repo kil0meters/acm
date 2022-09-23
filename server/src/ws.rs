@@ -3,6 +3,7 @@ use axum::{
     response::Response,
     Extension,
 };
+use futures::{StreamExt, SinkExt};
 use serde::Serialize;
 use tokio::sync::broadcast::Sender;
 
@@ -27,16 +28,29 @@ pub async fn handler(
     ws.on_upgrade(|socket| handle_socket(socket, tx))
 }
 
-async fn handle_socket(mut socket: WebSocket, tx: Sender<BroadcastMessage>) {
+async fn handle_socket(socket: WebSocket, tx: Sender<BroadcastMessage>) {
     let mut rx = tx.subscribe();
 
-    while let Ok(msg) = rx.recv().await {
-        let message =
-            serde_json::to_string(&msg).expect("Could not convert message to JSON in websocket.");
+    let (mut sender, mut receiver) = socket.split();
 
-        // send, or disconnect if the client disconnected
-        if socket.send(Message::Text(message)).await.is_err() {
-            return;
+    let mut recv_task = tokio::spawn(async move {
+        while let Some(Ok(Message::Text(_text))) = receiver.next().await {}
+    });
+
+    let mut send_task = tokio::spawn(async move {
+        while let Ok(msg) = rx.recv().await {
+            let message =
+                serde_json::to_string(&msg).expect("Could not convert message to JSON in websocket.");
+
+            if sender.send(Message::Text(message)).await.is_err() {
+                break;
+            }
         }
-    }
+    });
+
+    tokio::select! {
+        _ = (&mut send_task) => recv_task.abort(),
+        _ = (&mut recv_task) => send_task.abort(),
+    };
+
 }
