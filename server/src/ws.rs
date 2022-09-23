@@ -42,8 +42,12 @@ async fn handle_socket(socket: WebSocket, tx: Sender<BroadcastMessage>) {
             let message =
                 serde_json::to_string(&msg).expect("Could not convert message to JSON in websocket.");
 
-            if sender.send(Message::Text(message)).await.is_err() {
-                break;
+            match sender.send(Message::Text(message)).await {
+                Err(e) => {
+                    log::info!("{e}");
+                    break;
+                },
+                _ => {},
             }
         }
     });
