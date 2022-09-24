@@ -59,7 +59,7 @@ async fn main() {
     let pool = match SqlitePool::connect(&args.database_url).await {
         Ok(conn) => conn,
         Err(e) => {
-            tracing::error!("{e}");
+            tracing::error!("error {e}");
             exit(1);
         }
     };
