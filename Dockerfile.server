@@ -1,17 +1,25 @@
-FROM rustlang/rust:nightly as builder
-WORKDIR /usr/src/acm
+FROM lukemathwalker/cargo-chef:latest-rust-latest AS chef
+WORKDIR app
+
+FROM chef AS planner
 COPY . .
-
-RUN cargo +nightly install --path server
-
+RUN cargo chef prepare --bin server --recipe-path recipe.json
 
 
-FROM debian:bullseye-slim
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
+RUN cargo chef cook --package server --release --recipe-path recipe.json
+
+COPY . .
+RUN cargo build --release --package server
+
+
+FROM debian:bullseye-slim AS runtime
 
 RUN apt-get update; \
     apt-get install -y openssl ca-certificates; \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /usr/local/cargo/bin/server /usr/local/bin/server
+COPY --from=builder /app/target/release/server /usr/local/bin/server
 
 CMD ["server"]

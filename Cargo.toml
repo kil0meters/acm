@@ -5,7 +5,6 @@ edition = "2018"
 
 [workspace]
 members = ["server", "ramiel"]
-default-members = ["server"]
 
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
