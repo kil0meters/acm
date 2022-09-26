@@ -34,7 +34,7 @@ async fn handle_socket(socket: WebSocket, tx: Sender<BroadcastMessage>) {
     let (mut sender, mut receiver) = socket.split();
 
     let mut recv_task = tokio::spawn(async move {
-        while let Some(Ok(Message::Text(_text))) = receiver.next().await {}
+        while let Some(Ok(_msg)) = receiver.next().await {}
     });
 
     let mut send_task = tokio::spawn(async move {
