@@ -29,6 +29,9 @@ function RecentSubmissions({ username }: { username: string }): JSX.Element {
     runtime,
     code,
   }: Submission): JSX.Element {
+    let compact = Intl.NumberFormat('en', { notation: "compact" }).format(runtime) + " fuel";
+    let long = Intl.NumberFormat('en', { notation: "standard" }).format(runtime) + " fuel";
+
     return (
       <div className="border-y border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black sm:rounded-md sm:m-2 md:m-0 sm:border p-4 flex flex-col gap-4">
         <div className="flex gap-2">
@@ -37,8 +40,8 @@ function RecentSubmissions({ username }: { username: string }): JSX.Element {
               <span className="font-bold text-green-600 text-2xl self-center">
                 Passed
               </span>
-              <span className="text-green-600 self-center text-sm">
-                {runtime}ms
+              <span className="text-green-600 self-center text-sm" title={long}>
+                {compact}
               </span>
             </>
           ) : (
@@ -104,11 +107,11 @@ const UserPage: NextPage = () => {
           {auth[0] + auth.slice(1).toLowerCase()}
         </span>
 
-        { showEditButton && <button
+        {showEditButton && <button
           onClick={() => setEditingProfile(true)}
           className="rounded outline outline-gray-300 bg-gray-200 dark:bg-gray-700 dark:outline-gray-500 dark:hover:bg-gray-600 py-2 w-full text-center mt-4 hover:bg-gray-100 transition-colors">
           Edit profile
-        </button> }
+        </button>}
       </div>
     );
   }
@@ -183,7 +186,7 @@ const UserPage: NextPage = () => {
           />
         </div>
 
-        { currentUser?.auth == "ADMIN" && <div className="flex flex-col">
+        {currentUser?.auth == "ADMIN" && <div className="flex flex-col">
           <label>Auth</label>
           <select
             className={formClasses}
@@ -195,7 +198,7 @@ const UserPage: NextPage = () => {
             <option value="OFFICER">Officer</option>
             <option value="MEMBER">Member</option>
           </select>
-        </div> }
+        </div>}
 
         <button
           onClick={() => submitUserEdit()}
@@ -208,7 +211,7 @@ const UserPage: NextPage = () => {
 
   function UserSidebar(user: User): JSX.Element {
     return <>
-      { editingProfile ? <UserEditor {...user} /> : <UserInfo {...user} /> }
+      {editingProfile ? <UserEditor {...user} /> : <UserInfo {...user} />}
     </>
   }
 

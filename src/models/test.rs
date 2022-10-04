@@ -11,7 +11,7 @@ pub struct Test {
 }
 
 impl Test {
-    pub fn make_result(self, output: String, time: Duration) -> TestResult {
+    pub fn make_result(self, output: String, fuel: u64) -> TestResult {
         TestResult {
             id: self.id,
             index: self.index,
@@ -19,10 +19,7 @@ impl Test {
             input: self.input,
             expected_output: self.expected_output,
             output,
-
-            // TODO: This breaks if any test takes longer than 1 second. Realistically this should
-            // not be a big deal.
-            runtime: time.subsec_nanos().into(),
+            runtime: fuel as i64,
         }
     }
 

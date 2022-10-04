@@ -13,7 +13,7 @@ export default function SubmissionFeedback({
   function CloseButton({
     className
   }: {
-      className: string;
+    className: string;
   }) {
     const hideSubmission = useSession((session) => session.hideSubmission);
 
@@ -64,13 +64,13 @@ export default function SubmissionFeedback({
         <div className="flex items-start">
           <h1 className="text-2xl font-bold">error.</h1>
 
-          { inProblemView &&
+          {inProblemView &&
             <div className="ml-auto">
               <ShareButton
                 path={`/submissions/${id}`}
                 className={buttonClass}
               />
-              <CloseButton className={`${buttonClass} ml-2` } />
+              <CloseButton className={`${buttonClass} ml-2`} />
             </div>
           }
         </div>
@@ -82,20 +82,25 @@ export default function SubmissionFeedback({
     );
   }
 
+  let fuel = <div>
+    <span>Consumed </span>
+    <span title={Intl.NumberFormat('en', { notation: "standard" }).format(runtime) + " fuel"}>
+      {Intl.NumberFormat('en', { notation: "compact" }).format(runtime)} fuel.
+    </span>
+  </div>
+
   if (success) {
     return (
       <div className="flex-col flex p-4 bg-green-500 dark:bg-green-800 text-green-50 h-full">
         <div className="flex items-start">
           <span className="font-bold text-2xl">Congratulations!</span>
-          { inProblemView && <ShareButton
+          {inProblemView && <ShareButton
             path={`/submissions/${id}`}
             className="bg-green-700 hover:bg-green-600 text-green-50 rounded-full px-4 py-2 ml-auto text-sm transition-colors"
-          /> }
+          />}
         </div>
         <span>Your code passed all of the supplied tests.</span>
-        <span>
-          {"Ran in "} {runtime} {" ms."}
-        </span>
+        {fuel}
       </div>
     );
   } else {
@@ -103,16 +108,15 @@ export default function SubmissionFeedback({
       <div className="flex-col flex p-4 bg-white dark:bg-black h-full">
         <div className="flex items-start">
           <span className="text-red-500 font-bold text-2xl">{"Failed"}</span>
-          { inProblemView && <ShareButton
+          {inProblemView && <ShareButton
             path={`/submissions/${id}`}
             className="bg-neutral-600 hover:bg-neutral-500 text-neutral-50 rounded-full px-4 py-2 ml-auto text-sm transition-colors"
-          /> }
+          />}
         </div>
 
         <span>Your code did not pass all of the tests.</span>
-        <span>
-          {"Ran in "} {runtime} {" ms."}
-        </span>
+        {fuel}
+
       </div>
     );
   }

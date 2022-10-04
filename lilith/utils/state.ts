@@ -21,7 +21,7 @@ export interface Submission {
   error?: string;
   success: boolean;
   code: string;
-  runtime: string;
+  runtime: number;
   time: string;
 }
 

@@ -3,6 +3,7 @@ use acm::models::{
     runner::{RunnerError, RunnerResponse},
     test::{Test, TestResult},
 };
+use actix_web::rt::task;
 use async_trait::async_trait;
 use std::{collections::BTreeSet, process::Stdio};
 use tokio::{
@@ -10,6 +11,9 @@ use tokio::{
     process::Command,
     time::{timeout, Duration, Instant},
 };
+use wasi_common::pipe::{ReadPipe, WritePipe};
+use wasmtime::{Config, Engine, Linker, Module, Store, StoreLimits, StoreLimitsBuilder};
+use wasmtime_wasi::{sync::WasiCtxBuilder, WasiCtx};
 
 mod cplusplus;
 
@@ -65,61 +69,93 @@ impl Into<RunnerResponse> for TestResults {
     }
 }
 
+struct MyState {
+    limits: StoreLimits,
+    wasi: WasiCtx,
+}
+
 /// Runs a command with a specified input, returning a RuntimeError if the process returns an
 /// error, otherwise returns the output and the duration
 async fn run_test_timed(command: &str, test: Test) -> Result<TestResult, RunnerError> {
-    let now = Instant::now();
-    let output = run_command(command, &test.input).await?;
-    Ok(test.make_result(output, now.elapsed()))
+    let (output, fuel) = run_command(command, &test.input).await?;
+    Ok(test.make_result(output, fuel))
 }
 
-async fn run_command(command: &str, input: &str) -> Result<String, RunnerError> {
-    let mut child = Command::new("wasmer")
-        .args(&["run", command])
-        .stdin(Stdio::piped())
-        .stderr(Stdio::piped())
-        .stdout(Stdio::piped())
-        .spawn()?;
+const MAX_MEMORY: usize = 1 << 26; // 64MB
+const MAX_FUEL: u64 = 1 << 32;
 
-    if let Some(stdin) = child.stdin.as_mut().take() {
-        stdin.write_all(input.as_bytes()).await?;
-    }
+async fn run_command(command: &str, input: &str) -> Result<(String, u64), RunnerError> {
+    let command = command.to_string();
+    let input = input.to_string();
+    task::spawn_blocking(move || {
+        let mut config = Config::default();
+        config.consume_fuel(true);
 
-    let exit_status = match timeout(Duration::from_secs(5), child.wait()).await {
-        Ok(exit_status) => exit_status?,
-        Err(_) => {
-            child.kill().await?;
-            return Err(RunnerError::TimeoutError {
-                message: "Process took too long to execute.".to_string(),
+        let engine = Engine::new(&config).unwrap();
+
+        let mut linker = Linker::new(&engine);
+        wasmtime_wasi::add_to_linker(&mut linker, |state: &mut MyState| &mut state.wasi).map_err(
+            |_| RunnerError::InternalServerError {
+                message: "Failed to add wasi runtime to linker".to_string(),
+            },
+        )?;
+
+        let stdin = ReadPipe::from(input);
+        let stdout = WritePipe::new_in_memory();
+
+        let mut store = Store::new(
+            &engine,
+            MyState {
+                wasi: WasiCtxBuilder::new()
+                    .stdin(Box::new(stdin.clone()))
+                    .stdout(Box::new(stdout.clone()))
+                    .build(),
+                limits: StoreLimitsBuilder::new()
+                    .memory_size(MAX_MEMORY)
+                    .instances(2)
+                    .build(),
+            },
+        );
+
+        store.add_fuel(MAX_FUEL).expect("Failed to add fuel");
+        store.limiter(|state| &mut state.limits);
+
+        // Instantiate our module with the imports we've created, and run it.
+        let module =
+            Module::from_file(&engine, command).map_err(|_| RunnerError::InternalServerError {
+                message: "Failed to open file".to_string(),
+            })?;
+
+        linker
+            .module(&mut store, "", &module)
+            .map_err(|_| RunnerError::InternalServerError {
+                message: "Failed to link file".to_string(),
+            })?;
+
+        let res = linker
+            .get_default(&mut store, "")
+            .unwrap()
+            .typed::<(), (), _>(&store)
+            .unwrap()
+            .call(&mut store, ());
+
+        let fuel = store.fuel_consumed().unwrap_or(0);
+
+        if let Err(trap) = res {
+            return Err(RunnerError::RuntimeError {
+                message: trap.display_reason().to_string(),
             });
         }
-    };
 
-    if exit_status.success() {
-        let stdout = child
-            .stdout
-            .take()
-            .expect("child process did not have handle to stdout");
+        // so we can read from the writepipe
+        drop(store);
+        let bytes = stdout.try_into_inner().unwrap().into_inner();
+        let message = String::from_utf8_lossy(&bytes).to_string();
 
-        let mut reader = BufReader::new(stdout);
-
-        let mut bytes = vec![];
-        reader.read_to_end(&mut bytes).await?;
-
-        Ok(String::from_utf8_lossy(&bytes).to_string())
-    } else {
-        let stderr = child
-            .stderr
-            .take()
-            .expect("child process did not have handle to stdout");
-
-        let mut reader = BufReader::new(stderr);
-
-        let mut bytes = vec![];
-        reader.read_to_end(&mut bytes).await?;
-
-        Err(RunnerError::RuntimeError {
-            message: String::from_utf8_lossy(&bytes).to_string(),
-        })
-    }
+        Ok((message, fuel))
+    })
+    .await
+    .map_err(|_| RunnerError::InternalServerError {
+        message: "Failed to create thread".to_string(),
+    })?
 }

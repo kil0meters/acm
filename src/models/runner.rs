@@ -18,10 +18,10 @@ pub enum RunnerError {
     #[error("{message}")]
     CompilationError { line: u64, message: String },
 
-    #[error("encountered a runtime error")]
+    #[error("encountered a runtime error:\n{message}")]
     RuntimeError { message: String },
 
-    #[error("Encountered an error while running code: {}", message)]
+    #[error("Internal error:\n{}", message)]
     InternalServerError { message: String },
 
     #[error("Process took too long to execute")]
