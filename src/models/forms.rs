@@ -12,7 +12,6 @@ pub struct RunnerForm {
     pub tests: Vec<Test>,
 }
 
-
 #[derive(Deserialize, Serialize)]
 pub struct GenerateTestsForm {
     pub runner: String,
@@ -25,8 +24,8 @@ pub struct GenerateTestsForm {
 #[derive(Deserialize, Serialize)]
 pub struct RunnerCustomProblemInputForm {
     pub problem_id: i64,
-    pub runner: String,
     pub user_id: i64,
+    pub runner: String,
     pub implementation: String,
     pub reference: String,
     pub input: String,

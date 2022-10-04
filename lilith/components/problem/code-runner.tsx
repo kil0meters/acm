@@ -2,11 +2,14 @@ import { useContext, useState } from "react";
 import { useSWRConfig } from "swr";
 import { ProblemIDContext } from ".";
 import { api_url } from "../../utils/fetcher";
+import { JobStatus, monitorJob } from "../../utils/job";
 import { Submission, useSession, useStore } from "../../utils/state";
 import EditorPreferences from "../editor-preferences";
 import LoadingButton from "../loading-button";
 import Modal from "../modal";
+import QueueStatus from "../queue-status";
 import InputTester from "./input-tester";
+import { ServerError } from "./submission/error";
 import { SUBMISSION_TESTS_QUERY } from "./submission/tests";
 
 export default function CodeRunner(): JSX.Element {
@@ -24,6 +27,7 @@ export default function CodeRunner(): JSX.Element {
     );
     const setError = useSession((session) => session.setError);
     const [loading, setLoading] = useState(false);
+    const [queuePosition, setQueuePosition] = useState(0);
     const { mutate } = useSWRConfig();
 
     const submitProblem = async () => {
@@ -39,41 +43,54 @@ export default function CodeRunner(): JSX.Element {
 
       setLoading(true);
 
-      fetch(api_url("/run/submit"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          problem_id: id,
-          implementation,
-        }),
-      })
-        .then((res) => res.json())
-        .then((res: Submission) => {
-
-          console.log(res);
-          setSubmission(id, res);
-          setLoading(false);
-
-          // make sure we queue after the submission id is updated
-          setTimeout(() => mutate(SUBMISSION_TESTS_QUERY), 0);
-        })
-        .catch(() => {
-          // TODO: Handle network errors.
-          setLoading(false);
+      try {
+        let res = await fetch(api_url("/run/submit"), {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            problem_id: id,
+            implementation,
+          }),
         });
+
+        let job: JobStatus<Submission, ServerError> = await res.json();
+        let [data, err] = await monitorJob(job, token, (n) => setQueuePosition(n));
+
+        if (data) {
+          setSubmission(id, data);
+          setTimeout(() => mutate(SUBMISSION_TESTS_QUERY), 0);
+        }
+
+        if (err) {
+          console.log(err);
+          setError("Internal server error.", true);
+        }
+      }
+      catch (e) {
+        console.log(e);
+        setError("Network error.", true);
+      }
+      finally {
+        setLoading(false);
+      }
     };
 
     return (
-      <LoadingButton
-        onClick={() => submitProblem()}
-        loading={loading}
-        className="p-4 border-l border-neutral-300 dark:border-neutral-700 bg-green-500 dark:bg-green-600 hover:bg-green-400 dark:hover:bg-green-500 transition-colors text-white"
-      >
-        Submit
-      </LoadingButton>
+      <div>
+        {loading &&
+          <QueueStatus className="mr-4" queuePosition={queuePosition} />
+        }
+        <LoadingButton
+          onClick={() => submitProblem()}
+          loading={loading}
+          className="p-4 border-l border-neutral-300 dark:border-neutral-700 bg-green-500 dark:bg-green-600 hover:bg-green-400 dark:hover:bg-green-500 transition-colors text-white"
+        >
+          Submit
+        </LoadingButton>
+      </div>
     );
   }
 

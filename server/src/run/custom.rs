@@ -1,10 +1,18 @@
-use acm::models::{forms::RunnerCustomProblemInputForm, runner::RunnerError, test::TestResult};
-use axum::{Extension, Json};
+use acm::models::{runner::RunnerError};
+use axum::{async_trait, Extension, Json};
 use reqwest::Client;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::SqlitePool;
+use tokio::sync::broadcast;
 
-use crate::{auth::Claims, error::ServerError};
+use crate::{
+    auth::Claims,
+    error::{ServerError},
+    ws::BroadcastMessage,
+};
+
+use super::{add_job, JobMap, JobQueue, JobStatus, Queueable};
 
 #[derive(Deserialize)]
 pub struct CustomProblemInputForm {
@@ -15,12 +23,11 @@ pub struct CustomProblemInputForm {
 
 pub async fn custom(
     Json(form): Json<CustomProblemInputForm>,
-    Extension(ramiel_url): Extension<String>,
     Extension(pool): Extension<SqlitePool>,
+    Extension(job_queue): Extension<JobQueue>,
+    Extension(job_map): Extension<JobMap>,
     claims: Claims,
-) -> Result<Json<TestResult>, ServerError> {
-    let client = Client::new();
-
+) -> Result<Json<JobStatus>, ServerError> {
     let (runner, reference): (String, String) = sqlx::query_as(
         r#"
         SELECT
@@ -37,22 +44,54 @@ pub async fn custom(
     .await
     .map_err(|_| ServerError::NotFound)?;
 
-    let res = client
-        .post(&format!("{ramiel_url}/custom-input/c++"))
-        .json(&RunnerCustomProblemInputForm {
-            problem_id: form.problem_id,
-            runner,
-            user_id: claims.user_id,
-            implementation: form.implementation,
-            reference,
-            input: form.input,
-        })
-        .send()
-        .await
-        // TODO: Handle error
-        .unwrap();
+    let queue_item = Box::new(CustomInputJob {
+        problem_id: form.problem_id,
+        runner,
+        user_id: claims.user_id,
+        implementation: form.implementation,
+        reference,
+        input: form.input,
+    });
 
-    let result: Result<TestResult, RunnerError> = res.json().await.unwrap();
+    let job = add_job(claims.user_id, job_queue, job_map, queue_item).await?;
 
-    Ok(Json(result?))
+    Ok(Json(job))
+}
+
+#[derive(Serialize, Debug)]
+pub struct CustomInputJob {
+    pub problem_id: i64,
+    pub user_id: i64,
+    pub runner: String,
+    pub implementation: String,
+    pub reference: String,
+    pub input: String,
+}
+
+#[async_trait]
+impl Queueable for CustomInputJob {
+    async fn run(
+        &self,
+        ramiel_url: &str,
+        _pool: &SqlitePool,
+        _broadcast: &broadcast::Sender<BroadcastMessage>,
+    ) -> Result<Value, ServerError> {
+        let client = Client::new();
+        let res = client
+            .post(&format!("{ramiel_url}/custom-input/c++"))
+            .json(self)
+            .send()
+            .await
+            .map_err(|_| ServerError::InternalError)?;
+
+        let result: Result<Value, RunnerError> = res.json().await.unwrap();
+
+        let result = serde_json::to_value(result?).unwrap();
+
+        Ok(result)
+    }
+
+    fn info(&self) -> String {
+        format!("CustomInputJob submitted by user {}", self.user_id)
+    }
 }

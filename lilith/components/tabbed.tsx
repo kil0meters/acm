@@ -21,13 +21,13 @@ export default function Tabbed({
         {titles.map((title, index) => {
           let focused =
             index == focusedWindow
-              ? "bg-neutral-300 hover:bg-neutral-100"
-              : "bg-neutral-200 hover:bg-neutral-50";
+              ? "bg-neutral-300 hover:bg-neutral-100 dark:bg-neutral-700 dark:hover:bg-neutral-600 "
+              : "bg-neutral-200 hover:bg-neutral-50 dark:bg-neutral-800 dark:hover:bg-neutral-700 ";
 
           return (
             <button
               key={index}
-              className={`px-4 py-2 transition-colors dark:bg-neutral-800 dark:hover:bg-neutral-700 border-neutral-300 dark:border-neutral-700 border-r ${focused}`}
+              className={`px-4 py-2 transition-colors border-neutral-300 dark:border-neutral-700 border-r ${focused}`}
               onClick={() => setFocusedWindow(index)}
             >
               {title}

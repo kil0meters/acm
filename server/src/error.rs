@@ -4,9 +4,12 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
+use serde::{Serialize};
 use serde_json::json;
 use validator::ValidationErrors;
 
+#[derive(Clone, Serialize)]
+#[serde(tag = "type")]
 pub enum ServerError {
     Auth(AuthError),
     Validation(FormValidationError),
@@ -71,6 +74,7 @@ impl From<UserError> for ServerError {
     }
 }
 
+#[derive(Clone, Serialize)]
 pub enum UserError {
     NotFound(String),
     InternalError,
@@ -96,6 +100,7 @@ impl IntoResponse for UserError {
     }
 }
 
+#[derive(Clone, Serialize)]
 pub enum FormValidationError {
     InvalidField(String),
 }
@@ -116,6 +121,7 @@ impl IntoResponse for FormValidationError {
     }
 }
 
+#[derive(Clone, Serialize)]
 pub enum AuthError {
     WrongCredentials,
     TokenCreation,

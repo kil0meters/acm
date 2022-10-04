@@ -2,10 +2,12 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import shallow from "zustand/shallow";
 import { api_url } from "../../utils/fetcher";
+import { JobStatus, monitorJob } from "../../utils/job";
 import { useAdminStore, useSession, useStore } from "../../utils/state";
 import LoadingButton from "../loading-button";
 import { isRunnerError, isServerError, RunnerError, ServerError } from "../problem/submission/error";
 import { Test } from "../problem/submission/tests";
+import QueueStatus from "../queue-status";
 const Editor = dynamic(import("../../components/editor"), { ssr: false });
 
 function TestEditor({ index }: { index: number }): JSX.Element {
@@ -45,20 +47,21 @@ function TestEditor({ index }: { index: number }): JSX.Element {
 function TestsEditorList(): JSX.Element {
   // only rerender based on the length
   const testCount = useAdminStore((state) => state.problemTests.length);
-  const [ token, user_id ] = useStore((state) => [state.token, state.user!.id], shallow);
+  const [token, user_id] = useStore((state) => [state.token!, state.user!.id], shallow);
   const setError = useSession((state) => state.setError);
   const [pushTest, popTest, updateTest, setTests] = useAdminStore(
     (state) => [state.pushProblemTest, state.popProblemTest, state.updateProblemTest, state.setProblemTests],
     shallow
   );
   const [loading, setLoading] = useState(false);
+  const [queuePosition, setQueuePosition] = useState(0);
 
   const populateTests = async () => {
     setLoading(true);
     const { problemRunner: runner, problemReference: reference, problemTests: tests } = useAdminStore.getState();
 
     try {
-      const res: Test[] | RunnerError | ServerError = await (await fetch(api_url("/run/generate-tests"), {
+      const res = await fetch(api_url("/run/generate-tests"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -70,20 +73,27 @@ function TestsEditorList(): JSX.Element {
           user_id,
           inputs: tests.map((test) => test.input),
         })
-      })).json();
+      });
 
-      if (isRunnerError(res)) {
-        setError(res.message, true);
-      } else if (isServerError(res)) {
-        setError(res.error, true);
-      } else {
-        setTests(res);
+      let job: JobStatus<Test[], RunnerError | ServerError> = await res.json();
+      let [data, err] = await monitorJob(job, token, (n) => setQueuePosition(n));
+
+      if (data) {
+        setTests(data);
       }
 
-      setLoading(false);
+      if (err) {
+        if (isRunnerError(err)) {
+          setError(err.message, true);
+        } else {
+          setError(err.error, true);
+        };
+      }
     } catch (e) {
-      // TODO: Handle error
       console.log(e);
+      setError("Network error.", true);
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -117,6 +127,8 @@ function TestsEditorList(): JSX.Element {
           Populate
         </LoadingButton>
       </div>
+
+      {loading && <QueueStatus className="mx-auto" queuePosition={queuePosition} />}
     </div>
   );
 }

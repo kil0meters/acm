@@ -1,14 +1,20 @@
-//! The backend.
-
-use std::{net::SocketAddr, process::exit};
-use tokio::sync::broadcast;
+use std::{
+    collections::HashMap,
+    net::SocketAddr,
+    process::exit,
+    sync::{atomic::AtomicU64, Arc},
+};
+use tokio::sync::{broadcast, mpsc, RwLock};
 
 use axum::{routing::get, Extension, Router, Server};
 use clap::Parser;
 use sqlx::SqlitePool;
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
 
-use crate::ws::BroadcastMessage;
+use crate::{
+    run::{job_worker, JobQueueItem, JobStatus},
+    ws::BroadcastMessage,
+};
 
 mod auth;
 mod error;
@@ -21,6 +27,9 @@ mod user;
 mod ws;
 
 pub const MAX_TEST_LENGTH: usize = 500;
+
+pub static JOB_COUNTER: AtomicU64 = AtomicU64::new(0);
+pub static PROCESSING_JOB: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -48,12 +57,16 @@ struct Args {
 async fn main() {
     let args = Args::parse();
 
-    // A broadcast channel to update new submissions in real time.
-    let (tx, _) = broadcast::channel::<BroadcastMessage>(16);
-
     tracing_subscriber::fmt()
         .with_env_filter("info,tower_http=debug,sqlx=warn")
         .init();
+
+    // A broadcast channel to update new submissions in real time.
+    let (broadcast, _) = broadcast::channel::<BroadcastMessage>(16);
+
+    // A multi-producer, single-consumer channel for long-running jobs
+    let (job_queue, rx) = mpsc::channel::<(u64, JobQueueItem)>(10);
+    let queued_jobs = Arc::new(RwLock::new(HashMap::<u64, JobStatus>::new()));
 
     tracing::info!("Connecting to database at \"{}\"", args.database_url);
     let pool = match SqlitePool::connect(&args.database_url).await {
@@ -63,6 +76,16 @@ async fn main() {
             exit(1);
         }
     };
+
+    {
+        let ramiel_url = args.ramiel_url.clone();
+        let queued_jobs = queued_jobs.clone();
+        let broadcast = broadcast.clone();
+        let pool = pool.clone();
+        tokio::spawn(async move {
+            job_worker(rx, queued_jobs, ramiel_url, pool, broadcast).await;
+        });
+    }
 
     if let Err(e) = sqlx::migrate!("../migrations").run(&pool).await {
         log::error!("Migration error: {e:?}");
@@ -82,8 +105,10 @@ async fn main() {
         .nest("/meetings", meetings::routes())
         .route("/ws", get(ws::handler))
         .layer(Extension(args.ramiel_url))
+        .layer(Extension(queued_jobs))
         .layer(Extension(pool))
-        .layer(Extension(tx))
+        .layer(Extension(broadcast))
+        .layer(Extension(job_queue))
         .layer(TraceLayer::new_for_http())
         .layer(CorsLayer::very_permissive());
 

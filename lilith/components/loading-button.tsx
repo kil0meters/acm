@@ -33,7 +33,11 @@ export default function LoadingButton({
   });
 
   return (
-    <button onClick={onClick} className={className}>
+    <button onClick={() => {
+      if (!loading && onClick) {
+        onClick();
+      }
+    }} className={className}>
       <div className="relative">
         {spinnerStyles(
           (styles, item) =>
