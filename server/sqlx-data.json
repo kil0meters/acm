@@ -854,7 +854,7 @@
     },
     "query": "\n        INSERT INTO problems (\n            title,\n            description,\n            runner,\n            reference,\n            template,\n            activity_id\n        ) VALUES (?, ?, ?, ?, ?, ?)\n        RETURNING\n            id,\n            title,\n            description,\n            runner,\n            template\n        "
   },
-  "d356fb7fb621a005b9ab3e659bddecc27ac1cefbd5ca992db7916312146d9862": {
+  "d4a4a51bf986ce5fd502294229f838c2ae2503b7502bbbb46809714e14da5a61": {
     "describe": {
       "columns": [
         {
@@ -912,7 +912,7 @@
         "Right": 6
       }
     },
-    "query": "\n        INSERT INTO submissions (\n            problem_id,\n            user_id,\n            success,\n            runtime,\n            error,\n            code\n        )\n        VALUES (?, ?, ?, ?, ?, ?)\n        RETURNING *\n        "
+    "query": "\n            INSERT INTO submissions (\n                problem_id,\n                user_id,\n                success,\n                runtime,\n                error,\n                code\n            )\n            VALUES (?, ?, ?, ?, ?, ?)\n            RETURNING *\n            "
   },
   "ebec559dc453e6cc3ebc8b02d355a72827e530ee411233da8c7d30b43796f13d": {
     "describe": {
