@@ -8,3 +8,4 @@ styles.css
 node_modules
 package-lock.json
 .netlify
+session.yml
