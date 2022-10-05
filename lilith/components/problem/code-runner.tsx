@@ -86,7 +86,7 @@ export default function CodeRunner(): JSX.Element {
         <LoadingButton
           onClick={() => submitProblem()}
           loading={loading}
-          className="p-4 border-l border-neutral-300 dark:border-neutral-700 bg-green-500 dark:bg-green-600 hover:bg-green-400 dark:hover:bg-green-500 transition-colors text-white"
+          className="p-4 border-l h-full border-neutral-300 dark:border-neutral-700 bg-green-500 dark:bg-green-600 hover:bg-green-400 dark:hover:bg-green-500 transition-colors text-white"
         >
           Submit
         </LoadingButton>
@@ -95,7 +95,7 @@ export default function CodeRunner(): JSX.Element {
   }
 
   return (
-    <div className="sticky md:static bottom-0">
+    <div className="sticky md:static bottom-0 mt-auto">
       <Modal shown={settingsShown} onClose={() => setSettingsShown(false)}>
         <EditorPreferences />
       </Modal>
