@@ -68,7 +68,7 @@ export default function Editor({
       onChange(editor.getValue(), event);
     });
 
-     let vimMode: any = null;
+    let vimMode: any = null;
 
     if (vimEnabled) {
       vimMode = initVimMode(editor, statusBarRef.current);
@@ -92,7 +92,7 @@ export default function Editor({
   return (
     <div className="h-full grid grid-rows-full-min grid-cols-full">
       <div ref={editorRef} />
-      <div ref={statusBarRef} />
+      {vimEnabled && <div className="border-neutral-300 border-t" ref={statusBarRef} />}
     </div>
   );
 }
