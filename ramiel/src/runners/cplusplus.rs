@@ -5,7 +5,7 @@ use acm::models::{
 };
 use async_trait::async_trait;
 use futures::future::join_all;
-use std::{path::Path, time::Instant};
+use std::{path::Path};
 use tokio::{
     fs::{self, File},
     io::{AsyncReadExt, AsyncWriteExt},
@@ -139,7 +139,7 @@ async fn compile_problem(
 
     let output = Command::new("/opt/wasi-sdk/bin/clang++")
         .args([
-            "-O2",
+            "-O0",
             "-Wall",
             "-Wextra",
             "-Wpedantic",

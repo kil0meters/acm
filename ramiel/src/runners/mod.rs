@@ -5,12 +5,8 @@ use acm::models::{
 };
 use actix_web::rt::task;
 use async_trait::async_trait;
-use std::{collections::BTreeSet, process::Stdio};
-use tokio::{
-    io::{AsyncReadExt, AsyncWriteExt, BufReader},
-    process::Command,
-    time::{timeout, Duration, Instant},
-};
+use std::{collections::BTreeSet};
+
 use wasi_common::pipe::{ReadPipe, WritePipe};
 use wasmtime::{Config, Engine, Linker, Module, Store, StoreLimits, StoreLimitsBuilder};
 use wasmtime_wasi::{sync::WasiCtxBuilder, WasiCtx};
