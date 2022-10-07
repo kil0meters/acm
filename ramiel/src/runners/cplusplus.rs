@@ -153,7 +153,7 @@ async fn compile_problem(
         .await?;
 
     if !output.status.success() {
-        fs::remove_file(&wasm_filename).await.unwrap();
+        fs::remove_file(&wasm_filename).await.ok();
 
         return Err(parse_cplusplus_error(
             String::from_utf8_lossy(&output.stderr).to_string(),

@@ -1,0 +1,5 @@
+[cache]
+enabled = true
+directory = "/tmp/wasmtime-cache/"
+cleanup-interval = "1h"
+files-total-size-soft-limit = "200Mi"

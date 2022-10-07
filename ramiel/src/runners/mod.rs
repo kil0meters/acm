@@ -90,6 +90,9 @@ async fn run_command(command: &str, input: &str) -> Result<(String, u64), Runner
     task::spawn_blocking(move || {
         let mut config = Config::default();
         config.consume_fuel(true);
+        config
+            .cache_config_load("./wasmtime-cache.toml")
+            .expect("Failed to load cache configuration");
 
         let engine = Engine::new(&config).unwrap();
 
