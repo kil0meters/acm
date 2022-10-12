@@ -8,6 +8,8 @@ pub async fn history(
     Extension(pool): Extension<SqlitePool>,
     claims: Claims,
 ) -> Result<Json<Vec<Submission>>, ServerError> {
+    claims.validate_logged_in()?;
+
     let submissions = sqlx::query_as!(
         Submission,
         r#"

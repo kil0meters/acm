@@ -92,7 +92,7 @@ export default function Editor({
   return (
     <div className="h-full grid grid-rows-full-min grid-cols-full">
       <div ref={editorRef} />
-      {vimEnabled && <div className="border-neutral-300 border-t" ref={statusBarRef} />}
+      {vimEnabled && <div className="border-neutral-300 border-t font-mono" ref={statusBarRef} />}
     </div>
   );
 }

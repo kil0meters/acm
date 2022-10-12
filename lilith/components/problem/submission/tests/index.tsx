@@ -5,6 +5,8 @@ export interface Test {
   index: number;
   input: string;
   expected_output: string;
+  max_runtime?: number;
+  error?: string;
 }
 
 export interface TestResult extends Test {

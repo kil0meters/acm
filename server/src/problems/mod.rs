@@ -12,19 +12,19 @@ mod tests;
 
 #[derive(Serialize, Clone)]
 pub struct Problem {
-    id: i64,
+    pub id: i64,
 
     /// Problem title
-    title: String,
+    pub title: String,
 
     /// Problem description (markdown formatted)
-    description: String,
+    pub description: String,
 
     /// Code that parses standard input and outputs to standard out
-    runner: String,
+    pub runner: String,
 
     /// Template that's shown when you start a problem
-    template: String,
+    pub template: String,
 }
 
 pub fn routes() -> Router {

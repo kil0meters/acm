@@ -26,6 +26,8 @@ pub async fn submit(
     Extension(job_map): Extension<JobMap>,
     claims: Claims,
 ) -> Result<Json<JobStatus>, ServerError> {
+    claims.validate_logged_in()?;
+
     let runner = sqlx::query!(
         r#"SELECT runner FROM problems WHERE id = ?"#,
         form.problem_id
@@ -42,6 +44,7 @@ pub async fn submit(
             id,
             test_number as [index],
             input,
+            max_runtime,
             expected_output
         FROM
             tests
@@ -133,13 +136,15 @@ impl Queueable for SubmitJob {
                 test_id,
                 runtime,
                 output,
+                error,
                 success
-            ) VALUES (?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?)
             "#,
                 submission.id,
                 test.id,
                 test.runtime,
                 test.output,
+                test.error,
                 test.success,
             )
             .execute(&mut tx)

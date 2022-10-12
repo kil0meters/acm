@@ -88,12 +88,12 @@ const ProblemList: NextPage = () => {
 
       <div className="max-w-screen-md mx-auto my-4 flex flex-col gap-4">
         {isComponentMounted && (auth === "OFFICER" || auth === "ADMIN") && (
-            <Link href="/problems/new">
-              <a className="ml-auto text-green-50 text-sm font-bold rounded-full bg-green-700 hover:bg-green-500 transition-colors px-4 py-2 mr-4 md:mr-0">
-                New Problem
-              </a>
-            </Link>
-          )}
+          <Link href="/problems/new">
+            <a className="ml-auto text-green-50 text-sm font-bold rounded-full bg-green-700 hover:bg-green-500 transition-colors px-4 py-2 mr-4 md:mr-0">
+              New Problem
+            </a>
+          </Link>
+        )}
 
         {!data ? <ListLoading /> : <ListContent problems={data} />}
       </div>

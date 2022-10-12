@@ -26,7 +26,7 @@ export default function DescriptionEditor(): JSX.Element {
 
       {preview ? (
         <div
-          className="prose prose-neutral p-2 min-h-[40vh] dark:prose-invert"
+          className="prose prose-neutral p-2 min-h-[40vh] dark:prose-invert overflow-auto"
           dangerouslySetInnerHTML={{ __html: marked.parse(description) }}
         />
       ) : (

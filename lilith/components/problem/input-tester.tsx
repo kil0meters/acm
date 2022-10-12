@@ -6,7 +6,8 @@ import { useSession, useStore } from "../../utils/state";
 import LoadingButton from "../loading-button";
 import QueueStatus from "../queue-status";
 import ErrorDisplay, { isRunnerError, RunnerError } from "./submission/error";
-import TestResultInfo, { TestResult } from "./submission/test-result";
+import TestResultInfo from "./submission/test-result";
+import { TestResult } from "./submission/tests";
 
 export default function InputTester(): JSX.Element {
   const [loading, setLoading] = useState(false);

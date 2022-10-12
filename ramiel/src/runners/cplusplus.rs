@@ -53,10 +53,11 @@ impl Runner for CPlusPlus {
         let mut outputs = Vec::new();
         let mut i = 0;
         for input in form.inputs.into_iter() {
-            let (output, _fuel) = run_command(&command, &input).await?;
+            let (output, fuel) = run_command(&command, &input, None).await?;
             outputs.push(Test {
                 id: 0,
                 index: i,
+                max_runtime: Some(((fuel as f64) * form.runtime_multiplier) as i64),
                 input,
                 expected_output: output,
             });
@@ -85,13 +86,14 @@ impl Runner for CPlusPlus {
         let implementation_command =
             compile_problem(&implementation_prefix, &form.implementation, &form.runner).await?;
 
-        let (expected_output, _fuel) = run_command(&reference_command, &form.input).await?;
+        let (expected_output, fuel) = run_command(&reference_command, &form.input, None).await?;
 
         let test = Test {
             id: 0,
             index: 0,
             input: form.input,
             expected_output,
+            max_runtime: Some(((fuel as f64) * form.runtime_multiplier) as i64),
         };
 
         run_test_timed(&implementation_command, test).await

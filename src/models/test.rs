@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-
 #[derive(Deserialize, Debug, Default, Serialize, Clone, PartialEq)]
 pub struct Test {
     #[serde(default)]
     pub id: i64,
     pub index: i64,
     pub input: String,
+    pub max_runtime: Option<i64>,
     pub expected_output: String,
 }
 
@@ -19,7 +19,23 @@ impl Test {
             input: self.input,
             expected_output: self.expected_output,
             output,
+            error: None,
+            max_runtime: self.max_runtime,
             runtime: fuel as i64,
+        }
+    }
+
+    pub fn make_result_error(self, error: String, runtime: i64) -> TestResult {
+        TestResult {
+            id: self.id,
+            index: self.index,
+            success: false,
+            input: self.input,
+            expected_output: self.expected_output,
+            output: String::new(),
+            error: Some(error),
+            max_runtime: self.max_runtime,
+            runtime,
         }
     }
 
@@ -46,6 +62,8 @@ pub struct TestResult {
     pub expected_output: String,
     pub output: String,
     pub runtime: i64,
+    pub error: Option<String>,
+    pub max_runtime: Option<i64>,
 }
 
 impl TestResult {

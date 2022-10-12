@@ -1,8 +1,21 @@
 import create from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, StateStorage } from "zustand/middleware";
 import produce from "immer";
 import { Test } from "../components/problem/submission/tests";
 import { Activity } from "../pages/meetings/new";
+import { get, set, del } from 'idb-keyval';
+
+const idb: StateStorage = {
+  getItem: async (name: string): Promise<string | null> => {
+    return (await get(name)) || null
+  },
+  setItem: async (name: string, value: string): Promise<void> => {
+    await set(name, value)
+  },
+  removeItem: async (name: string): Promise<void> => {
+    await del(name)
+  },
+}
 
 type EditorThemeType = "light" | "dark" | "system";
 
@@ -90,7 +103,7 @@ export const useStore = create<Store>()(
     }),
     {
       name: "data",
-      getStorage: () => localStorage,
+      getStorage: () => idb,
     }
   )
 );
@@ -142,16 +155,20 @@ export interface AdminState {
   problemRunner: string;
   problemReference: string;
   problemTemplate: string;
+  problemPublishTime?: string;
   problemTests: Test[];
+  problemDateShown: boolean;
+  problemRuntimeMultiplier: number;
 
   setProblemTitle: (title: string) => void;
   setProblemDescription: (description: string) => void;
   setProblemRunner: (runner: string) => void;
   setProlbemReference: (reference: string) => void;
   setProblemTemplate: (template: string) => void;
+  setProblemDateShown: (shown: boolean) => void;
 
   updateProblemTest: (index: number, test: Partial<Test>) => void;
-  pushProblemTest: () => void;
+  pushProblemTest: (test?: Test) => void;
   popProblemTest: () => void;
   setProblemTests: (tests: Test[]) => void;
 
@@ -161,6 +178,9 @@ export interface AdminState {
   meetingDescription: string;
   meetingTime: string;
   meetingActivities: Activity[];
+
+  setProblemPublishTime: (time?: string) => void;
+  setProblemRuntimeMultiplier: (multiplier: number) => void;
 
   setMeetingTitle: (title: string) => void;
   setMeetingDescription: (description: string) => void;
@@ -180,6 +200,8 @@ export const useAdminStore = create<AdminState>()(
       problemReference: "",
       problemTemplate: "",
       problemTests: [],
+      problemRuntimeMultiplier: 1.1,
+      problemDateShown: false,
 
       meetingTitle: "",
       meetingDescription: "",
@@ -221,6 +243,13 @@ export const useAdminStore = create<AdminState>()(
           })
         ),
 
+      setProblemDateShown: (shown: boolean) =>
+        set(
+          produce((state: AdminState) => {
+            state.problemDateShown = shown;
+          })
+        ),
+
       // assumes test index is valid. should always be the case.
       updateProblemTest: (index: number, test: Partial<Test>) =>
         set(
@@ -232,14 +261,15 @@ export const useAdminStore = create<AdminState>()(
           })
         ),
 
-      pushProblemTest: () =>
+      pushProblemTest: (test?: Test) =>
         set(
           produce((state: AdminState) => {
-            state.problemTests.push({
+            state.problemTests.push(test ?? {
               id: 0,
               index: state.problemTests.length,
               input: "",
               expected_output: "",
+              max_runtime: 0,
             });
           })
         ),
@@ -248,6 +278,13 @@ export const useAdminStore = create<AdminState>()(
         set(
           produce((state: AdminState) => {
             state.problemTests.pop();
+          })
+        ),
+
+      setProblemPublishTime: (time?: string) =>
+        set(
+          produce((state: AdminState) => {
+            state.problemPublishTime = time;
           })
         ),
 
@@ -320,10 +357,18 @@ export const useAdminStore = create<AdminState>()(
           })
         ),
 
+
+      setProblemRuntimeMultiplier: (multiplier: number) =>
+        set(
+          produce((state: AdminState) => {
+            state.problemRuntimeMultiplier = multiplier;
+          })
+        )
+
     }),
     {
       name: "admin_data",
-      getStorage: () => localStorage,
+      getStorage: () => idb,
     }
   )
 );

@@ -15,8 +15,11 @@ function LoadingTest(): JSX.Element {
   );
 }
 
-function TestEntry({ index, input, expected_output }: Test): JSX.Element {
+function TestEntry({ index, input, expected_output, max_runtime }: Test): JSX.Element {
   const [shown, setShown] = useState(false);
+
+  let compact = Intl.NumberFormat('en', { notation: "compact" }).format(max_runtime!);
+  let long = Intl.NumberFormat('en', { notation: "standard" }).format(max_runtime!);
 
   return (
     <>
@@ -32,6 +35,10 @@ function TestEntry({ index, input, expected_output }: Test): JSX.Element {
           <h2 className="text-2xl">
             Test #{index}
           </h2>
+
+          {!max_runtime || <div>
+            <span>Max Fuel: </span><span title={long}>{compact}</span>
+          </div>}
 
           <label>Input</label>
 
@@ -105,13 +112,13 @@ export default function TestEntries(): JSX.Element {
           // gotta love double nested ternaries
           !data
             ? Array(5)
-                .fill(0)
-                .map((_, i) => <LoadingTest key={i} />)
+              .fill(0)
+              .map((_, i) => <LoadingTest key={i} />)
             : submissionId
-            ? (data as TestResult[]).map((test, i) => (
+              ? (data as TestResult[]).map((test, i) => (
                 <TestResultEntry key={i} {...test} />
               ))
-            : data.map((test, i) => <TestEntry key={i} {...test} />)
+              : data.map((test, i) => <TestEntry key={i} {...test} />)
         }
       </div>
     </div>

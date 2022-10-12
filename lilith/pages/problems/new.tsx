@@ -43,7 +43,7 @@ function TemplateEditor(): JSX.Element {
 }
 
 function TitleEditor(): JSX.Element {
-  const [ title, setTitle ] = useAdminStore((state) => [state.problemTitle, state.setProblemTitle], shallow);
+  const [title, setTitle] = useAdminStore((state) => [state.problemTitle, state.setProblemTitle], shallow);
 
   return (
     <div className="border-b lg:border-0 bg-white dark:bg-black border-neutral-300 dark:border-neutral-700 flex flex-col gap-2 p-2">
@@ -54,6 +54,38 @@ function TitleEditor(): JSX.Element {
         value={title}
         placeholder="Title"
       />
+    </div>
+  );
+}
+
+function Scheduler(): JSX.Element {
+  const [dateShown, setDateShown] = useAdminStore((state) => [state.problemDateShown, state.setProblemDateShown]);
+  const [publishTime, setPublishTime] = useAdminStore((state) => [state.problemPublishTime, state.setProblemPublishTime]);
+
+  function toggleDateShown() {
+    if (dateShown) {
+      setPublishTime(undefined);
+    }
+
+    setDateShown(!dateShown);
+  }
+
+  let time = publishTime ? new Date(publishTime) : new Date();
+  time.setMinutes(time.getMinutes() - time.getTimezoneOffset());
+  let formattedTime = time.toISOString().substring(0, 16);
+
+  return (
+    <div className="ml-4 flex gap-4 items-center">
+      <label>Custom publish time: </label>
+      <input type="checkbox" defaultChecked={dateShown} onChange={toggleDateShown} />
+      {dateShown && <input
+        className="border-neutral-300 dark:border-neutral-700 border rounded p-2 bg-neutral-50 dark:bg-neutral-900 outline-0 transition-shadow focus:ring dark:ring-neutral-700 ring-neutral-300"
+        type="datetime-local"
+        value={formattedTime}
+        onChange={(e) => {
+          setPublishTime(e.target.value);
+        }}
+      />}
     </div>
   );
 }
@@ -73,7 +105,9 @@ function SubmitButton(): JSX.Element {
       problemRunner: runner,
       problemReference: reference,
       problemTemplate: template,
-      problemTests: tests
+      problemTests: tests,
+      problemPublishTime: publish_time,
+      problemRuntimeMultiplier: runtime_multiplier
     } = useAdminStore.getState();
 
     // TODO: Look into zod validator
@@ -96,7 +130,9 @@ function SubmitButton(): JSX.Element {
           runner,
           reference,
           template,
-          tests
+          tests,
+          publish_time: publish_time ? new Date(publish_time).toISOString().slice(0, -1) : undefined,
+          runtime_multiplier
           // activity_id
         }),
       })).json();
@@ -116,7 +152,7 @@ function SubmitButton(): JSX.Element {
 
   return (
     <LoadingButton
-      className="lg:ml-auto rounded-full px-4 py-2 bg-green-600 hover:bg-green-500 text-green-50 transition-colors mx-2 mb-8 lg:m-0 lg:rounded-none lg:h-full"
+      className="lg:ml-auto rounded-full p-4 bg-green-600 hover:bg-green-500 text-green-50 transition-colors mx-2 mb-8 lg:m-0 lg:rounded-none lg:h-full"
       onClick={submitProblem}
       loading={loading}
     >
@@ -146,6 +182,7 @@ const ProblemList: NextPage = () => {
         </Tabbed>
 
         <div className="border-t border-neutral-300 dark:border-neutral-700 flex flex-col items-center gap-2 lg:bg-white dark:lg:bg-black lg:flex-row">
+          <Scheduler />
           <SubmitButton />
         </div>
       </div>

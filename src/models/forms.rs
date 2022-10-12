@@ -17,6 +17,7 @@ pub struct GenerateTestsForm {
     pub runner: String,
     pub reference: String,
     pub user_id: i64,
+    pub runtime_multiplier: f64,
     pub inputs: Vec<String>,
 }
 
@@ -27,6 +28,7 @@ pub struct RunnerCustomProblemInputForm {
     pub user_id: i64,
     pub runner: String,
     pub implementation: String,
+    pub runtime_multiplier: f64,
     pub reference: String,
     pub input: String,
 }

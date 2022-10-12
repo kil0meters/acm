@@ -61,6 +61,7 @@ pub enum Auth {
     ADMIN,
     OFFICER,
     MEMBER,
+    LOGGED_OUT,
 }
 
 impl Default for Auth {
@@ -80,7 +81,14 @@ impl Claims {
     pub fn validate_officer(&self) -> Result<(), ServerError> {
         match self.auth {
             Auth::ADMIN | Auth::OFFICER => Ok(()),
-            Auth::MEMBER => Err(AuthError::WrongCredentials.into()),
+            Auth::MEMBER | Auth::LOGGED_OUT => Err(AuthError::WrongCredentials.into()),
+        }
+    }
+
+    pub fn validate_logged_in(&self) -> Result<(), ServerError> {
+        match self.auth {
+            Auth::LOGGED_OUT => Err(AuthError::WrongCredentials.into()),
+            _ => Ok(()),
         }
     }
 }
@@ -94,13 +102,17 @@ where
 
     async fn from_request(req: &mut RequestParts<B>) -> Result<Self, Self::Rejection> {
         // Extract the token from the authorization header
-        let TypedHeader(Authorization(bearer)) =
-            TypedHeader::<Authorization<Bearer>>::from_request(req)
-                .await
-                .map_err(|e| {
-                    log::error!("{e}");
-                    AuthError::InvalidToken
-                })?;
+        let bearer = match TypedHeader::<Authorization<Bearer>>::from_request(req).await {
+            Ok(TypedHeader(Authorization(bearer))) => bearer,
+            Err(_) => {
+                return Ok(Claims {
+                    user_id: -1,
+                    auth: Auth::LOGGED_OUT,
+                    exp: 0,
+                })
+            }
+        };
+
         // Decode the user data
         let token_data =
             jsonwebtoken::decode::<Claims>(bearer.token(), &KEYS.decoding, &Validation::default())

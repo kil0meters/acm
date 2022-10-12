@@ -95,6 +95,8 @@ pub async fn check_job(
     Extension(job_map): Extension<JobMap>,
     claims: Claims,
 ) -> Result<Json<JobStatus>, ServerError> {
+    claims.validate_logged_in()?;
+
     if let Some(job) = job_map.read().await.get(&id) {
         if job.user_id == claims.user_id {
             let processing_job = PROCESSING_JOB.load(Ordering::SeqCst);

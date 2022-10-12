@@ -11,11 +11,15 @@ import QueueStatus from "../queue-status";
 const Editor = dynamic(import("../../components/editor"), { ssr: false });
 
 function TestEditor({ index }: { index: number }): JSX.Element {
-  const input = useAdminStore((state) => state.problemTests[index]?.input);
-  const expectedOutput = useAdminStore(
-    (state) => state.problemTests[index]?.expected_output
-  );
+  const [input, expectedOutput, max_runtime] = useAdminStore((state) => [
+    state.problemTests[index]?.input,
+    state.problemTests[index]?.expected_output,
+    state.problemTests[index]?.max_runtime
+  ]);
   const updateTest = useAdminStore((state) => state.updateProblemTest);
+
+  let compact = Intl.NumberFormat('en', { notation: "compact" }).format(max_runtime!);
+  let long = Intl.NumberFormat('en', { notation: "standard" }).format(max_runtime!);
 
   return (
     <div className="grid grid-cols-2 gap-2">
@@ -40,7 +44,67 @@ function TestEditor({ index }: { index: number }): JSX.Element {
           value={expectedOutput}
         />
       </div>
+
+      {!max_runtime || <div>
+        <span>Max Fuel: </span><span title={long}>{compact}</span>
+      </div>}
     </div>
+  );
+}
+
+function AdvancedSettings(): JSX.Element {
+  let [runtimeMultiplier, setRuntimeMultiplier] = useAdminStore((state) => [state.problemRuntimeMultiplier, state.setProblemRuntimeMultiplier]);
+
+  // const [pushTest, popTest, updateTest, setTests] = useAdminStore(
+  //   (state) => [state.pushProblemTest, state.popProblemTest, state.updateProblemTest, state.setProblemTests],
+  //   shallow
+  // );
+
+  const state = useAdminStore.getState();
+  let testIndex = state.problemTests.length;
+  let pushTest = state.pushProblemTest;
+
+  return (
+    <details className="open:bg-blue">
+      <summary className="font-bold text-xl cursor-pointer select-none">Advanced</summary>
+      <div className="grid grid-cols-[1fr_min-content] gap-2">
+        <label>Runtime Multiplier</label>
+
+        <div className="flex gap-2 align-end">
+          <output className="self-center">{
+            Intl.NumberFormat('en-US', {
+              minimumFractionDigits: 1
+            }).format(runtimeMultiplier)
+          }</output>
+          <input
+            type="range"
+            min="1"
+            max="5"
+            step="0.1"
+            defaultValue={runtimeMultiplier}
+            onInput={(e) => setRuntimeMultiplier(parseFloat((e.target as HTMLInputElement).value))}
+          />
+        </div>
+
+        <label>Import tests</label>
+
+        <input type="file" multiple onInput={async (e) => {
+          let input = e.target as HTMLInputElement;
+
+          for (let file of input.files!) {
+            pushTest({
+              id: 0,
+              index: testIndex++,
+              input: await file.text(),
+              expected_output: "",
+              max_runtime: 0,
+            })
+          }
+
+          input.value = "";
+        }} />
+      </div>
+    </details>
   );
 }
 
@@ -58,7 +122,12 @@ function TestsEditorList(): JSX.Element {
 
   const populateTests = async () => {
     setLoading(true);
-    const { problemRunner: runner, problemReference: reference, problemTests: tests } = useAdminStore.getState();
+    const {
+      problemRunner: runner,
+      problemReference: reference,
+      problemTests: tests,
+      problemRuntimeMultiplier: runtime_multiplier
+    } = useAdminStore.getState();
 
     try {
       const res = await fetch(api_url("/run/generate-tests"), {
@@ -71,6 +140,7 @@ function TestsEditorList(): JSX.Element {
           runner,
           reference,
           user_id,
+          runtime_multiplier,
           inputs: tests.map((test) => test.input),
         })
       });
@@ -109,7 +179,7 @@ function TestsEditorList(): JSX.Element {
       <div className="grid grid-cols-3 gap-1 mx-auto max-w-sm w-full">
         <button
           className="py-2 rounded-l-full bg-blue-600 hover:bg-blue-500 text-blue-50 transition-colors text-sm whitespace-nowrap"
-          onClick={pushTest}
+          onClick={() => { pushTest() }}
         >
           Add
         </button>
@@ -129,6 +199,8 @@ function TestsEditorList(): JSX.Element {
       </div>
 
       {loading && <QueueStatus className="mx-auto" queuePosition={queuePosition} />}
+
+      <AdvancedSettings />
     </div>
   );
 }

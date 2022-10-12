@@ -1,5 +1,6 @@
 use acm::models::test::Test;
 use axum::{Extension, Json};
+use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use tokio::sync::broadcast::Sender;
@@ -16,6 +17,7 @@ pub struct NewForm {
     template: String,
     tests: Vec<Test>,
     activity_id: Option<i64>,
+    publish_time: Option<NaiveDateTime>,
 }
 
 #[derive(Serialize)]
@@ -33,6 +35,8 @@ pub async fn new(
 
     let mut tx = pool.begin().await.map_err(|_| ServerError::InternalError)?;
 
+    let visible = form.publish_time.is_none();
+
     let problem = sqlx::query_as!(
         Problem,
         r#"
@@ -42,8 +46,10 @@ pub async fn new(
             runner,
             reference,
             template,
-            activity_id
-        ) VALUES (?, ?, ?, ?, ?, ?)
+            activity_id,
+            visible,
+            publish_time
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING
             id,
             title,
@@ -56,11 +62,16 @@ pub async fn new(
         form.runner,
         form.reference,
         form.template,
-        form.activity_id
+        form.activity_id,
+        visible,
+        form.publish_time
     )
     .fetch_one(&mut tx)
     .await
-    .map_err(|_| ServerError::InternalError)?;
+    .map_err(|e| {
+        log::error!("{e}");
+        ServerError::InternalError
+    })?;
 
     for test in &form.tests {
         sqlx::query!(
@@ -69,24 +80,35 @@ pub async fn new(
                 problem_id,
                 test_number,
                 input,
-                expected_output
+                expected_output,
+                max_runtime
             )
-            VALUES (?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?)
             "#,
             problem.id,
             test.index,
             test.input,
-            test.expected_output
+            test.expected_output,
+            test.max_runtime
         )
         .execute(&mut tx)
         .await
-        .map_err(|_| ServerError::InternalError)?;
+        .map_err(|e| {
+            log::error!("{e}");
+            ServerError::InternalError
+        })?;
     }
 
-    broadcast
-        .send(BroadcastMessage::NewProblem(problem.clone()))
-        .ok();
+    // We only immediately broadcast that there's a new problem if its set to publish immediately
+    if form.publish_time.is_none() {
+        broadcast
+            .send(BroadcastMessage::NewProblem(problem.clone()))
+            .ok();
+    }
 
-    tx.commit().await.map_err(|_| ServerError::InternalError)?;
+    tx.commit().await.map_err(|e| {
+        log::error!("{e}");
+        ServerError::InternalError
+    })?;
     Ok(Json(NewBody { id: problem.id }))
 }

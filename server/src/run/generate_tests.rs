@@ -28,6 +28,7 @@ pub struct GenerateTestsJob {
     pub runner: String,
     pub reference: String,
     pub user_id: i64,
+    pub runtime_multiplier: f64,
     pub inputs: Vec<String>,
 }
 

@@ -73,14 +73,25 @@ struct MyState {
 /// Runs a command with a specified input, returning a RuntimeError if the process returns an
 /// error, otherwise returns the output and the duration
 async fn run_test_timed(command: &str, test: Test) -> Result<TestResult, RunnerError> {
-    let (output, fuel) = run_command(command, &test.input).await?;
-    Ok(test.make_result(output, fuel))
+    let max_runtime = test.max_runtime;
+
+    match run_command(command, &test.input, max_runtime).await {
+        Ok((output, fuel)) => Ok(test.make_result(output, fuel)),
+        Err(RunnerError::RuntimeError { message }) => {
+            Ok(test.make_result_error(message, max_runtime.unwrap_or(MAX_FUEL)))
+        }
+        Err(e) => Err(e),
+    }
 }
 
 const MAX_MEMORY: usize = 1 << 26; // 64MB
-const MAX_FUEL: u64 = 1 << 32;
+const MAX_FUEL: i64 = 1 << 32;
 
-async fn run_command(command: &str, input: &str) -> Result<(String, u64), RunnerError> {
+async fn run_command(
+    command: &str,
+    input: &str,
+    fuel: Option<i64>,
+) -> Result<(String, u64), RunnerError> {
     let command = command.to_string();
     let input = input.to_string();
     task::spawn_blocking(move || {
@@ -116,7 +127,9 @@ async fn run_command(command: &str, input: &str) -> Result<(String, u64), Runner
             },
         );
 
-        store.add_fuel(MAX_FUEL).expect("Failed to add fuel");
+        store
+            .add_fuel(fuel.unwrap_or(MAX_FUEL) as u64)
+            .expect("Failed to add fuel");
         store.limiter(|state| &mut state.limits);
 
         // Instantiate our module with the imports we've created, and run it.

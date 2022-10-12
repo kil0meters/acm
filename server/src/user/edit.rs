@@ -24,6 +24,8 @@ pub async fn edit(
     Extension(pool): Extension<SqlitePool>,
     claims: Claims,
 ) -> Result<Json<User>, ServerError> {
+    claims.validate_logged_in()?;
+
     if claims.auth != Auth::ADMIN {
         if claims.user_id != user_id {
             return Err(AuthError::Unauthorized.into());

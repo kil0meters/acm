@@ -14,6 +14,7 @@ pub async fn tests(
         SELECT
             id,
             test_number as [index],
+            max_runtime,
             input,
             expected_output
         FROM

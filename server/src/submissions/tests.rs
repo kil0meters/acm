@@ -16,6 +16,8 @@ pub async fn tests(
             test_results.success as success,
             test_results.output as output,
             test_results.runtime as runtime,
+            test_results.error as error,
+            tests.max_runtime as max_runtime,
             tests.input as input,
             tests.expected_output as expected_output,
             tests.test_number as [index]

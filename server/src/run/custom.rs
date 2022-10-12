@@ -1,4 +1,4 @@
-use acm::models::{runner::RunnerError};
+use acm::models::runner::RunnerError;
 use axum::{async_trait, Extension, Json};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -6,11 +6,7 @@ use serde_json::Value;
 use sqlx::SqlitePool;
 use tokio::sync::broadcast;
 
-use crate::{
-    auth::Claims,
-    error::{ServerError},
-    ws::BroadcastMessage,
-};
+use crate::{auth::Claims, error::ServerError, ws::BroadcastMessage};
 
 use super::{add_job, JobMap, JobQueue, JobStatus, Queueable};
 
@@ -28,11 +24,14 @@ pub async fn custom(
     Extension(job_map): Extension<JobMap>,
     claims: Claims,
 ) -> Result<Json<JobStatus>, ServerError> {
-    let (runner, reference): (String, String) = sqlx::query_as(
+    claims.validate_logged_in();
+
+    let (runner, reference, runtime_multiplier): (String, String, f64) = sqlx::query_as(
         r#"
         SELECT
             runner,
-            reference
+            reference,
+            runtime_multiplier
         FROM
             problems
         WHERE
@@ -49,6 +48,7 @@ pub async fn custom(
         runner,
         user_id: claims.user_id,
         implementation: form.implementation,
+        runtime_multiplier,
         reference,
         input: form.input,
     });
@@ -64,6 +64,7 @@ pub struct CustomInputJob {
     pub user_id: i64,
     pub runner: String,
     pub implementation: String,
+    pub runtime_multiplier: f64,
     pub reference: String,
     pub input: String,
 }

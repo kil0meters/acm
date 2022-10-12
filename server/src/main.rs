@@ -3,6 +3,7 @@ use std::{
     net::SocketAddr,
     process::exit,
     sync::{atomic::AtomicU64, Arc},
+    time::Duration,
 };
 use tokio::sync::{broadcast, mpsc, RwLock};
 
@@ -12,6 +13,7 @@ use sqlx::SqlitePool;
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
 
 use crate::{
+    problems::Problem,
     run::{job_worker, JobQueueItem, JobStatus},
     ws::BroadcastMessage,
 };
@@ -77,6 +79,7 @@ async fn main() {
         }
     };
 
+    // Spawn job queue thread
     {
         let ramiel_url = args.ramiel_url.clone();
         let queued_jobs = queued_jobs.clone();
@@ -84,6 +87,57 @@ async fn main() {
         let pool = pool.clone();
         tokio::spawn(async move {
             job_worker(rx, queued_jobs, ramiel_url, pool, broadcast).await;
+        });
+    }
+
+    // Spawn problem publish notification thread
+    {
+        let pool = pool.clone();
+        let broadcast = broadcast.clone();
+        tokio::spawn(async move {
+            loop {
+                log::info!("Checking for problems to be made visible");
+
+                let rows = sqlx::query_as!(
+                    Problem,
+                    r#"
+                    SELECT
+                        id,
+                        title,
+                        description,
+                        runner,
+                        template
+                    FROM
+                        problems
+                    WHERE
+                        visible = false AND publish_time < datetime('now')
+                "#
+                )
+                .fetch_all(&pool)
+                .await
+                .unwrap();
+
+                for problem in rows {
+                    sqlx::query!(
+                        r#"
+                    UPDATE
+                        problems
+                    SET
+                        visible = true
+                    WHERE
+                        id = ?
+                    "#,
+                        problem.id
+                    )
+                    .execute(&pool)
+                    .await
+                    .unwrap();
+
+                    broadcast.send(BroadcastMessage::NewProblem(problem)).ok();
+                }
+
+                tokio::time::sleep(Duration::new(30, 0)).await;
+            }
         });
     }
 
