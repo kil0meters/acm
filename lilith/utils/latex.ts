@@ -11,6 +11,7 @@ export default function renderLatex(element: HTMLElement) {
       { left: '\\[', right: '\\]', display: true }
     ],
     // • rendering keys, e.g.:
-    throwOnError: false
+    throwOnError: false,
+    output: 'html'
   })
 }
