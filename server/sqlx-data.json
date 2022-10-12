@@ -1,5 +1,57 @@
 {
   "db": "SQLite",
+  "00210975a618032c37efcd92225e5f18af8e558bf351e179b3e08dbc2304df60": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n                    UPDATE\n                        problems\n                    SET\n                        visible = true\n                    WHERE\n                        id = ?\n                    "
+  },
+  "0265e8005e4850f5251130b8f6f6c9d7b4ca93fd44b21dd7720c2f54ca335e0e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "index",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "input",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "max_runtime",
+          "ordinal": 3,
+          "type_info": "Int64"
+        },
+        {
+          "name": "expected_output",
+          "ordinal": 4,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n        SELECT\n            id,\n            test_number as [index],\n            input,\n            max_runtime,\n            expected_output\n        FROM\n            tests\n        WHERE\n            problem_id = ?"
+  },
   "06911aa537434d8fab530d4d892ed2247361809599caf79d202673452dab6c4f": {
     "describe": {
       "columns": [
@@ -95,6 +147,48 @@
       }
     },
     "query": "\n        SELECT\n            id,\n            title,\n            description,\n            meeting_time\n        FROM\n            meetings\n        WHERE\n            DATETIME('now', 'localtime', 'start of day') < DATETIME(meeting_time)\n        ORDER BY\n            DATETIME(meeting_time) ASC\n        "
+  },
+  "33cfaee2d6aa7983511793222a79db8f5977823b017653ce5e109b8cf8460dc1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "runner",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "template",
+          "ordinal": 4,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n                    SELECT\n                        id,\n                        title,\n                        description,\n                        runner,\n                        template\n                    FROM\n                        problems\n                    WHERE\n                        visible = false AND publish_time < datetime('now')\n                "
   },
   "36134f703742d406d8ce147bfd3e7a31804b3b50681085fb04c4c6d5973b8b43": {
     "describe": {
@@ -197,16 +291,6 @@
       }
     },
     "query": "\n        SELECT\n            id,\n            name,\n            username,\n            discord_id,\n            auth as \"auth: Auth\"\n        FROM\n            users\n        WHERE\n            username = ?\n        "
-  },
-  "4614633a302d018dea97f5e15da77a0f0b8f8d9ce60167a603179763ac044430": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 5
-      }
-    },
-    "query": "\n            INSERT INTO test_results (\n                submission_id,\n                test_id,\n                runtime,\n                output,\n                success\n            ) VALUES (?, ?, ?, ?, ?)\n            "
   },
   "497a2f24e15bc3a6a7ab195bc2cd0fa402b5d2cc6af2cee5d90bf3b4131d3f68": {
     "describe": {
@@ -514,57 +598,15 @@
     },
     "query": "\n        SELECT\n            id,\n            name,\n            username,\n            discord_id,\n            auth as \"auth: Auth\"\n        FROM\n            users\n        WHERE discord_id = ?\n        "
   },
-  "674426a416b85f6187aa41689f32cf9f4e43627657725229e15b72a162e1d310": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "title",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "description",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "runner",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "template",
-          "ordinal": 4,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "\n        SELECT\n            id,\n            title,\n            description,\n            runner,\n            template\n        FROM\n            problems\n        ORDER BY\n            update_dt DESC\n        "
-  },
-  "6c9335f85bcce48b4ebd59fcf45ffe8a70161faf632786ffb3042b2a402d82cf": {
+  "5e928121e8bc59da4e6dd18fb47b50ba6b25caad943b044380c7713343f54425": {
     "describe": {
       "columns": [],
       "nullable": [],
       "parameters": {
-        "Right": 4
+        "Right": 5
       }
     },
-    "query": "\n            INSERT INTO tests (\n                problem_id,\n                test_number,\n                input,\n                expected_output\n            )\n            VALUES (?, ?, ?, ?)\n            "
+    "query": "\n            INSERT INTO tests (\n                problem_id,\n                test_number,\n                input,\n                expected_output,\n                max_runtime\n            )\n            VALUES (?, ?, ?, ?, ?)\n            "
   },
   "73a9f0421bb76eca718c087fe20d8c7f30ece15c882f1462086c33602d10fc55": {
     "describe": {
@@ -644,7 +686,59 @@
     },
     "query": "\n        SELECT\n            id,\n            name,\n            username,\n            discord_id,\n            auth as \"auth: Auth\"\n        FROM\n            users\n        WHERE\n            id = ?\n        "
   },
-  "7e83f53ae7384d200da06ccf4b953f7f672417c502f674b822ebe4c2bd8ccca3": {
+  "85a821089dfccfe0b3018c5aa1705da7d02998e26af29a91f241893daf8694f3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "runner",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "template",
+          "ordinal": 4,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 8
+      }
+    },
+    "query": "\n        INSERT INTO problems (\n            title,\n            description,\n            runner,\n            reference,\n            template,\n            activity_id,\n            visible,\n            publish_time\n        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)\n        RETURNING\n            id,\n            title,\n            description,\n            runner,\n            template\n        "
+  },
+  "8977d8067449874d9522799438f0dfb62c417fe0be5ac0407a6c691861067216": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 6
+      }
+    },
+    "query": "\n            INSERT INTO test_results (\n                submission_id,\n                test_id,\n                runtime,\n                output,\n                error,\n                success\n            ) VALUES (?, ?, ?, ?, ?, ?)\n            "
+  },
+  "8a244773747c4197dc398db91ca44aad074a2769e7e01d27603bb67196d9ab9b": {
     "describe": {
       "columns": [
         {
@@ -668,18 +762,28 @@
           "type_info": "Int64"
         },
         {
-          "name": "input",
+          "name": "error",
           "ordinal": 4,
           "type_info": "Text"
         },
         {
-          "name": "expected_output",
+          "name": "max_runtime",
           "ordinal": 5,
+          "type_info": "Int64"
+        },
+        {
+          "name": "input",
+          "ordinal": 6,
+          "type_info": "Text"
+        },
+        {
+          "name": "expected_output",
+          "ordinal": 7,
           "type_info": "Text"
         },
         {
           "name": "index",
-          "ordinal": 6,
+          "ordinal": 8,
           "type_info": "Int64"
         }
       ],
@@ -688,6 +792,8 @@
         false,
         false,
         false,
+        true,
+        true,
         false,
         false,
         false
@@ -696,7 +802,7 @@
         "Right": 1
       }
     },
-    "query": "\n        SELECT\n            test_results.id as id,\n            test_results.success as success,\n            test_results.output as output,\n            test_results.runtime as runtime,\n            tests.input as input,\n            tests.expected_output as expected_output,\n            tests.test_number as [index]\n        FROM\n            test_results INNER JOIN tests\n            ON test_results.test_id = tests.id\n        WHERE\n            test_results.submission_id = ?\n        ORDER BY\n            tests.test_number ASC, test_results.success\n        "
+    "query": "\n        SELECT\n            test_results.id as id,\n            test_results.success as success,\n            test_results.output as output,\n            test_results.runtime as runtime,\n            test_results.error as error,\n            tests.max_runtime as max_runtime,\n            tests.input as input,\n            tests.expected_output as expected_output,\n            tests.test_number as [index]\n        FROM\n            test_results INNER JOIN tests\n            ON test_results.test_id = tests.id\n        WHERE\n            test_results.submission_id = ?\n        ORDER BY\n            tests.test_number ASC, test_results.success\n        "
   },
   "8bb94b1f035f45983c2b2e4c08ad0507b2737c6159ba180bac37f7186381ea89": {
     "describe": {
@@ -776,7 +882,7 @@
     },
     "query": "\n            SELECT\n                *\n            FROM\n                submissions\n            WHERE\n                id = ?\n            "
   },
-  "a3a5fce3baf12cb7dfac0a055052d976b389ea395132fef01a11b8702c88f3b3": {
+  "acffc909dd5541562cae5a4b01689a21d46e759d7ace521aa2cae0abb15d6020": {
     "describe": {
       "columns": [
         {
@@ -790,19 +896,25 @@
           "type_info": "Int64"
         },
         {
-          "name": "input",
+          "name": "max_runtime",
           "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "input",
+          "ordinal": 3,
           "type_info": "Text"
         },
         {
           "name": "expected_output",
-          "ordinal": 3,
+          "ordinal": 4,
           "type_info": "Text"
         }
       ],
       "nullable": [
         false,
         false,
+        true,
         false,
         false
       ],
@@ -810,9 +922,9 @@
         "Right": 1
       }
     },
-    "query": "\n        SELECT\n            id,\n            test_number as [index],\n            input,\n            expected_output\n        FROM\n            tests\n        WHERE\n            problem_id = ?"
+    "query": "\n        SELECT\n            id,\n            test_number as [index],\n            max_runtime,\n            input,\n            expected_output\n        FROM\n            tests\n        WHERE\n            problem_id = ?"
   },
-  "b2999ef04015c194aea122ea353d34dbd8f2d06760e6dc3d967568746d587ca4": {
+  "b4f0d45fbbc4fe5c8ff22df17ab97c61f8811b8895bbc6f88e94702e80abdde8": {
     "describe": {
       "columns": [
         {
@@ -849,10 +961,10 @@
         false
       ],
       "parameters": {
-        "Right": 6
+        "Right": 0
       }
     },
-    "query": "\n        INSERT INTO problems (\n            title,\n            description,\n            runner,\n            reference,\n            template,\n            activity_id\n        ) VALUES (?, ?, ?, ?, ?, ?)\n        RETURNING\n            id,\n            title,\n            description,\n            runner,\n            template\n        "
+    "query": "\n            SELECT\n                id,\n                title,\n                description,\n                runner,\n                template\n            FROM\n                problems\n            ORDER BY\n                update_dt DESC\n            "
   },
   "d4a4a51bf986ce5fd502294229f838c2ae2503b7502bbbb46809714e14da5a61": {
     "describe": {
@@ -913,6 +1025,48 @@
       }
     },
     "query": "\n            INSERT INTO submissions (\n                problem_id,\n                user_id,\n                success,\n                runtime,\n                error,\n                code\n            )\n            VALUES (?, ?, ?, ?, ?, ?)\n            RETURNING *\n            "
+  },
+  "d5f4543cb02ab47458568feda94d2dd9f048ffa3280358f7bea686ce15d0f8bc": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "runner",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "template",
+          "ordinal": 4,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT\n                id,\n                title,\n                description,\n                runner,\n                template\n            FROM\n                problems\n            WHERE\n                visible = true\n            ORDER BY\n                update_dt DESC\n            "
   },
   "ebec559dc453e6cc3ebc8b02d355a72827e530ee411233da8c7d30b43796f13d": {
     "describe": {

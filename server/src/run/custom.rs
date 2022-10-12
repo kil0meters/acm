@@ -24,7 +24,7 @@ pub async fn custom(
     Extension(job_map): Extension<JobMap>,
     claims: Claims,
 ) -> Result<Json<JobStatus>, ServerError> {
-    claims.validate_logged_in();
+    claims.validate_logged_in()?;
 
     let (runner, reference, runtime_multiplier): (String, String, f64) = sqlx::query_as(
         r#"
