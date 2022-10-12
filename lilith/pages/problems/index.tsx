@@ -5,7 +5,8 @@ import { marked } from "marked";
 import Link from "next/link";
 import { api_url } from "../../utils/fetcher";
 import { useStore } from "../../utils/state";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import renderLatex from "../../utils/latex";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -32,6 +33,13 @@ type Problem = {
 
 function ProblemListing({ id, title, description }: Problem): JSX.Element {
   let desc = marked.parse(description);
+  const content = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (content.current) {
+      renderLatex(content.current);
+    }
+  });
 
   return (
     <Link href={`/problems/${id}`}>
@@ -39,6 +47,7 @@ function ProblemListing({ id, title, description }: Problem): JSX.Element {
         <h1 className="text-2xl font-extrabold mb-4">{title}</h1>
 
         <div
+          ref={content}
           className="prose prose-neutral dark:prose-invert"
           dangerouslySetInnerHTML={{ __html: desc }}
         />

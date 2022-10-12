@@ -1,9 +1,28 @@
 import { marked } from "marked";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import shallow from "zustand/shallow";
+import renderLatex from "../../utils/latex";
 import { useAdminStore } from "../../utils/state";
 const Editor = dynamic(import("../../components/editor"), { ssr: false });
+
+function RenderedDescription({ description }: { description: string }): JSX.Element {
+  const content = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (content.current) {
+      renderLatex(content.current);
+    }
+  });
+
+  return (
+    <div
+      ref={content}
+      className="prose prose-neutral p-2 min-h-[40vh] dark:prose-invert overflow-auto"
+      dangerouslySetInnerHTML={{ __html: marked.parse(description) }}
+    />
+  );
+}
 
 export default function DescriptionEditor(): JSX.Element {
   const [description, setDescription] = useAdminStore(
@@ -25,10 +44,7 @@ export default function DescriptionEditor(): JSX.Element {
       </div>
 
       {preview ? (
-        <div
-          className="prose prose-neutral p-2 min-h-[40vh] dark:prose-invert overflow-auto"
-          dangerouslySetInnerHTML={{ __html: marked.parse(description) }}
-        />
+        <RenderedDescription description={description} />
       ) : (
         <Editor
           className="min-h-[40vh]"

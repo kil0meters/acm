@@ -1,9 +1,18 @@
 import { marked } from "marked";
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { ProblemContext } from ".";
+import renderMathInElement from "katex/contrib/auto-render";
+import renderLatex from "../../utils/latex";
 
 export default function Description(): JSX.Element {
   const problem = useContext(ProblemContext);
+  const content = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (content.current) {
+      renderLatex(content.current);
+    }
+  });
 
   if (!problem) {
     return (
@@ -24,6 +33,7 @@ export default function Description(): JSX.Element {
       <h1 className="text-4xl font-extrabold mb-4">{problem.title}</h1>
 
       <div
+        ref={content}
         className="prose prose-neutral dark:prose-invert"
         dangerouslySetInnerHTML={{ __html: description }}
       />
