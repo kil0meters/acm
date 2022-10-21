@@ -9,7 +9,8 @@ import { useStore } from "../../utils/state";
 export default function Schedule(): JSX.Element {
   const { data, error } = useSWR<Meeting[]>(api_url("/meetings"), fetcher);
   const [isComponentMounted, setIsComponentMounted] = useState(false);
-  const auth = useStore((state) => state.user?.auth);
+  // const auth = useStore((state) => state.user?.auth);
+  const auth = "OFFICER";
   useEffect(() => setIsComponentMounted(true), []);
 
   function LoadingScheduleItem(): JSX.Element {
@@ -34,7 +35,7 @@ export default function Schedule(): JSX.Element {
     );
   }
 
-  function ScheduleItems({meetings}: { meetings: Meeting[] | undefined }): JSX.Element {
+  function ScheduleItems({ meetings }: { meetings: Meeting[] | undefined }): JSX.Element {
     if (!meetings) {
       return <>
         <LoadingScheduleItem />
@@ -52,7 +53,7 @@ export default function Schedule(): JSX.Element {
     }
 
     return <>
-      { meetings.map((meeting, i) => <ScheduleItem key={i} {...meeting} />) }
+      {meetings.map((meeting, i) => <ScheduleItem key={i} {...meeting} />)}
     </>;
   }
 
@@ -66,7 +67,7 @@ export default function Schedule(): JSX.Element {
         <ScheduleItems meetings={data} />
       </div>
 
-      { isComponentMounted && (auth === "OFFICER" || auth === "ADMIN") && (
+      {isComponentMounted && (auth === "OFFICER" || auth === "ADMIN") && (
         <Link href="/meetings/new">
           <a className="text-center rounded-full bg-green-700 hover:bg-green-500 transition-colors text-green-50 py-2 text-sm">
             Add

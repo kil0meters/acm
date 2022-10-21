@@ -5,7 +5,6 @@ import { api_url } from "../../utils/fetcher";
 import { useStore } from "../../utils/state";
 
 const DiscordAuth: NextPage = () => {
-  const logIn = useStore((state) => state.logIn);
   const router = useRouter();
   const redirect_uri = process.env.NODE_ENV == "production"
     ? "https://chicoacm.org/auth/discord"
@@ -22,6 +21,7 @@ const DiscordAuth: NextPage = () => {
 
     fetch(api_url("/auth/discord"), {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -32,10 +32,11 @@ const DiscordAuth: NextPage = () => {
     })
       .then((res) => res.json())
       .then(res => {
-        logIn(res.user, res.token)
-        router.replace("/")
+        if (res && res.error) {
+          console.log("Error logging in");
+        }
       })
-    .catch(() => router.replace("/"));
+      .catch(() => router.replace("/"));
   }, []);
 
   return <></>;

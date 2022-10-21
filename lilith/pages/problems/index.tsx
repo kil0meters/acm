@@ -4,7 +4,7 @@ import useSWR from "swr";
 import { marked } from "marked";
 import Link from "next/link";
 import { api_url } from "../../utils/fetcher";
-import { useStore } from "../../utils/state";
+import { User, useStore } from "../../utils/state";
 import { useEffect, useRef, useState } from "react";
 import renderLatex from "../../utils/latex";
 
@@ -83,9 +83,14 @@ function ListContent({ problems }: { problems: Problem[] }): JSX.Element {
 }
 
 const ProblemList: NextPage = () => {
-  const auth = useStore((state) => state.user?.auth);
   const { data, error } = useSWR<Problem[]>(api_url("/problems"), fetcher);
   const [isComponentMounted, setIsComponentMounted] = useState(false);
+
+  const { data: user, error: _error } = useSWR<User>(
+    api_url("/user/me"),
+    fetcher, {
+    shouldRetryOnError: false,
+  });
 
   useEffect(() => setIsComponentMounted(true), []);
 
@@ -96,7 +101,7 @@ const ProblemList: NextPage = () => {
       <Navbar />
 
       <div className="max-w-screen-md mx-auto my-4 flex flex-col gap-4">
-        {isComponentMounted && (auth === "OFFICER" || auth === "ADMIN") && (
+        {isComponentMounted && user && (user.auth === "OFFICER" || user.auth === "ADMIN") && (
           <Link href="/problems/new">
             <a className="ml-auto text-green-50 text-sm font-bold rounded-full bg-green-700 hover:bg-green-500 transition-colors px-4 py-2 mr-4 md:mr-0">
               New Problem

@@ -1,5 +1,8 @@
 export const fetcher = async (url: string) => {
-  const res = await fetch(url);
+  const res = await fetch(url, {
+    method: "GET",
+    credentials: "include"
+  });
 
   if (!res.ok)
     throw new Error("failed to make request");

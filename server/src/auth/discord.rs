@@ -1,6 +1,7 @@
 use std::{collections::HashMap, env};
 
 use axum::{Extension, Json};
+use axum_extra::extract::cookie::{Cookie, CookieJar};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 
@@ -10,7 +11,6 @@ use super::{Auth, Claims, User, KEYS};
 
 #[derive(Serialize)]
 pub struct LoginBody {
-    user: User,
     token: String,
 }
 
@@ -36,7 +36,8 @@ struct DiscordUser {
 pub async fn login(
     Json(LoginForm { code, redirect_uri }): Json<LoginForm>,
     Extension(pool): Extension<SqlitePool>,
-) -> Result<Json<LoginBody>, ServerError> {
+    jar: CookieJar,
+) -> Result<CookieJar, ServerError> {
     let client = reqwest::Client::new();
 
     let mut params = HashMap::new();
@@ -175,5 +176,15 @@ pub async fn login(
 
     let token = KEYS.encode_token(claims)?;
 
-    Ok(Json(LoginBody { user, token }))
+    Ok(jar.add(
+        Cookie::build("token", token)
+            .http_only(true)
+            .path("/")
+            .permanent()
+            .finish(),
+    ))
+}
+
+pub async fn logout(jar: CookieJar) -> CookieJar {
+    jar.remove(Cookie::build("token", "").path("/").finish())
 }

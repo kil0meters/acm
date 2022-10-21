@@ -9,6 +9,7 @@ edition = "2021"
 acm = { path = ".." }
 anyhow = "1"
 axum = { version = "0.5", features = ["headers", "ws"] }
+axum-extra = { version = "0.3", features = ["cookie"] }
 bcrypt = "0.13"
 chrono = { version = "0.4", features = ["serde"] }
 clap = { version = "3", features = ["derive", "env"] }

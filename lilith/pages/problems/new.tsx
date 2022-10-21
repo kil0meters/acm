@@ -91,7 +91,6 @@ function Scheduler(): JSX.Element {
 }
 
 function SubmitButton(): JSX.Element {
-  const token = useStore((state) => state.token!);
   const setError = useSession((state) => state.setError);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -121,9 +120,9 @@ function SubmitButton(): JSX.Element {
       const res = await (await fetch(api_url("/problems/new"), {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
         },
+        credentials: "include",
         body: JSON.stringify({
           title,
           description,

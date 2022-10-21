@@ -18,6 +18,7 @@ pub struct NewForm {
     tests: Vec<Test>,
     activity_id: Option<i64>,
     publish_time: Option<NaiveDateTime>,
+    runtime_multiplier: Option<f64>,
 }
 
 #[derive(Serialize)]
@@ -48,8 +49,9 @@ pub async fn new(
             template,
             activity_id,
             visible,
-            publish_time
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            publish_time,
+            runtime_multiplier
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING
             id,
             title,
@@ -64,7 +66,8 @@ pub async fn new(
         form.template,
         form.activity_id,
         visible,
-        form.publish_time
+        form.publish_time,
+        form.runtime_multiplier
     )
     .fetch_one(&mut tx)
     .await

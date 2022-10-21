@@ -26,6 +26,8 @@ pub async fn submit(
     Extension(job_map): Extension<JobMap>,
     claims: Claims,
 ) -> Result<Json<JobStatus>, ServerError> {
+    log::info!("{:?}", claims);
+
     claims.validate_logged_in()?;
 
     let runner = sqlx::query!(

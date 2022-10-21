@@ -164,7 +164,7 @@ async fn main() {
         .layer(Extension(broadcast))
         .layer(Extension(job_queue))
         .layer(TraceLayer::new_for_http())
-        .layer(CorsLayer::very_permissive());
+        .layer(CorsLayer::very_permissive().allow_credentials(true));
 
     Server::bind(&addr)
         .serve(app.into_make_service())

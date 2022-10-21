@@ -5,7 +5,7 @@ import { JobStatus, monitorJob } from "../../utils/job";
 import { useSession, useStore } from "../../utils/state";
 import LoadingButton from "../loading-button";
 import QueueStatus from "../queue-status";
-import ErrorDisplay, { isRunnerError, RunnerError } from "./submission/error";
+import ErrorDisplay, { isRunnerError, RunnerError, ServerError } from "./submission/error";
 import TestResultInfo from "./submission/test-result";
 import { TestResult } from "./submission/tests";
 
@@ -18,26 +18,25 @@ export default function InputTester(): JSX.Element {
   );
 
   const setError = useSession((state) => state.setError);
-  const token = useStore((state) => state.token);
   const problem_id = useContext(ProblemIDContext);
   const implementation = useStore((state) =>
     problem_id ? state.problemImpls[problem_id] : undefined
   );
 
   const testInput = async () => {
-    if (!token) {
-      setError("You must be logged in to run a test", true);
+    if (!implementation) {
+      setError("You must modify the answer before submitting.", true);
       return;
     }
 
     setLoading(true);
-    try {
+    awful: try {
       let res = await fetch(api_url("/run/custom"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify({
           problem_id,
           input,
@@ -46,7 +45,13 @@ export default function InputTester(): JSX.Element {
       });
 
       let job: JobStatus<TestResult, RunnerError> = await res.json();
-      let [data, err] = await monitorJob(job, token, (n) => setQueuePosition(n));
+
+      if ((job as unknown as ServerError).error) {
+        setError((job as unknown as ServerError).error, true);
+        break awful;
+      }
+
+      let [data, err] = await monitorJob(job, (n) => setQueuePosition(n));
 
       if (err) {
         console.log(err);

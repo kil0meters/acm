@@ -4,7 +4,7 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
-use serde::{Serialize};
+use serde::Serialize;
 use serde_json::json;
 use validator::ValidationErrors;
 
@@ -132,7 +132,7 @@ pub enum AuthError {
 impl IntoResponse for AuthError {
     fn into_response(self) -> Response {
         let (status, error_message) = match self {
-            AuthError::WrongCredentials => (StatusCode::UNAUTHORIZED, "Wrong credentials"),
+            AuthError::WrongCredentials => (StatusCode::UNAUTHORIZED, "You must be logged in."),
             AuthError::TokenCreation => (StatusCode::INTERNAL_SERVER_ERROR, "Token creation error"),
             AuthError::InvalidToken => (StatusCode::BAD_REQUEST, "Invalid token"),
             AuthError::Unauthorized => (StatusCode::UNAUTHORIZED, "Unauthorized"),

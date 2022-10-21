@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useStore } from "../utils/state";
+import useSWR, { useSWRConfig } from "swr";
+import { api_url, fetcher } from "../utils/fetcher";
+import { User } from "../utils/state";
 
 type NavbarLinkProps = {
   className?: string;
@@ -30,10 +32,15 @@ function NavbarLink({
 
 export default function Navbar(): JSX.Element {
   const [hiddenStyle, setHiddenStyle] = useState("hidden");
-  const username = useStore((state) => state.user?.username);
   const [isComponentMounted, setIsComponentMounted] = useState(false);
-  const logOut = useStore((store) => store.logOut);
   const router = useRouter();
+  const { mutate } = useSWRConfig();
+
+  const { data: user, error } = useSWR<User>(
+    api_url("/user/me"),
+    fetcher, {
+    shouldRetryOnError: false,
+  });
 
   useEffect(() => setIsComponentMounted(true), []);
 
@@ -52,7 +59,7 @@ export default function Navbar(): JSX.Element {
     : "https://discord.com/api/oauth2/authorize?client_id=984742374112624690&redirect_uri=https%3A%2F%2Fchicoacm.org%2Fauth%2Fdiscord&response_type=code&scope=identify";
 
   if (isComponentMounted) {
-    if (!username) {
+    if (!user || error) {
       sidebar = (
         <>
           <NavbarLink
@@ -67,7 +74,7 @@ export default function Navbar(): JSX.Element {
         <>
           <NavbarLink
             className={`md:ml-auto ${hiddenStyle}`}
-            href={`/user/${username}`}
+            href={`/user/${user.username}`}
           >
             {"Account"}
           </NavbarLink>
@@ -76,8 +83,14 @@ export default function Navbar(): JSX.Element {
             href="#"
             onClick={(event) => {
               event.preventDefault();
-              logOut();
-              router.push("/");
+
+              fetch(api_url("/auth/logout"), {
+                method: "GET",
+                credentials: "include"
+              }).then(() => {
+                mutate(api_url("/user/me"));
+                router.push("/");
+              });
             }}
           >
             Sign out

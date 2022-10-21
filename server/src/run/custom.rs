@@ -26,7 +26,7 @@ pub async fn custom(
 ) -> Result<Json<JobStatus>, ServerError> {
     claims.validate_logged_in()?;
 
-    let (runner, reference, runtime_multiplier): (String, String, f64) = sqlx::query_as(
+    let (runner, reference, runtime_multiplier): (String, String, Option<f64>) = sqlx::query_as(
         r#"
         SELECT
             runner,
@@ -48,7 +48,7 @@ pub async fn custom(
         runner,
         user_id: claims.user_id,
         implementation: form.implementation,
-        runtime_multiplier,
+        runtime_multiplier: runtime_multiplier.unwrap_or(1.5),
         reference,
         input: form.input,
     });

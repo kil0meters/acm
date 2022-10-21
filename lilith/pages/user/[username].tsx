@@ -88,7 +88,6 @@ const UserPage: NextPage = () => {
   const { query, isReady } = useRouter();
   const username = query.username;
   const [editingProfile, setEditingProfile] = useState(false);
-  const currentUser = useStore((state) => state.user);
 
   const { data: user, error } = useSWR<User>(
     isReady ? api_url(`/user/username/${username}`) : null,
@@ -96,6 +95,12 @@ const UserPage: NextPage = () => {
   );
 
   function UserInfo({ name, username, auth }: User): JSX.Element {
+    const { data: currentUser, error: _error } = useSWR<User>(
+      api_url("/user/me"),
+      fetcher, {
+      shouldRetryOnError: false,
+    });
+
     const showEditButton = currentUser?.username == username || currentUser?.auth == "ADMIN";
 
     return (
@@ -120,10 +125,18 @@ const UserPage: NextPage = () => {
     const [newUsername, setNewUsername] = useState(username);
     const [newName, setNewName] = useState(name);
     const [newAuth, setNewAuth] = useState(auth);
-    const [token, logIn] = useStore((state) => [state.token, state.logIn]);
     const { mutate } = useSWRConfig();
     const setError = useSession((state) => state.setError);
     const router = useRouter();
+
+    const { data: currentUser, error: _error } = useSWR<User>(
+      api_url("/user/me"),
+      fetcher, {
+      shouldRetryOnError: false,
+    });
+
+    // console.log(currentUser);
+    console.log("Hello");
 
     const formClasses = "border-neutral-300 dark:border-neutral-700 border rounded p-2 bg-neutral-50 dark:bg-neutral-900 outline-0 transition-shadow focus:ring dark:ring-neutral-700 ring-neutral-300";
 
@@ -132,8 +145,8 @@ const UserPage: NextPage = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify({
           new_username: newUsername,
           new_name: newName,
@@ -152,7 +165,6 @@ const UserPage: NextPage = () => {
             router.push(`/user/${newUsername}`);
           }
 
-          logIn(data, token!);
           mutate(api_url(`/user/username/${newUsername}`));
           setEditingProfile(false);
         })

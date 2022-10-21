@@ -39,8 +39,6 @@ export interface Submission {
 }
 
 export interface Store {
-  token?: string;
-  user?: User;
   vimEnabled: boolean,
   editorTheme: EditorThemeType,
 
@@ -50,16 +48,11 @@ export interface Store {
   setEditorTheme: (editorTheme: EditorThemeType) => void;
 
   setProblemImpl: (id: number, impl: string) => void;
-
-  logIn: (user: User, token: string) => void;
-  logOut: () => void;
 }
 
 export const useStore = create<Store>()(
   persist(
     (set) => ({
-      token: undefined,
-      user: undefined,
       vimEnabled: false,
       editorTheme: "system",
       problemImpls: {},
@@ -82,22 +75,6 @@ export const useStore = create<Store>()(
         set(
           produce((state: Store) => {
             state.editorTheme = editorTheme;
-          })
-        ),
-
-      logIn: (user, token) =>
-        set(
-          produce((state: Store) => {
-            state.user = user;
-            state.token = token;
-          })
-        ),
-
-      logOut: () =>
-        set(
-          produce((state: Store) => {
-            state.user = undefined;
-            state.token = undefined;
           })
         ),
     }),

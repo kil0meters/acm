@@ -1,9 +1,10 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
+import useSWR from "swr";
 import shallow from "zustand/shallow";
-import { api_url } from "../../utils/fetcher";
+import { api_url, fetcher } from "../../utils/fetcher";
 import { JobStatus, monitorJob } from "../../utils/job";
-import { useAdminStore, useSession, useStore } from "../../utils/state";
+import { useAdminStore, User, useSession, useStore } from "../../utils/state";
 import LoadingButton from "../loading-button";
 import { isRunnerError, isServerError, RunnerError, ServerError } from "../problem/submission/error";
 import { Test } from "../problem/submission/tests";
@@ -54,11 +55,6 @@ function TestEditor({ index }: { index: number }): JSX.Element {
 
 function AdvancedSettings(): JSX.Element {
   let [runtimeMultiplier, setRuntimeMultiplier] = useAdminStore((state) => [state.problemRuntimeMultiplier, state.setProblemRuntimeMultiplier]);
-
-  // const [pushTest, popTest, updateTest, setTests] = useAdminStore(
-  //   (state) => [state.pushProblemTest, state.popProblemTest, state.updateProblemTest, state.setProblemTests],
-  //   shallow
-  // );
 
   const state = useAdminStore.getState();
   let testIndex = state.problemTests.length;
@@ -111,7 +107,6 @@ function AdvancedSettings(): JSX.Element {
 function TestsEditorList(): JSX.Element {
   // only rerender based on the length
   const testCount = useAdminStore((state) => state.problemTests.length);
-  const [token, user_id] = useStore((state) => [state.token!, state.user!.id], shallow);
   const setError = useSession((state) => state.setError);
   const [pushTest, popTest, updateTest, setTests] = useAdminStore(
     (state) => [state.pushProblemTest, state.popProblemTest, state.updateProblemTest, state.setProblemTests],
@@ -119,6 +114,12 @@ function TestsEditorList(): JSX.Element {
   );
   const [loading, setLoading] = useState(false);
   const [queuePosition, setQueuePosition] = useState(0);
+
+  const { data: user, error: _error } = useSWR<User>(
+    api_url("/user/me"),
+    fetcher, {
+    shouldRetryOnError: false,
+  });
 
   const populateTests = async () => {
     setLoading(true);
@@ -134,19 +135,19 @@ function TestsEditorList(): JSX.Element {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify({
           runner,
           reference,
-          user_id,
+          user_id: user!.id,
           runtime_multiplier,
           inputs: tests.map((test) => test.input),
         })
       });
 
       let job: JobStatus<Test[], RunnerError | ServerError> = await res.json();
-      let [data, err] = await monitorJob(job, token, (n) => setQueuePosition(n));
+      let [data, err] = await monitorJob(job, (n) => setQueuePosition(n));
 
       if (data) {
         setTests(data);

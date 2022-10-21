@@ -3,11 +3,11 @@
 
 use axum::{
     async_trait,
-    extract::{FromRequest, RequestParts, TypedHeader},
-    headers::{authorization::Bearer, Authorization},
-    routing::post,
+    extract::{FromRequest, RequestParts},
+    routing::{get, post},
     Router,
 };
+use axum_extra::extract::CookieJar;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
@@ -18,7 +18,9 @@ use crate::error::{AuthError, ServerError};
 mod discord;
 
 pub fn routes() -> Router {
-    Router::new().route("/discord", post(discord::login))
+    Router::new()
+        .route("/discord", post(discord::login))
+        .route("/logout", get(discord::logout))
 }
 
 #[derive(Serialize)]
@@ -102,9 +104,14 @@ where
 
     async fn from_request(req: &mut RequestParts<B>) -> Result<Self, Self::Rejection> {
         // Extract the token from the authorization header
-        let bearer = match TypedHeader::<Authorization<Bearer>>::from_request(req).await {
-            Ok(TypedHeader(Authorization(bearer))) => bearer,
-            Err(_) => {
+
+        let jar = CookieJar::from_request(req).await.unwrap();
+
+        log::info!("{:?}", jar);
+
+        let token = match jar.get("token") {
+            Some(cookie) => cookie.value(),
+            None => {
                 return Ok(Claims {
                     user_id: -1,
                     auth: Auth::LOGGED_OUT,
@@ -115,11 +122,12 @@ where
 
         // Decode the user data
         let token_data =
-            jsonwebtoken::decode::<Claims>(bearer.token(), &KEYS.decoding, &Validation::default())
-                .map_err(|e| {
+            jsonwebtoken::decode::<Claims>(token, &KEYS.decoding, &Validation::default()).map_err(
+                |e| {
                     log::error!("{e}");
                     AuthError::InvalidToken
-                })?;
+                },
+            )?;
 
         Ok(token_data.claims)
     }

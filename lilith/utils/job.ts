@@ -8,14 +8,14 @@ export type JobStatus<T, E> = {
   error?: E,
 };
 
-export async function monitorJob<T, E>(job: JobStatus<T, E>, token: string, updateQueuePosition: (pos: number) => void): Promise<[T?, E?]> {
+export async function monitorJob<T, E>(job: JobStatus<T, E>, updateQueuePosition: (pos: number) => void): Promise<[T?, E?]> {
   // Max timeout = 50s
   for (let i = 0; i < 100; i++) {
     let res = await fetch(api_url(`/run/check/${job.id}`), {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      }
+      },
+      credentials: "include",
     });
 
     let job_status: JobStatus<T, E> = await res.json();
@@ -25,7 +25,7 @@ export async function monitorJob<T, E>(job: JobStatus<T, E>, token: string, upda
     }
 
     if (job_status.error) {
-      return [undefined, job_status.error];
+      return [undefined, job_status as unknown as E];
     }
 
     updateQueuePosition(job_status.queue_position);

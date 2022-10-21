@@ -17,7 +17,6 @@ export default function CodeRunner(): JSX.Element {
   const [settingsShown, setSettingsShown] = useState(false);
 
   function SubmitButton(): JSX.Element {
-    const token = useStore((state) => state.token);
     const setSubmission = useSession(
       (state) => state.setSubmission
     );
@@ -31,11 +30,6 @@ export default function CodeRunner(): JSX.Element {
     const { mutate } = useSWRConfig();
 
     const submitProblem = async () => {
-      if (!token) {
-        setError("You must be logged in to submit a problem.", true);
-        return;
-      }
-
       if (!implementation) {
         setError("You must modify the answer before submitting.", true);
         return;
@@ -43,13 +37,13 @@ export default function CodeRunner(): JSX.Element {
 
       setLoading(true);
 
-      try {
+      awful_bad_hacky_code: try {
         let res = await fetch(api_url("/run/submit"), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
+          credentials: "include",
           body: JSON.stringify({
             problem_id: id,
             implementation,
@@ -57,7 +51,14 @@ export default function CodeRunner(): JSX.Element {
         });
 
         let job: JobStatus<Submission, ServerError> = await res.json();
-        let [data, err] = await monitorJob(job, token, (n) => setQueuePosition(n));
+
+        // yeah, I know typescript, how could you tell
+        if ((job as unknown as ServerError).error) {
+          setError((job as unknown as ServerError).error, true);
+          break awful_bad_hacky_code;
+        }
+
+        let [data, err] = await monitorJob(job, (n) => setQueuePosition(n));
 
         if (data) {
           setSubmission(id, data);
@@ -66,7 +67,7 @@ export default function CodeRunner(): JSX.Element {
 
         if (err) {
           console.log(err);
-          setError("Internal server error.", true);
+          setError(err.error, true);
         }
       }
       catch (e) {
@@ -95,7 +96,7 @@ export default function CodeRunner(): JSX.Element {
   }
 
   return (
-    <div className="sticky md:static bottom-0 mt-auto">
+    <div className="sticky md:static bottom-0">
       <Modal shown={settingsShown} onClose={() => setSettingsShown(false)}>
         <EditorPreferences />
       </Modal>

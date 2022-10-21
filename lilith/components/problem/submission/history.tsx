@@ -8,16 +8,13 @@ import { isServerError, RunnerError, ServerError } from "./error";
 
 export default function SubmissionHistory(): JSX.Element {
   const id = useContext(ProblemIDContext);
-  const token = useStore((store) => store.token);
 
   const { data, error } = useSWR<Submission[] | ServerError>(
-    token && id ? api_url(`/problems/${id}/history`) : null,
+    id ? api_url(`/problems/${id}/history`) : null,
 
     async (url: string) => {
       return fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include"
       }).then((res) => res.json());
     }
   );
