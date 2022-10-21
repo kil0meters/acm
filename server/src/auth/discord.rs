@@ -1,7 +1,7 @@
 use std::{collections::HashMap, env};
 
 use axum::{Extension, Json};
-use axum_extra::extract::cookie::{Cookie, CookieJar};
+use axum_extra::extract::cookie::{Cookie, CookieJar, SameSite};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 
@@ -180,6 +180,7 @@ pub async fn login(
         Cookie::build("token", token)
             .http_only(true)
             .path("/")
+            .same_site(SameSite::None)
             .permanent()
             .finish(),
     ))
