@@ -686,48 +686,6 @@
     },
     "query": "\n        SELECT\n            id,\n            name,\n            username,\n            discord_id,\n            auth as \"auth: Auth\"\n        FROM\n            users\n        WHERE\n            id = ?\n        "
   },
-  "85a821089dfccfe0b3018c5aa1705da7d02998e26af29a91f241893daf8694f3": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "title",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "description",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "runner",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "template",
-          "ordinal": 4,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 8
-      }
-    },
-    "query": "\n        INSERT INTO problems (\n            title,\n            description,\n            runner,\n            reference,\n            template,\n            activity_id,\n            visible,\n            publish_time\n        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)\n        RETURNING\n            id,\n            title,\n            description,\n            runner,\n            template\n        "
-  },
   "8977d8067449874d9522799438f0dfb62c417fe0be5ac0407a6c691861067216": {
     "describe": {
       "columns": [],
@@ -1103,6 +1061,48 @@
       }
     },
     "query": "\n        SELECT\n            id,\n            title,\n            description,\n            activity_type as \"activity_type: ActivityType\"\n        FROM\n            activities\n        WHERE\n            meeting_id = ?\n        "
+  },
+  "f7ec52446bbf5338b4fbcc93cc3a0623ecebb7ae4698fa448d500998a81e18de": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "runner",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "template",
+          "ordinal": 4,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 9
+      }
+    },
+    "query": "\n        INSERT INTO problems (\n            title,\n            description,\n            runner,\n            reference,\n            template,\n            activity_id,\n            visible,\n            publish_time,\n            runtime_multiplier\n        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)\n        RETURNING\n            id,\n            title,\n            description,\n            runner,\n            template\n        "
   },
   "fbec0128a853b4b42c540ea3352b0f879f4d6a8b9b335ba155922e0751ff82f8": {
     "describe": {
