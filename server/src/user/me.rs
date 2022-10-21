@@ -1,5 +1,4 @@
 use axum::{Extension, Json};
-use axum_extra::extract::CookieJar;
 use sqlx::SqlitePool;
 
 use crate::{
@@ -10,7 +9,6 @@ use crate::{
 pub async fn me(
     Extension(pool): Extension<SqlitePool>,
     claims: Claims,
-    jar: CookieJar,
 ) -> Result<Json<User>, ServerError> {
     claims.validate_logged_in()?;
 

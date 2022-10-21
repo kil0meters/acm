@@ -104,10 +104,7 @@ where
 
     async fn from_request(req: &mut RequestParts<B>) -> Result<Self, Self::Rejection> {
         // Extract the token from the authorization header
-
         let jar = CookieJar::from_request(req).await.unwrap();
-
-        log::info!("{:?}", jar);
 
         let token = match jar.get("token") {
             Some(cookie) => cookie.value(),
