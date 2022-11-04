@@ -5,7 +5,7 @@ use acm::models::{
 };
 use actix_web::rt::task;
 use async_trait::async_trait;
-use std::{collections::BTreeSet};
+use std::collections::BTreeSet;
 
 use wasi_common::pipe::{ReadPipe, WritePipe};
 use wasmtime::{Config, Engine, Linker, Module, Store, StoreLimits, StoreLimitsBuilder};
@@ -84,8 +84,8 @@ async fn run_test_timed(command: &str, test: Test) -> Result<TestResult, RunnerE
     }
 }
 
-const MAX_MEMORY: usize = 1 << 26; // 64MB
-const MAX_FUEL: i64 = 1 << 32;
+const MAX_MEMORY: usize = 1 << 27; // 128MB
+const MAX_FUEL: i64 = 1 << 48;
 
 async fn run_command(
     command: &str,
