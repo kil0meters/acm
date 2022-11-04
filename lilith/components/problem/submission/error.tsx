@@ -21,6 +21,8 @@ export function isServerError(
 }
 
 export default function ErrorDisplay({ message }: RunnerError): JSX.Element {
+  console.log(`Displaying error: ${message}`);
+
   return (
     <div className="bg-red-500 text-red-50 p-4 my-4 flex flex-col gap-2 rounded-md border-red-600 dark:border-red-500 dark:bg-red-700 border">
       <h1 className="text-2xl font-bold">{"error."}</h1>

@@ -46,11 +46,6 @@ export default function InputTester(): JSX.Element {
 
       let job: JobStatus<TestResult, RunnerError> = await res.json();
 
-      if ((job as unknown as ServerError).error) {
-        setError((job as unknown as ServerError).error, true);
-        break awful;
-      }
-
       let [data, err] = await monitorJob(job, (n) => setQueuePosition(n));
 
       if (err) {
@@ -70,6 +65,8 @@ export default function InputTester(): JSX.Element {
       setLoading(false);
     }
   };
+
+  console.log(testResult);
 
   return (
     <div className="border-t border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black flex flex-col lg:flex-row min-h-0">

@@ -25,7 +25,7 @@ export async function monitorJob<T, E>(job: JobStatus<T, E>, updateQueuePosition
     }
 
     if (job_status.error) {
-      return [undefined, job_status as unknown as E];
+      return [undefined, job_status.error];
     }
 
     updateQueuePosition(job_status.queue_position);

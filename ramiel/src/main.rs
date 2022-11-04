@@ -9,7 +9,7 @@ use acm::{
         test::Test,
     },
 };
-use actix_web::{middleware::Logger, post, web::Json, App, HttpServer};
+use actix_web::{middleware::Logger, post, web, web::Json, App, HttpServer};
 
 mod runners;
 
@@ -50,9 +50,14 @@ async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
     let args = Args::parse();
 
-    HttpServer::new(|| {
+    let json_cfg = web::JsonConfig::default()
+        // 3mb limit
+        .limit(100_000_000);
+
+    HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
+            .app_data(json_cfg.clone())
             .service(cplusplus_run)
             .service(cplusplus_generate_tests)
             .service(cplusplus_custom_input)
