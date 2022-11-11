@@ -2,9 +2,11 @@ use axum::{routing::get, Router};
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
+mod invalidate;
 mod new_completions;
 mod submission;
 mod tests;
+mod validate;
 
 #[derive(Deserialize, Serialize, PartialEq, Clone)]
 pub struct Submission {
@@ -21,6 +23,8 @@ pub struct Submission {
 pub fn routes() -> Router {
     Router::new()
         .route("/:submission_id", get(submission::submission))
+        .route("/:submission_id/invalidate", get(invalidate::invalidate))
+        .route("/:submission_id/validate", get(validate::validate))
         .route("/:submission_id/tests", get(tests::tests))
         .route("/new-completions", get(new_completions::new_completions))
 }

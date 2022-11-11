@@ -3,12 +3,48 @@ import Error from "next/error";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Prism from "prismjs";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import Navbar from "../../components/navbar";
 import SubmissionFeedback from "../../components/problem/submission";
 import { api_url, fetcher } from "../../utils/fetcher";
 import { Submission, User, useStore } from "../../utils/state";
 import { timeFormat } from "../../utils/time";
+
+function InvalidateButton({ id }: { id?: number }): JSX.Element {
+  const submit = async () => {
+    await fetch(api_url(`/submissions/${id}/invalidate`), {
+      credentials: "include",
+    });
+
+    mutate(api_url(`/submissions/${id}`));
+  }
+
+  return (
+    <button
+      onClick={submit}
+      className="w-full mt-4 rounded-full bg-red-600 hover:bg-red-700 px-4 py-2 text-red-50 transition-colors">
+      Invalidate
+    </button>
+  )
+}
+
+function ValidateButton({ id }: { id?: number }): JSX.Element {
+  const submit = async () => {
+    await fetch(api_url(`/submissions/${id}/validate`), {
+      credentials: "include",
+    });
+
+    mutate(api_url(`/submissions/${id}`));
+  }
+
+  return (
+    <button
+      onClick={submit}
+      className="w-full mt-4 rounded-full bg-blue-600 hover:bg-blue-700 px-4 py-2 text-red-50 transition-colors">
+      Validate
+    </button>
+  )
+}
 
 type UserInfoProps = {
   id: number
@@ -43,6 +79,12 @@ const SubmissionPage: NextPage = () => {
     fetcher
   );
 
+  const { data: user, error: _error } = useSWR<User>(
+    api_url("/user/me"),
+    fetcher, {
+    shouldRetryOnError: false,
+  });
+
   if (error)
     return <Error statusCode={404} />;
 
@@ -53,10 +95,12 @@ const SubmissionPage: NextPage = () => {
   return <>
     <Navbar />
 
-    <div className="bg-white md:rounded-xl border border-neutral-300 flex flex-col mt-4 md:grid md:grid-cols-5 overflow-hidden max-w-screen-md md:mx-auto md:mt-8">
-      <div className="p-4 col-span-3 border-neutral-300 border-b md:border-b-0 md:border-r flex flex-col gap-4">
+    <div className="grid grid-cols-[minmax(0,1fr)_320px] mt-4 md:flex-row md:gap-4 max-w-screen-lg md:mx-auto md:mt-8">
+      <div className="p-4 border-neutral-300 border-b md:border rounded-md flex flex-col gap-4 max-w">
         <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-extrabold">{"Problem "} {submission.problem_id}</h1>
+          <div className="flex flex-col">
+            <h1 className="text-3xl font-extrabold">{"Problem "} {submission.problem_id}</h1>
+          </div>
           <span className="text-sm text-neutral-500">
             <UserInfo id={submission.user_id} />
             {" • "}
@@ -86,8 +130,15 @@ const SubmissionPage: NextPage = () => {
           {"View in editor"}
         </a>
       </div>
-      <div className="col-span-2 border-b border-neutral-300 md:border-0">
-        <SubmissionFeedback inProblemView={false} {...submission} />
+      <div>
+        <div className="border rounded-md border-neutral-300 overflow-hidden">
+          <SubmissionFeedback inProblemView={false} {...submission} />
+        </div>
+
+        {(user && (user.auth == "ADMIN" || user.auth == "OFFICER")) && <>
+          <ValidateButton id={id} />
+          <InvalidateButton id={id} />
+        </>}
       </div>
     </div>
   </>;

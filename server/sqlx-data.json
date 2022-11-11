@@ -160,6 +160,16 @@
     },
     "query": "\n                SELECT\n                    id,\n                    title,\n                    description,\n                    runner,\n                    template,\n                    competition_id\n                FROM\n                    problems\n                WHERE\n                    competition_id is NULL\n                ORDER BY\n                    update_dt DESC\n                "
   },
+  "184aa15ead1271c38756d47e03a5370b018625c4ce8e08cd41f15aeed63e2ad8": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n        UPDATE submissions\n        SET success = false,\n            error = 'Manually overridden by officer'\n        WHERE id = ?"
+  },
   "1c033b8f650a8573a79cbdbe0bd0cc7b497f41e4e650b70707fd89972359a46c": {
     "describe": {
       "columns": [
@@ -201,6 +211,16 @@
       }
     },
     "query": "\n            SELECT\n                users.id,\n                users.name,\n                users.username,\n                users.discord_id,\n                users.auth as \"auth: Auth\"\n            FROM teams\n            JOIN team_members ON teams.id = team_members.team_id\n            JOIN users ON team_members.user_id = users.id\n            WHERE teams.id = ?\n        "
+  },
+  "1cdef306b560169f74a139276c24127fdedca0c136ce8af3d88eab14c4306eac": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n        UPDATE submissions\n        SET success = true,\n            error = NULL\n        WHERE id = ?"
   },
   "1dc9b0c89f6472829323b4c90f3a2481ab701f9e85a2cd00b634007f210060b8": {
     "describe": {

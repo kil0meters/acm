@@ -54,7 +54,7 @@ pub async fn edit(
         new_username,
         new_name,
         new_auth,
-        claims.user_id,
+        user_id,
     )
     .fetch_one(&pool)
     .await
