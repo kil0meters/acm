@@ -3,12 +3,11 @@ import Navbar from "../../components/navbar";
 import useSWR from "swr";
 import { marked } from "marked";
 import Link from "next/link";
-import { api_url } from "../../utils/fetcher";
+import { api_url, fetcher } from "../../utils/fetcher";
 import { User, useStore } from "../../utils/state";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import renderLatex from "../../utils/latex";
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+import { CompetitionIDContext } from "../competitions/[id]";
 
 function ProblemLoading(): JSX.Element {
   return (
@@ -23,7 +22,7 @@ function ProblemLoading(): JSX.Element {
   );
 }
 
-type Problem = {
+export type Problem = {
   id: number;
   title: string;
 
@@ -31,7 +30,41 @@ type Problem = {
   description: string;
 };
 
-function ProblemListing({ id, title, description }: Problem): JSX.Element {
+type ProblemStatus = "Complete" | "InProgress" | "NotStarted";
+
+function ProblemTeamStatus({ problem_id }: { problem_id: number }): JSX.Element {
+
+  const competition_id = useContext(CompetitionIDContext);
+
+  const { data, error } = useSWR<ProblemStatus>(
+    api_url(`/competitions/${competition_id}/problem-status/${problem_id}`),
+    fetcher
+  );
+
+  if (!data || error) return <></>;
+
+  if (data == "InProgress") {
+    return (
+      <div className="ml-auto bg-blue-700 text-blue-50 rounded-full px-4 py-2">
+        In Progress
+      </div>
+    );
+  } else if (data == "Complete") {
+    return (
+      <div className="ml-auto bg-green-700 text-blue-50 rounded-full px-4 py-2">
+        Completed
+      </div>
+    );
+  } else {
+    return <></>;
+  }
+}
+
+interface ProblemListingProps extends Problem {
+  show_team_status?: boolean;
+};
+
+function ProblemListing({ id, title, description, show_team_status }: ProblemListingProps): JSX.Element {
   let desc = marked.parse(description);
   const content = useRef<HTMLDivElement>(null);
 
@@ -44,7 +77,10 @@ function ProblemListing({ id, title, description }: Problem): JSX.Element {
   return (
     <Link href={`/problems/${id}`}>
       <a className="sm:rounded-md border-neutral-300 dark:border-neutral-700 border-y sm:border sm:mx-2 md:m-0 bg-white dark:bg-black dark:hover:bg-neutral-800 p-4 hover:shadow-md max-h-52 hover:max-h-64 overflow-hidden transition-all">
-        <h1 className="text-2xl font-extrabold mb-4">{title}</h1>
+        <div className="flex items-center mb-4">
+          <h1 className="text-2xl font-extrabold">{title}</h1>
+          {show_team_status && <ProblemTeamStatus problem_id={id} />}
+        </div>
 
         <div
           ref={content}
@@ -67,7 +103,7 @@ function ListLoading(): JSX.Element {
   );
 }
 
-function ListContent({ problems }: { problems: Problem[] }): JSX.Element {
+export function ProblemList({ problems, show_team_status }: { problems: Problem[], show_team_status?: boolean }): JSX.Element {
   return (
     <>
       {problems.map(({ id, title, description }) => (
@@ -76,13 +112,14 @@ function ListContent({ problems }: { problems: Problem[] }): JSX.Element {
           id={id}
           title={title}
           description={description}
+          show_team_status={show_team_status}
         />
       ))}
     </>
   );
 }
 
-const ProblemList: NextPage = () => {
+const ProblemListPage: NextPage = () => {
   const { data, error } = useSWR<Problem[]>(api_url("/problems"), fetcher);
   const [isComponentMounted, setIsComponentMounted] = useState(false);
 
@@ -109,10 +146,10 @@ const ProblemList: NextPage = () => {
           </Link>
         )}
 
-        {!data ? <ListLoading /> : <ListContent problems={data} />}
+        {!data ? <ListLoading /> : <ProblemList problems={data} />}
       </div>
     </>
   );
 };
 
-export default ProblemList;
+export default ProblemListPage;

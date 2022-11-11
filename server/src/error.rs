@@ -15,8 +15,9 @@ pub enum ServerError {
     Validation(FormValidationError),
     User(UserError),
     Runner(RunnerError),
-    NotFound,
     InternalError,
+    NotFound,
+    PermissionDenied,
 }
 
 impl IntoResponse for ServerError {
@@ -31,6 +32,11 @@ impl IntoResponse for ServerError {
             ServerError::NotFound => (
                 StatusCode::NOT_FOUND,
                 Json(json!({"error": "The requested data was not found"})),
+            )
+                .into_response(),
+            ServerError::PermissionDenied => (
+                StatusCode::FORBIDDEN,
+                Json(json!({"error": "You are not allowed to do that"})),
             )
                 .into_response(),
             ServerError::InternalError => (

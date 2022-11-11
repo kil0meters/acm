@@ -17,7 +17,8 @@ pub async fn problem(
             title,
             description,
             runner,
-            template
+            template,
+            competition_id
         FROM
             problems
         WHERE

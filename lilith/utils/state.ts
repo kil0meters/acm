@@ -136,6 +136,7 @@ export interface AdminState {
   problemTests: Test[];
   problemDateShown: boolean;
   problemRuntimeMultiplier: number;
+  problemCompetitionId?: number;
 
   setProblemTitle: (title: string) => void;
   setProblemDescription: (description: string) => void;
@@ -157,6 +158,7 @@ export interface AdminState {
   meetingActivities: Activity[];
 
   setProblemPublishTime: (time?: string) => void;
+  setProblemCompetitionId: (competitionId?: number) => void;
   setProblemRuntimeMultiplier: (multiplier: number) => void;
 
   setMeetingTitle: (title: string) => void;
@@ -262,6 +264,13 @@ export const useAdminStore = create<AdminState>()(
         set(
           produce((state: AdminState) => {
             state.problemPublishTime = time;
+          })
+        ),
+
+      setProblemCompetitionId: (competitionId?: number) =>
+        set(
+          produce((state: AdminState) => {
+            state.problemCompetitionId = competitionId;
           })
         ),
 

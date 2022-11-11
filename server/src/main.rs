@@ -19,6 +19,7 @@ use crate::{
 };
 
 mod auth;
+mod competitions;
 mod error;
 mod leaderboard;
 mod meetings;
@@ -106,7 +107,8 @@ async fn main() {
                         title,
                         description,
                         runner,
-                        template
+                        template,
+                        competition_id
                     FROM
                         problems
                     WHERE
@@ -151,12 +153,13 @@ async fn main() {
 
     let app = Router::new()
         .nest("/auth", auth::routes())
-        .nest("/user", user::routes())
+        .nest("/competitions", competitions::routes())
         .nest("/leaderboard", leaderboard::routes())
-        .nest("/submissions", submissions::routes())
-        .nest("/run", run::routes())
-        .nest("/problems", problems::routes())
         .nest("/meetings", meetings::routes())
+        .nest("/problems", problems::routes())
+        .nest("/run", run::routes())
+        .nest("/submissions", submissions::routes())
+        .nest("/user", user::routes())
         .route("/ws", get(ws::handler))
         .layer(Extension(args.ramiel_url))
         .layer(Extension(queued_jobs))

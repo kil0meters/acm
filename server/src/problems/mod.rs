@@ -14,6 +14,9 @@ mod tests;
 pub struct Problem {
     pub id: i64,
 
+    // A competition id, if the problem is in one.
+    pub competition_id: Option<i64>,
+
     /// Problem title
     pub title: String,
 

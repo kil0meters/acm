@@ -146,6 +146,7 @@ async fn compile_problem(
             "-Wextra",
             "-Wpedantic",
             "-fno-exceptions",
+            "-std=c++20",
             &runner_filename,
             &implementation_filename,
             "-o",

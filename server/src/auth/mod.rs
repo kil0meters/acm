@@ -23,7 +23,7 @@ pub fn routes() -> Router {
         .route("/logout", get(discord::logout))
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct User {
     pub id: i64,
     pub name: String,

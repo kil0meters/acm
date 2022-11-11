@@ -45,20 +45,19 @@ pub async fn submissions(
         Submission,
         r#"
         SELECT
-            id,
-            problem_id,
-            user_id,
-            success,
-            runtime,
-            error,
-            time,
-            code
-        FROM
-            submissions
-        WHERE
-            user_id = ?
-        ORDER BY
-            time DESC
+            submissions.id,
+            submissions.problem_id,
+            submissions.user_id,
+            submissions.success,
+            submissions.runtime,
+            submissions.error,
+            submissions.time,
+            submissions.code
+        FROM submissions
+        JOIN problems ON problems.id = submissions.problem_id
+        WHERE user_id = ?
+        AND problems.competition_id IS NULL
+        ORDER BY time DESC
         LIMIT ? OFFSET ?
         "#,
         user_id,

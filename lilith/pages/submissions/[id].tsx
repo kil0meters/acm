@@ -28,7 +28,7 @@ function UserInfo({ id }: UserInfoProps): JSX.Element {
 
   return (
     <Link href={`/user/${data.username}`}>
-      { data.name }
+      {data.name}
     </Link>
   );
 }
@@ -56,11 +56,11 @@ const SubmissionPage: NextPage = () => {
     <div className="bg-white md:rounded-xl border border-neutral-300 flex flex-col mt-4 md:grid md:grid-cols-5 overflow-hidden max-w-screen-md md:mx-auto md:mt-8">
       <div className="p-4 col-span-3 border-neutral-300 border-b md:border-b-0 md:border-r flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-extrabold">{ "Problem " } { submission.problem_id }</h1>
+          <h1 className="text-3xl font-extrabold">{"Problem "} {submission.problem_id}</h1>
           <span className="text-sm text-neutral-500">
             <UserInfo id={submission.user_id} />
             {" • "}
-            { timeFormat(submission.time) }
+            {timeFormat(submission.time + 'Z')}
           </span>
         </div>
 
@@ -72,8 +72,8 @@ const SubmissionPage: NextPage = () => {
         />
 
         <div className="mt-auto p-4 rounded-md bg-yellow-300 border-yellow-500 border text-yellow-900">
-          <h1 className="font-bold text-xl mb-2">{ "Warning" }</h1>
-          <p>{ "You will lose your current progress." }</p>
+          <h1 className="font-bold text-xl mb-2">{"Warning"}</h1>
+          <p>{"You will lose your current progress."}</p>
         </div>
 
         <a href={`/problems/${submission.problem_id}`}
@@ -83,7 +83,7 @@ const SubmissionPage: NextPage = () => {
             router.push(`/problems/${submission.problem_id}`);
           }}
           className="rounded-full p-2 bg-blue-600 hover:bg-blue-500 text-blue-50 transition-colors text-center">
-          { "View in editor" }
+          {"View in editor"}
         </a>
       </div>
       <div className="col-span-2 border-b border-neutral-300 md:border-0">

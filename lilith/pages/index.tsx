@@ -2,6 +2,7 @@ import type { NextPage } from "next";
 import Footer from "../components/footer";
 import Navbar from "../components/navbar";
 import ProblemView from "../components/problem";
+import { CompetitionGrid } from "./competitions";
 
 const Home: NextPage = () => {
   return (
@@ -12,11 +13,7 @@ const Home: NextPage = () => {
         {"Chico ACM"}
       </h2>
 
-      <p className="text-lg text-center">{"We meet every Friday at 3PM at OCNL 241."}</p>
-
-      <div className="flex flex-col border-y md:border md:rounded-lg border-neutral-300 dark:border-neutral-700 overflow-hidden md:shadow-md w-full max-w-screen-xl grow md:mx-4 md:h-96">
-        <ProblemView id={1} />
-      </div>
+      <CompetitionGrid />
 
       <Footer />
     </div>

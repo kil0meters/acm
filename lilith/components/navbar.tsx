@@ -132,6 +132,11 @@ export default function Navbar(): JSX.Element {
           Leaderboard
         </NavbarLink>
 
+        <NavbarLink className={hiddenStyle} href="/competitions">
+          Competitions
+        </NavbarLink>
+
+
         {sidebar}
       </div>
     </div>

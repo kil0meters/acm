@@ -3,6 +3,7 @@ use acm::models::{
     test::Test,
 };
 use axum::{async_trait, Extension, Json};
+use chrono::Utc;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -104,6 +105,7 @@ impl Queueable for SubmitJob {
             Err(err) => (false, 0, Some(err.to_string()), vec![]),
         };
 
+        let now = Utc::now().naive_utc();
         let mut tx = pool.begin().await.unwrap();
         let submission = sqlx::query_as!(
             Submission,
@@ -114,9 +116,10 @@ impl Queueable for SubmitJob {
                 success,
                 runtime,
                 error,
-                code
+                code,
+                time
             )
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             RETURNING *
             "#,
             self.problem_id,
@@ -124,7 +127,8 @@ impl Queueable for SubmitJob {
             passed,
             runtime,
             error,
-            self.implementation
+            self.implementation,
+            now
         )
         .fetch_one(&mut tx)
         .await

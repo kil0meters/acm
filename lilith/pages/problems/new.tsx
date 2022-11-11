@@ -2,14 +2,16 @@ import { NextPage } from "next";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import useSWR from "swr";
 import shallow from "zustand/shallow";
 import LoadingButton from "../../components/loading-button";
 import Navbar from "../../components/navbar";
 import DescriptionEditor from "../../components/problem-editor/description-editor";
 import TestsEditor from "../../components/problem-editor/tests-editor";
 import Tabbed from "../../components/tabbed";
-import { api_url } from "../../utils/fetcher";
+import { api_url, fetcher } from "../../utils/fetcher";
 import { useAdminStore, useSession, useStore } from "../../utils/state";
+import { Competition } from "../competitions";
 const Editor = dynamic(import("../../components/editor"), { ssr: false });
 
 function RunnerEditor(): JSX.Element {
@@ -75,7 +77,7 @@ function Scheduler(): JSX.Element {
   let formattedTime = time.toISOString().substring(0, 16);
 
   return (
-    <div className="ml-4 flex gap-4 items-center">
+    <div className="px-4 flex gap-4 items-center border-r border-neutral-300 h-full">
       <label>Custom publish time: </label>
       <input type="checkbox" defaultChecked={dateShown} onChange={toggleDateShown} />
       {dateShown && <input
@@ -86,6 +88,29 @@ function Scheduler(): JSX.Element {
           setPublishTime(e.target.value);
         }}
       />}
+    </div>
+  );
+}
+
+function CompetitionPicker(): JSX.Element {
+  const { data } = useSWR<Competition[]>(api_url("/competitions"), fetcher);
+  const [competitionId, setCompetitionId] = useAdminStore((state) => [state.problemCompetitionId, state.setProblemCompetitionId]);
+
+  return (
+    <div className="px-4 border-neutral-300 border-r h-full flex gap-4 items-center">
+      <label>Competition: </label>
+      <select
+        value={competitionId}
+        onChange={(e) => {
+          let newValue = parseInt(e.target.value);
+          setCompetitionId(newValue == -1 ? undefined : newValue);
+        }}
+        className="border-neutral-300 dark:border-neutral-700 border rounded p-2 bg-neutral-50 dark:bg-neutral-900 outline-0 transition-shadow focus:ring dark:ring-neutral-700 ring-neutral-300"
+      >
+        <option value={-1}>None (default)</option>
+        {data && data.map((competition, i) => <option key={i} value={competition.id}>{competition.name}</option>)}
+      </select>
+
     </div>
   );
 }
@@ -106,7 +131,8 @@ function SubmitButton(): JSX.Element {
       problemTemplate: template,
       problemTests: tests,
       problemPublishTime: publish_time,
-      problemRuntimeMultiplier: runtime_multiplier
+      problemRuntimeMultiplier: runtime_multiplier,
+      problemCompetitionId: competition_id
     } = useAdminStore.getState();
 
     // TODO: Look into zod validator
@@ -131,8 +157,8 @@ function SubmitButton(): JSX.Element {
           template,
           tests,
           publish_time: publish_time ? new Date(publish_time).toISOString().slice(0, -1) : undefined,
-          runtime_multiplier
-          // activity_id
+          runtime_multiplier,
+          competition_id
         }),
       })).json();
 
@@ -180,8 +206,9 @@ const ProblemList: NextPage = () => {
           <TestsEditor />
         </Tabbed>
 
-        <div className="border-t border-neutral-300 dark:border-neutral-700 flex flex-col items-center gap-2 lg:bg-white dark:lg:bg-black lg:flex-row">
+        <div className="border-t border-neutral-300 dark:border-neutral-700 flex flex-col items-center lg:bg-white dark:lg:bg-black lg:flex-row">
           <Scheduler />
+          <CompetitionPicker />
           <SubmitButton />
         </div>
       </div>

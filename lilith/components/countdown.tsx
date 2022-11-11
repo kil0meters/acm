@@ -7,9 +7,10 @@ type CountdownNumberProps = {
 
 type CountdownProps = {
   to: Date;
+  onFinal?: () => void;
 };
 
-export default function Countdown({ to }: CountdownProps): JSX.Element {
+export default function Countdown({ to, onFinal }: CountdownProps): JSX.Element {
   function CountdownNumber({
     number,
     description,
@@ -33,6 +34,10 @@ export default function Countdown({ to }: CountdownProps): JSX.Element {
   }, []);
 
   const diff = (to.getTime() - time.getTime()) / 1000;
+
+  if (diff < 0 && onFinal) {
+    onFinal();
+  }
 
   const seconds = Math.floor(diff) % 60;
   let minutes = Math.floor(diff / 60) % 60;
