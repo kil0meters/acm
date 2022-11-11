@@ -10,7 +10,7 @@ const ProblemPage: NextPage = () => {
   return (
     <div className="h-screen w-screen grid grid-rows-min-full grid-cols-full">
       <Navbar />
-      <ProblemView competitionId={query.competition && parseInt(query.competition as string)} id={id} />
+      <ProblemView competitionId={!!query.competition ? parseInt(query.competition as string) : undefined} id={id} />
     </div>
   );
 }
