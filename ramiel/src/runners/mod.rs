@@ -84,7 +84,7 @@ async fn run_test_timed(command: &str, test: Test) -> Result<TestResult, RunnerE
     }
 }
 
-const MAX_MEMORY: usize = 1 << 27; // 128MB
+const MAX_MEMORY: usize = 1 << 29; // 512MB
 const MAX_FUEL: i64 = 1 << 48;
 
 async fn run_command(
