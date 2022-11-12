@@ -3,11 +3,14 @@ use axum::{
     response::Response,
     Extension,
 };
+
 use futures::{SinkExt, StreamExt};
 use serde::Serialize;
 use tokio::sync::broadcast::Sender;
 
-use crate::{problems::Problem, submissions::Submission};
+use crate::{
+    auth::Claims, error::ServerError, problems::Problem, run::JobStatus, submissions::Submission,
+};
 
 #[derive(Clone, Serialize)]
 pub enum BroadcastMessage {
@@ -19,19 +22,26 @@ pub enum BroadcastMessage {
 
     // New Problem
     NewProblem(Problem),
+
+    // New Job
+    NewJob(JobStatus),
+
+    FinishedJob(JobStatus),
+    // New Team Submission
 }
 
 pub async fn handler(
     ws: WebSocketUpgrade,
+    claims: Claims,
     Extension(tx): Extension<Sender<BroadcastMessage>>,
-) -> Response {
-    ws.on_upgrade(|socket| handle_socket(socket, tx))
+) -> Result<Response, ServerError> {
+    claims.validate_officer()?;
+
+    Ok(ws.on_upgrade(|socket| handle_socket(socket, tx)))
 }
 
 async fn handle_socket(socket: WebSocket, tx: Sender<BroadcastMessage>) {
     let mut rx = tx.subscribe();
-
-    // let (tx2, mut rx2) = mspc::channel(32);
 
     let (mut sender, mut receiver) = socket.split();
 

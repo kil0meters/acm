@@ -4,7 +4,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sqlx::SqlitePool;
-use tokio::sync::broadcast;
+use tokio::sync::broadcast::{self, Sender};
 
 use crate::{auth::Claims, error::ServerError, ws::BroadcastMessage};
 
@@ -15,15 +15,23 @@ pub async fn generate_tests(
     Json(queue_item): Json<GenerateTestsJob>,
     Extension(job_queue): Extension<JobQueue>,
     Extension(job_map): Extension<JobMap>,
+    Extension(broadcast): Extension<Sender<BroadcastMessage>>,
 ) -> Result<Json<JobStatus>, ServerError> {
     claims.validate_officer()?;
 
-    let job = add_job(claims.user_id, job_queue, job_map, Box::new(queue_item)).await?;
+    let job = add_job(
+        claims.user_id,
+        job_queue,
+        job_map,
+        Box::new(queue_item),
+        broadcast,
+    )
+    .await?;
 
     Ok(Json(job))
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct GenerateTestsJob {
     pub runner: String,
     pub reference: String,
@@ -62,5 +70,13 @@ impl Queueable for GenerateTestsJob {
 
     fn info(&self) -> String {
         format!("GenerateTestsJob submitted by user {}", self.user_id)
+    }
+
+    fn job_type(&self) -> String {
+        "GenerateTestsJob".to_string()
+    }
+
+    fn problem_id(&self) -> i64 {
+        -1
     }
 }

@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Footer from "../components/footer";
 import Navbar from "../components/navbar";
-import ProblemView from "../components/problem";
+// import ProblemView from "../components/problem";
 import { CompetitionGrid } from "./competitions";
 
 const Home: NextPage = () => {

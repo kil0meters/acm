@@ -13,7 +13,10 @@ use serde::Serialize;
 use serde_json::Value;
 use sqlx::SqlitePool;
 use tokio::{
-    sync::{broadcast, mpsc, RwLock},
+    sync::{
+        broadcast::{self, Sender},
+        mpsc, RwLock,
+    },
     time::{sleep, Duration},
 };
 
@@ -28,25 +31,26 @@ mod custom;
 mod generate_tests;
 mod submit;
 
-pub type JobQueueItem = Box<dyn Queueable + Send + Sync>;
+pub type JobQueueItem = Box<dyn Queueable>;
 pub type JobQueue = mpsc::Sender<(u64, JobQueueItem)>;
 pub type JobMap = Arc<RwLock<HashMap<u64, JobStatus>>>;
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct JobStatus {
     id: u64,
 
-    #[serde(skip)]
     user_id: i64,
 
     queue_position: u64,
+    job_type: String,
+    problem_id: i64,
 
     response: Option<Value>,
     error: Option<Value>,
 }
 
 #[async_trait]
-pub trait Queueable {
+pub trait Queueable: Send + Sync {
     // Executes the job
     async fn run(
         &self,
@@ -57,6 +61,8 @@ pub trait Queueable {
 
     // Returns some basic info about the job -- for logging purposes only
     fn info(&self) -> String;
+    fn job_type(&self) -> String;
+    fn problem_id(&self) -> i64;
 }
 
 // Adds a job to the job queue
@@ -65,6 +71,7 @@ async fn add_job(
     job_queue: JobQueue,
     job_map: JobMap,
     queue_item: JobQueueItem,
+    broadcast: Sender<BroadcastMessage>,
 ) -> Result<JobStatus, ServerError> {
     let job_id = JOB_COUNTER.fetch_add(1, Ordering::SeqCst);
 
@@ -75,10 +82,15 @@ async fn add_job(
         user_id,
 
         queue_position: job_id - PROCESSING_JOB.load(Ordering::SeqCst),
-
+        job_type: queue_item.job_type(),
+        problem_id: queue_item.problem_id(),
         response: None,
         error: None,
     };
+
+    broadcast
+        .send(BroadcastMessage::NewJob(job_status.clone()))
+        .ok();
 
     job_map.write().await.insert(job_id, job_status.clone());
 
@@ -141,6 +153,10 @@ pub async fn job_worker(
                 job.error = Some(body);
             }
         }
+
+        broadcast
+            .send(BroadcastMessage::FinishedJob(job.clone()))
+            .ok();
 
         let job_map = queued_jobs.clone();
         // Set timeout to remove the job from the job map to prevent it from growing out of control

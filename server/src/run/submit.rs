@@ -8,7 +8,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sqlx::SqlitePool;
-use tokio::sync::broadcast;
+use tokio::sync::broadcast::Sender;
 
 use crate::{auth::Claims, error::ServerError, submissions::Submission, ws::BroadcastMessage};
 
@@ -25,6 +25,7 @@ pub async fn submit(
     Extension(pool): Extension<SqlitePool>,
     Extension(job_queue): Extension<JobQueue>,
     Extension(job_map): Extension<JobMap>,
+    Extension(broadcast): Extension<Sender<BroadcastMessage>>,
     claims: Claims,
 ) -> Result<Json<JobStatus>, ServerError> {
     log::info!("{:?}", claims);
@@ -67,12 +68,12 @@ pub async fn submit(
         tests,
     });
 
-    let job = add_job(claims.user_id, job_queue, job_map, queue_item).await?;
+    let job = add_job(claims.user_id, job_queue, job_map, queue_item, broadcast).await?;
 
     Ok(Json(job))
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct SubmitJob {
     pub problem_id: i64,
     pub user_id: i64,
@@ -87,7 +88,7 @@ impl Queueable for SubmitJob {
         &self,
         ramiel_url: &str,
         pool: &SqlitePool,
-        broadcast: &broadcast::Sender<BroadcastMessage>,
+        broadcast: &Sender<BroadcastMessage>,
     ) -> Result<Value, ServerError> {
         let client = Client::new();
         let res = client
@@ -188,5 +189,13 @@ impl Queueable for SubmitJob {
             "SubmitJob for problem {} submitted by user {}",
             self.problem_id, self.user_id
         )
+    }
+
+    fn job_type(&self) -> String {
+        "SubmitJob".to_string()
+    }
+
+    fn problem_id(&self) -> i64 {
+        self.problem_id
     }
 }

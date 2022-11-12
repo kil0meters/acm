@@ -121,13 +121,7 @@ export default function Navbar(): JSX.Element {
         <NavbarLink className={hiddenStyle} href="/problems">
           Problems
         </NavbarLink>
-        {/*
-        We're hiding this for now, waiting for the feature to be more mature.
 
-        <NavbarLink className={hiddenStyle} href="/meetings">
-           Meetings
-        </NavbarLink>
-        */}
         <NavbarLink className={hiddenStyle} href="/leaderboard">
           Leaderboard
         </NavbarLink>
@@ -135,6 +129,10 @@ export default function Navbar(): JSX.Element {
         <NavbarLink className={hiddenStyle} href="/competitions">
           Competitions
         </NavbarLink>
+
+        {(user && (user.auth == "OFFICER" || user.auth == "ADMIN")) && <NavbarLink className={hiddenStyle} href="/dashboard">
+          Dashboard
+        </NavbarLink>}
 
 
         {sidebar}

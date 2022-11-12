@@ -4,7 +4,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sqlx::SqlitePool;
-use tokio::sync::broadcast;
+use tokio::sync::broadcast::{self, Sender};
 
 use crate::{auth::Claims, error::ServerError, ws::BroadcastMessage};
 
@@ -22,6 +22,7 @@ pub async fn custom(
     Extension(pool): Extension<SqlitePool>,
     Extension(job_queue): Extension<JobQueue>,
     Extension(job_map): Extension<JobMap>,
+    Extension(broadcast): Extension<Sender<BroadcastMessage>>,
     claims: Claims,
 ) -> Result<Json<JobStatus>, ServerError> {
     claims.validate_logged_in()?;
@@ -53,12 +54,12 @@ pub async fn custom(
         input: form.input,
     });
 
-    let job = add_job(claims.user_id, job_queue, job_map, queue_item).await?;
+    let job = add_job(claims.user_id, job_queue, job_map, queue_item, broadcast).await?;
 
     Ok(Json(job))
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct CustomInputJob {
     pub problem_id: i64,
     pub user_id: i64,
@@ -94,5 +95,13 @@ impl Queueable for CustomInputJob {
 
     fn info(&self) -> String {
         format!("CustomInputJob submitted by user {}", self.user_id)
+    }
+
+    fn job_type(&self) -> String {
+        "CustomInputJob".to_string()
+    }
+
+    fn problem_id(&self) -> i64 {
+        self.problem_id
     }
 }
