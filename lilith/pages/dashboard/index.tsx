@@ -1,4 +1,5 @@
 import type { NextPage } from "next";
+import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
@@ -90,7 +91,7 @@ const DashboardPage: NextPage = () => {
   const [finishedJobs, setFinishedJobs] = useState<Job[]>([]);
 
   useEffect(() => {
-    const client = new WebSocket('ws://localhost:8081/ws');
+    const client = new WebSocket(process.env.NEXT_PUBLIC_WS_URL!);
 
     console.log("Creating client");
 
@@ -138,6 +139,10 @@ const DashboardPage: NextPage = () => {
   return (
     <div>
       <Navbar />
+
+      <Head>
+        <title>Admin Dashboard</title>
+      </Head>
 
       <div className="grid grid-cols-3 gap-4 p-4">
         <div className="flex flex-col gap-4">

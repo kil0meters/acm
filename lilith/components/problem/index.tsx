@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 import Error from "next/error";
+import Head from "next/head";
 import Link from "next/link";
 import { createContext } from "react";
 import useSWR from "swr";
@@ -87,6 +88,10 @@ export default function ProblemView({ id }: ProblemViewProps): JSX.Element {
   return (
     <ProblemIDContext.Provider value={id}>
       <ProblemContext.Provider value={data}>
+        <Head>
+          <title>{data?.title}</title>
+        </Head>
+
         <div className="grid grid-rows-[min-content_min-content_40vh_minmax(0,1fr)] md:grid-cols-[400px_minmax(0,1fr)] lg:grid-cols-[500px_minmax(0,1fr)] md:grid-rows-full-min h-full">
           <div className="md:border-r border-neutral-300 dark:border-neutral-700 row-span-2 flex flex-col border-b md:border-b-0">
             {data?.competition_id && <BackToCompetition competitionId={data?.competition_id} />}

@@ -1,5 +1,6 @@
 import { NextPage } from "next";
 import Error from "next/error";
+import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Prism from "prismjs";
@@ -20,11 +21,13 @@ function InvalidateButton({ id }: { id?: number }): JSX.Element {
   }
 
   return (
-    <button
-      onClick={submit}
-      className="w-full mt-4 rounded-full bg-red-600 hover:bg-red-700 px-4 py-2 text-red-50 transition-colors">
-      Invalidate
-    </button>
+    <div className="w-full px-4 lg:px-0">
+      <button
+        onClick={submit}
+        className="w-full mt-4 rounded-full bg-red-600 hover:bg-red-700 px-4 py-2 text-red-50 transition-colors">
+        Invalidate
+      </button>
+    </div>
   )
 }
 
@@ -38,11 +41,13 @@ function ValidateButton({ id }: { id?: number }): JSX.Element {
   }
 
   return (
-    <button
-      onClick={submit}
-      className="w-full mt-4 rounded-full bg-blue-600 hover:bg-blue-700 px-4 py-2 text-red-50 transition-colors">
-      Validate
-    </button>
+    <div className="w-full px-4 lg:px-0">
+      <button
+        onClick={submit}
+        className="w-full mt-4 rounded-full bg-blue-600 hover:bg-blue-700 px-4 py-2 text-red-50 transition-colors">
+        Validate
+      </button>
+    </div>
   )
 }
 
@@ -95,8 +100,12 @@ const SubmissionPage: NextPage = () => {
   return <>
     <Navbar />
 
-    <div className="grid grid-cols-[minmax(0,1fr)_320px] mt-4 md:flex-row md:gap-4 max-w-screen-lg md:mx-auto md:mt-8">
-      <div className="p-4 border-neutral-300 border-b md:border rounded-md flex flex-col gap-4 max-w">
+    <Head>
+      <title>Submission {id}</title>
+    </Head>
+
+    <div className="grid grid-cols-[minmax(0,1fr)] grid-rows-min-full gap-4 lg:grid-cols-[minmax(0,1fr)_320px] mt-4 md:flex-row max-w-screen-lg md:mx-auto md:mt-8">
+      <div className="p-4 border-neutral-300 border-y lg:border lg:rounded-md flex flex-col gap-4 max-w row-start-2 lg:row-start-1">
         <div className="flex flex-col gap-1">
           <div className="flex flex-col">
             <h1 className="text-3xl font-extrabold">{"Problem "} {submission.problem_id}</h1>
@@ -130,8 +139,8 @@ const SubmissionPage: NextPage = () => {
           {"View in editor"}
         </a>
       </div>
-      <div>
-        <div className="border rounded-md border-neutral-300 overflow-hidden">
+      <div className="col-row-1">
+        <div className="border-y lg:border lg:rounded-md border-neutral-300 overflow-hidden">
           <SubmissionFeedback inProblemView={false} {...submission} />
         </div>
 

@@ -2,26 +2,13 @@ use axum::{
     extract::{Path, Query},
     Extension, Json,
 };
-use serde::Deserialize;
 use sqlx::SqlitePool;
 
 use crate::{
     error::{ServerError, UserError},
+    pagination::Pagination,
     submissions::Submission,
 };
-
-#[derive(Deserialize)]
-pub struct Pagination<const C: i64, const O: i64> {
-    #[serde(default = "default_value::<O>")]
-    count: i64,
-
-    #[serde(default = "default_value::<C>")]
-    offset: i64,
-}
-
-fn default_value<const T: i64>() -> i64 {
-    T
-}
 
 pub async fn submissions(
     Path(username): Path<String>,

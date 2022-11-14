@@ -1,5 +1,6 @@
 import { NextPage } from "next";
 import dynamic from "next/dynamic";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import useSWR from "swr";
@@ -186,10 +187,14 @@ function SubmitButton(): JSX.Element {
   )
 }
 
-const ProblemList: NextPage = () => {
+const ProblemEditorPage: NextPage = () => {
   return (
     <div className="grid grid-rows-min-full grid-cols-full w-screen h-screen">
       <Navbar />
+
+      <Head>
+        <title>Problem Editor</title>
+      </Head>
 
       <div className="flex flex-col gap-2 lg:gap-0 lg:grid lg:grid-cols-[450px_minmax(0,1fr)] lg:grid-rows-full-min">
         <div className="grid grid-rows-min-full grid-cols-full gap-2 lg:gap-0 lg:border-r border-neutral-300 dark:border-neutral-700 row-span-2">
@@ -216,4 +221,4 @@ const ProblemList: NextPage = () => {
   );
 };
 
-export default ProblemList;
+export default ProblemEditorPage;

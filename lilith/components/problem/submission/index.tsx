@@ -3,9 +3,7 @@ import { Submission, useSession } from "../../../utils/state";
 
 export default function SubmissionFeedback({
   inProblemView,
-
   id,
-  problem_id,
   error,
   success,
   runtime,
@@ -15,10 +13,10 @@ export default function SubmissionFeedback({
   }: {
     className: string;
   }) {
-    const hideSubmission = useSession((session) => session.hideSubmission);
+    const setSubmissionShown = useSession((session) => session.setSubmissionShown);
 
     return (
-      <button className={className} onClick={() => hideSubmission(problem_id)}>
+      <button className={className} onClick={() => setSubmissionShown(true)}>
         ⨯
       </button>
     )

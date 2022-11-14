@@ -1,14 +1,19 @@
 import { useTransition, animated } from "@react-spring/web";
 import { useContext, useState } from "react";
+import useSWR from "swr";
 import SubmissionFeedback from "..";
 import { ProblemIDContext } from "../..";
-import { useSession } from "../../../../utils/state";
+import { api_url, fetcher } from "../../../../utils/fetcher";
+import { Submission } from "../../../../utils/state";
 import TestEntries from "./entries";
 
 export default function TestContainer(): JSX.Element {
   const [isVisible, setIsVisible] = useState<Boolean>(false);
   const id = useContext(ProblemIDContext);
-  const submission = useSession((state) => id && state.submissions[id]);
+  const { data: submission } = useSWR<Submission>(
+    id ? api_url(`/problems/${id}/recent-submission`) : null,
+    fetcher
+  );
 
   function toggleVisibility() {
     setIsVisible(!isVisible);
@@ -28,7 +33,9 @@ export default function TestContainer(): JSX.Element {
 
   return (
     <div className="flex flex-col">
-      {submission && <SubmissionFeedback inProblemView={true} {...submission} />}
+      {submission && <div className="border-b border-neutral-300 dark:border-neutral-700">
+        <SubmissionFeedback inProblemView={true} {...submission} />
+      </div>}
 
       <div className="flex flex-col border-neutral-300 dark:border-neutral-700 md:m-0 md:border-0">
         <button

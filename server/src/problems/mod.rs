@@ -8,6 +8,8 @@ mod history;
 mod index;
 mod new;
 mod problem;
+mod recent_submission;
+mod recent_tests;
 mod tests;
 
 #[derive(Serialize, Clone)]
@@ -37,4 +39,9 @@ pub fn routes() -> Router {
         .route("/:problem_id", get(problem::problem))
         .route("/:problem_id/tests", get(tests::tests))
         .route("/:problem_id/history", get(history::history))
+        .route(
+            "/:problem_id/recent-submission",
+            get(recent_submission::recent_submission),
+        )
+        .route("/:problem_id/recent-tests", get(recent_tests::recent_tests))
 }

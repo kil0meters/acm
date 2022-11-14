@@ -23,6 +23,7 @@ mod competitions;
 mod error;
 mod leaderboard;
 mod meetings;
+mod pagination;
 mod problems;
 mod run;
 mod submissions;

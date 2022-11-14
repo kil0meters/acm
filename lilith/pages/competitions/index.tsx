@@ -1,4 +1,5 @@
 import type { NextPage } from "next";
+import Head from "next/head";
 import Link from "next/link";
 import useSWR from "swr";
 import Navbar from "../../components/navbar";
@@ -15,7 +16,7 @@ export type Competition = {
 function CompetitionListItem({ id, name, start }: Competition): JSX.Element {
   return (
     <Link href={`/competitions/${id}`}>
-      <a className="border-neutral-300 p-4 border rounded-md bg-white dark:bg-black dark:border-neutral-700 dark:hover:bg-neutral-900 flex flex-col gap-2 hover:shadow-md transition-all">
+      <a className="border-neutral-300 p-4 border-y md:border md:rounded-md bg-white dark:bg-black dark:border-neutral-700 dark:hover:bg-neutral-900 flex flex-col gap-2 hover:shadow-md transition-all">
         <h1 className="text-2xl font-bold">{name}</h1>
         <span className="text-neutral-700 dark:text-neutral-400">{new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeStyle: undefined }).format(new Date(start))}</span>
       </a>
@@ -33,7 +34,7 @@ export function CompetitionGrid(): JSX.Element {
     return <></>;
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid md:grid-cols-2 gap-4">
 
       {data.map((competition, i) => <CompetitionListItem key={i} {...competition} />)}
     </div>
@@ -51,9 +52,13 @@ const CompetitionsPage: NextPage = () => {
     <>
       <Navbar />
 
+      <Head>
+        <title>Competitions</title>
+      </Head>
+
       <div className="flex flex-col max-w-screen-md mx-auto my-4 gap-4">
         <div className="flex">
-          <h1 className="text-3xl font-extrabold">Competitions</h1>
+          <h1 className="text-3xl font-extrabold ml-4 md:ml-0">Competitions</h1>
 
           {user && (user.auth === "OFFICER" || user.auth === "ADMIN") && (
             <Link href="/competitions/new">

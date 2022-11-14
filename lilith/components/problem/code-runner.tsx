@@ -9,7 +9,7 @@ import LoadingButton from "../loading-button";
 import Modal from "../modal";
 import QueueStatus from "../queue-status";
 import InputTester from "./input-tester";
-import { ServerError } from "./submission/error";
+import { isServerError, ServerError } from "./submission/error";
 import { SUBMISSION_TESTS_QUERY } from "./submission/tests";
 
 export default function CodeRunner(): JSX.Element {
@@ -17,9 +17,6 @@ export default function CodeRunner(): JSX.Element {
   const [settingsShown, setSettingsShown] = useState(false);
 
   function SubmitButton(): JSX.Element {
-    const setSubmission = useSession(
-      (state) => state.setSubmission
-    );
     const id = useContext(ProblemIDContext)!;
     const implementation = useStore(
       (state) => id && state.problemImpls[id]
@@ -37,7 +34,7 @@ export default function CodeRunner(): JSX.Element {
 
       setLoading(true);
 
-      awful_bad_hacky_code: try {
+      try {
         let res = await fetch(api_url("/run/submit"), {
           method: "POST",
           headers: {
@@ -52,17 +49,13 @@ export default function CodeRunner(): JSX.Element {
 
         let job: JobStatus<Submission, ServerError> = await res.json();
 
-        // yeah, I know typescript, how could you tell
-        if ((job as unknown as ServerError).error) {
-          setError((job as unknown as ServerError).error, true);
-          break awful_bad_hacky_code;
-        }
-
         let [data, err] = await monitorJob(job, (n) => setQueuePosition(n));
 
         if (data) {
-          setSubmission(id, data);
-          setTimeout(() => mutate(SUBMISSION_TESTS_QUERY), 0);
+          setTimeout(() => {
+            mutate(api_url(`/problems/${id}/recent-submission`));
+            mutate(SUBMISSION_TESTS_QUERY);
+          }, 0);
         }
 
         if (err) {

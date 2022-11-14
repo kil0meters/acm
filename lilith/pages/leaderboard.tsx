@@ -1,4 +1,5 @@
 import { NextPage } from "next";
+import Head from "next/head";
 import Link from "next/link";
 import useSWR from "swr";
 import Navbar from "../components/navbar";
@@ -64,17 +65,21 @@ const Leaderboard: NextPage = () => {
     <>
       <Navbar />
 
+      <Head>
+        <title>Leaderboard</title>
+      </Head>
+
       <div className="max-w-screen-md mx-auto">
         <h1 className="text-3xl font-extrabold p-2">{"Leaderboard"}</h1>
 
         <div className="flex flex-col border-y sm:rounded-md sm:border sm:m-2 md:m-0 border-neutral-300 dark:border-neutral-700 bg-white overflow-hidden">
           {!data
             ? Array(3)
-                .fill(0)
-                .map((_, i) => <LoadingLeaderboardEntry key={i} />)
+              .fill(0)
+              .map((_, i) => <LoadingLeaderboardEntry key={i} />)
             : data.map((entry, i) => (
-                <LeaderboardEntry key={i} index={i + 1} {...entry} />
-              ))}
+              <LeaderboardEntry key={i} index={i + 1} {...entry} />
+            ))}
         </div>
       </div>
     </>

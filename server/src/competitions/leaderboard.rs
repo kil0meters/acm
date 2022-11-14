@@ -27,7 +27,7 @@ pub async fn leaderboard(
                 JOIN competitions ON competitions.id = teams.competition_id
                 WHERE submissions.time > competitions.start
                 AND submissions.time < competitions.end
-                GROUP BY submissions.problem_id
+                GROUP BY submissions.problem_id, teams.id
             ) GROUP BY team_id
         ) AS leaderboard ON leaderboard.team_id = teams.id
         WHERE teams.competition_id = $1

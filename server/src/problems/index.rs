@@ -2,7 +2,7 @@ use axum::{extract::Query, Extension, Json};
 use serde::Deserialize;
 use sqlx::SqlitePool;
 
-use crate::{auth::Claims, error::ServerError};
+use crate::{auth::Claims, error::ServerError, pagination::Pagination};
 
 use super::Problem;
 
@@ -14,6 +14,7 @@ pub struct ProblemOptions {
 pub async fn problems(
     Extension(pool): Extension<SqlitePool>,
     Query(options): Query<ProblemOptions>,
+    Query(pagination): Query<Pagination<0, 10>>,
     claims: Claims,
 ) -> Result<Json<Vec<Problem>>, ServerError> {
     let is_officer = claims.validate_officer().is_ok();
@@ -30,14 +31,14 @@ pub async fn problems(
                     runner,
                     template,
                     competition_id
-                FROM
-                    problems
-                WHERE
-                    competition_id = ?
-                ORDER BY
-                    update_dt DESC
+                FROM problems
+                WHERE competition_id = ?
+                ORDER BY update_dt DESC
+                LIMIT ? OFFSET ?
                 "#,
-                options.competition_id
+                options.competition_id,
+                pagination.count,
+                pagination.offset
             )
             .fetch_all(&pool)
             .await
@@ -53,14 +54,15 @@ pub async fn problems(
                     runner,
                     template,
                     competition_id
-                FROM
-                    problems
-                WHERE
-                    visible = true AND competition_id = ?
-                ORDER BY
-                    update_dt DESC
+                FROM problems
+                WHERE visible = true
+                AND competition_id = ?
+                ORDER BY update_dt DESC
+                LIMIT ? OFFSET ?
                 "#,
-                options.competition_id
+                options.competition_id,
+                pagination.count,
+                pagination.offset
             )
             .fetch_all(&pool)
             .await
@@ -78,13 +80,13 @@ pub async fn problems(
                     runner,
                     template,
                     competition_id
-                FROM
-                    problems
-                WHERE
-                    competition_id is NULL
-                ORDER BY
-                    update_dt DESC
-                "#
+                FROM problems
+                WHERE competition_id is NULL
+                ORDER BY update_dt DESC
+                LIMIT ? OFFSET ?
+                "#,
+                pagination.count,
+                pagination.offset
             )
             .fetch_all(&pool)
             .await
@@ -100,13 +102,14 @@ pub async fn problems(
                     runner,
                     template,
                     competition_id
-                FROM
-                    problems
-                WHERE
-                    visible = true AND competition_id is NULL
-                ORDER BY
-                    update_dt DESC
-                "#
+                FROM problems
+                WHERE visible = true
+                AND competition_id is NULL
+                ORDER BY update_dt DESC
+                LIMIT ? OFFSET ?
+                "#,
+                pagination.count,
+                pagination.offset
             )
             .fetch_all(&pool)
             .await

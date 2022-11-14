@@ -7,7 +7,10 @@ import { api_url, fetcher } from "../../utils/fetcher";
 import Link from "next/link";
 import Prism from "prismjs";
 import { User, useSession, useStore } from "../../utils/state";
+import useSWRInfinite from "swr/infinite";
 import { useState } from "react";
+import LoadingButton from "../../components/loading-button";
+import Head from "next/head";
 
 type Submission = {
   id: number;
@@ -18,8 +21,11 @@ type Submission = {
 };
 
 function RecentSubmissions({ username }: { username: string }): JSX.Element {
-  const { data: submissions, error } = useSWR<Submission[]>(
-    api_url(`/user/username/${username}/submissions`),
+  const { data: submissions, error, isValidating, size, setSize } = useSWRInfinite<Submission[]>(
+    (pageIndex, previousSubmissions) => {
+      if (previousSubmissions && !previousSubmissions.length) return null;
+      return api_url(`/user/username/${username}/submissions?offset=${pageIndex * 10}&count=10`);
+    },
     fetcher
   );
 
@@ -77,9 +83,17 @@ function RecentSubmissions({ username }: { username: string }): JSX.Element {
         Recent Submissions
       </h2>
 
-      {submissions.map((submission, i) => (
-        <SubmissionEntry key={i} {...submission} />
-      ))}
+      {submissions.map((submissions2) =>
+        submissions2.map((submission, i) => (
+          <SubmissionEntry key={i} {...submission} />
+        ))
+      )}
+
+      <LoadingButton
+        loading={isValidating}
+        className="rounded-full bg-neutral-200 hover:bg-neutral-300 px-6 py-3 transition-colors mx-auto"
+        onClick={() => setSize(size + 1)}
+      >Load more</LoadingButton>
     </div>
   );
 }
@@ -243,6 +257,10 @@ const UserPage: NextPage = () => {
   return (
     <>
       <Navbar />
+
+      <Head>
+        <title>{user.name} - {user.username}</title>
+      </Head>
 
       <div className="grid grid-rows-min-full grid-cols-[minmax(0,1fr)] lg:grid-rows-1 lg:grid-flow-col lg:gap-4 lg:p-4 lg:grid-cols-[300px_minmax(0,1fr)] max-w-screen-md lg:max-w-screen-lg mx-auto">
         {!user ? <UserLoading /> : <UserSidebar {...user} />}

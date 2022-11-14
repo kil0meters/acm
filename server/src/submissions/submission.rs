@@ -12,13 +12,10 @@ pub async fn submission(
     let submission = sqlx::query_as!(
         Submission,
         r#"
-            SELECT
-                *
-            FROM
-                submissions
-            WHERE
-                id = ?
-            "#,
+            SELECT *
+            FROM submissions
+            WHERE id = ?
+        "#,
         submission_id
     )
     .fetch_one(&pool)

@@ -11,6 +11,7 @@ import { api_url, fetcher } from "../../utils/fetcher";
 import useSWR, { mutate } from "swr";
 import Modal from "../../components/modal";
 import { isServerError, ServerError } from "../../components/problem/submission/error";
+import Head from "next/head";
 
 function TeamDisplay({ id }: { id: number }) {
   const { data: team, error: _error } = useSWR<Team>(
@@ -40,9 +41,9 @@ function CompetitionLeaderboardEntry({ id, name, score }: CompetitionLeaderboard
         onClick={() => setShown(true)}
         className="w-full dark:border-neutral-700 p-4 flex flex-row items-center gap-4 hover:bg-neutral-100 dark:bg-black dark:hover:bg-neutral-800 transition-colors">
         <div className="flex flex-col">
-          <span className="text-xl font-bold">{name}</span>
+          <span className="text-xl font-bold whitespace-nowrap">{name}</span>
         </div>
-        {score > 0 && <span className="ml-auto bg-yellow-300 text-yellow-800 rounded-full px-4 h-9 self-center flex items-center">
+        {score > 0 && <span className="ml-auto whitespace-nowrap bg-yellow-300 text-yellow-800 rounded-full px-4 h-9 self-center flex items-center">
           {score} ★
         </span>}
 
@@ -296,7 +297,7 @@ function CompetitionProblemList(): JSX.Element {
   if (!problems) return <></>;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 mb-12">
       <h1 className="text-2xl font-extrabold p-2 lg:px-0">Problems</h1>
 
       <ProblemList problems={problems} show_team_status={true} />
@@ -332,7 +333,11 @@ const CompetitionPage: NextPage = () => {
     <CompetitionIDContext.Provider value={competition.id}>
       <Navbar />
 
-      <div className="max-w-screen-xl mx-auto flex flex-col mt-4 ">
+      <Head>
+        <title>{competition.name}</title>
+      </Head>
+
+      <div className="max-w-screen-xl lg:px-4 mx-auto flex flex-col mt-4 ">
         <div className="grid grid-rows-min-full grid-cols-1 lg:grid-rows-1 lg:grid-flow-col gap-4 lg:grid-cols-[2fr_1fr]">
           <div className="flex flex-col gap-4 lg:col--2">
             <TeamStatus editable={!ended} />

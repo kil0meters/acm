@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { SUBMISSION_TESTS_QUERY, Test, TestResult } from ".";
 import { ProblemIDContext } from "../..";
 import { api_url, fetcher } from "../../../../utils/fetcher";
-import { useSession, useStore } from "../../../../utils/state";
+import { Submission, useSession, useStore } from "../../../../utils/state";
 import Modal from "../../../modal";
 import TestResultInfo from "../test-result";
 
@@ -87,8 +87,10 @@ function TestResultEntry(test: TestResult): JSX.Element {
 
 export default function TestEntries(): JSX.Element {
   let problemId = useContext(ProblemIDContext);
-  const submissionId = useSession(
-    (state) => problemId && state.submissions[problemId]?.id
+
+  const { data: submission } = useSWR<Submission>(
+    problemId ? api_url(`/problems/${problemId}/recent-submission`) : null,
+    fetcher
   );
 
   const { data, error } = useSWR<Test[] | TestResult[]>(
@@ -96,8 +98,8 @@ export default function TestEntries(): JSX.Element {
     () =>
       fetcher(
         api_url(
-          submissionId
-            ? `/submissions/${submissionId}/tests`
+          submission
+            ? `/problems/${problemId}/recent-tests`
             : `/problems/${problemId}/tests`
         )
       )
@@ -114,7 +116,7 @@ export default function TestEntries(): JSX.Element {
             ? Array(5)
               .fill(0)
               .map((_, i) => <LoadingTest key={i} />)
-            : submissionId
+            : submission
               ? (data as TestResult[]).map((test, i) => (
                 <TestResultEntry key={i} {...test} />
               ))

@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import Navbar from "../../components/navbar";
-import useSWR from "swr";
+import useSWRInfinite from "swr/infinite";
 import { marked } from "marked";
 import Link from "next/link";
 import { api_url, fetcher } from "../../utils/fetcher";
@@ -8,6 +8,9 @@ import { User, useStore } from "../../utils/state";
 import { useContext, useEffect, useRef, useState } from "react";
 import renderLatex from "../../utils/latex";
 import { CompetitionIDContext } from "../competitions/[id]";
+import useSWR from "swr";
+import LoadingButton from "../../components/loading-button";
+import Head from "next/head";
 
 function ProblemLoading(): JSX.Element {
   return (
@@ -120,10 +123,16 @@ export function ProblemList({ problems, show_team_status }: { problems: Problem[
 }
 
 const ProblemListPage: NextPage = () => {
-  const { data, error } = useSWR<Problem[]>(api_url("/problems"), fetcher);
+  const { data, error, isValidating, size, setSize } = useSWRInfinite<Problem[]>(
+    (pageIndex, previousProblems) => {
+      if (previousProblems && !previousProblems.length) return null;
+      return api_url(`/problems?offset=${7 * pageIndex}&count=7`);
+    },
+    fetcher
+  );
   const [isComponentMounted, setIsComponentMounted] = useState(false);
 
-  const { data: user, error: _error } = useSWR<User>(
+  const { data: user } = useSWR<User>(
     api_url("/user/me"),
     fetcher, {
     shouldRetryOnError: false,
@@ -137,6 +146,10 @@ const ProblemListPage: NextPage = () => {
     <>
       <Navbar />
 
+      <Head>
+        <title>Problems</title>
+      </Head>
+
       <div className="max-w-screen-md mx-auto my-4 flex flex-col gap-4">
         {isComponentMounted && user && (user.auth === "OFFICER" || user.auth === "ADMIN") && (
           <Link href="/problems/new">
@@ -146,7 +159,13 @@ const ProblemListPage: NextPage = () => {
           </Link>
         )}
 
-        {!data ? <ListLoading /> : <ProblemList problems={data} />}
+        {!data ? <ListLoading /> : data.map((problems, i) => <ProblemList key={i} problems={problems} />)}
+
+        <LoadingButton
+          loading={isValidating}
+          className="rounded-full bg-neutral-200 hover:bg-neutral-300 px-6 py-3 transition-colors mx-auto"
+          onClick={() => setSize(size + 1)}
+        >Load more</LoadingButton>
       </div>
     </>
   );
