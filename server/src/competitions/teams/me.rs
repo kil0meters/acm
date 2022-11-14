@@ -54,7 +54,5 @@ pub async fn me(
     .await
     .map_err(|_| ServerError::InternalError)?;
 
-    println!("{members:?}");
-
     Ok(Json(Some(Team { id, name, members })))
 }

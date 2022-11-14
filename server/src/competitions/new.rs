@@ -24,8 +24,6 @@ pub async fn new(
 ) -> Result<Json<NewCompletionBody>, ServerError> {
     claims.validate_officer()?;
 
-    println!("{:?}\n{:?}", form.start, form.end);
-
     let id = sqlx::query!(
         r#"INSERT INTO competitions (name, start, end) VALUES (?, ?, ?) RETURNING id"#,
         form.name,

@@ -57,10 +57,6 @@ impl Queueable for GenerateTestsJob {
             // TODO: Handle error
             .unwrap();
 
-        /* let text = res.text().await.unwrap();
-
-        println!("{}", text); */
-
         // panic!();
 
         let tests: Result<Vec<Test>, RunnerError> = res.json().await.unwrap();
