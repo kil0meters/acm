@@ -1,6 +1,5 @@
 use std::{
     collections::{HashMap, VecDeque},
-    process,
     sync::{atomic::Ordering, Arc},
 };
 
@@ -10,7 +9,7 @@ use axum::{
     routing::{get, post},
     Extension, Json, Router,
 };
-use futures::future::join_all;
+
 use serde::Serialize;
 use serde_json::Value;
 use sqlx::SqlitePool;

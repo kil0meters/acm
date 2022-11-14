@@ -10,7 +10,7 @@ use tokio::sync::{broadcast, mpsc, RwLock};
 use axum::{routing::get, Extension, Router, Server};
 use clap::Parser;
 use sqlx::SqlitePool;
-use tower_http::{cors::CorsLayer, trace::TraceLayer};
+use tower_http::{cors::CorsLayer};
 
 use crate::{
     problems::Problem,
@@ -72,11 +72,6 @@ async fn main() {
     let (broadcast, _) = broadcast::channel::<BroadcastMessage>(16);
 
     // A multi-producer, single-consumer channel for long-running jobs
-
-    // broken
-    let (job_queue, rx) = mpsc::channel::<(u64, JobQueueItem)>(10);
-
-    // fix
     let (job_queue, rx) = mpsc::unbounded_channel::<(u64, JobQueueItem)>();
 
     let queued_jobs = Arc::new(RwLock::new(HashMap::<u64, JobStatus>::new()));
