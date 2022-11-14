@@ -43,7 +43,7 @@ const Leaderboard: NextPage = () => {
             </span>
           </div>
           <span className="ml-auto bg-yellow-300 text-yellow-800 rounded-full px-4 h-9 self-center flex items-center">
-            {count} {count > 1 ? " Stars" : " Star"}
+            {count} ★
           </span>
         </a>
       </Link>
@@ -69,7 +69,7 @@ const Leaderboard: NextPage = () => {
         <title>Leaderboard</title>
       </Head>
 
-      <div className="max-w-screen-md mx-auto">
+      <div className="max-w-screen-md mx-auto mb-12">
         <h1 className="text-3xl font-extrabold p-2">{"Leaderboard"}</h1>
 
         <div className="flex flex-col border-y sm:rounded-md sm:border sm:m-2 md:m-0 border-neutral-300 dark:border-neutral-700 bg-white overflow-hidden">
