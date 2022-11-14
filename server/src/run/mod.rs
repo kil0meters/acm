@@ -1,5 +1,6 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, VecDeque},
+    process,
     sync::{atomic::Ordering, Arc},
 };
 
@@ -9,6 +10,7 @@ use axum::{
     routing::{get, post},
     Extension, Json, Router,
 };
+use futures::future::join_all;
 use serde::Serialize;
 use serde_json::Value;
 use sqlx::SqlitePool;
@@ -17,6 +19,7 @@ use tokio::{
         broadcast::{self, Sender},
         mpsc, RwLock,
     },
+    task::JoinHandle,
     time::{sleep, Duration},
 };
 
@@ -32,7 +35,7 @@ mod generate_tests;
 mod submit;
 
 pub type JobQueueItem = Box<dyn Queueable>;
-pub type JobQueue = mpsc::Sender<(u64, JobQueueItem)>;
+pub type JobQueue = mpsc::UnboundedSender<(u64, JobQueueItem)>;
 pub type JobMap = Arc<RwLock<HashMap<u64, JobStatus>>>;
 
 #[derive(Serialize, Debug, Clone)]
@@ -96,7 +99,6 @@ async fn add_job(
 
     job_queue
         .send((job_id, queue_item))
-        .await
         .map_err(|_| ServerError::InternalError)?;
 
     Ok(job_status)
@@ -125,47 +127,73 @@ pub async fn check_job(
     }
 }
 
-pub async fn job_worker(
-    mut rx: mpsc::Receiver<(u64, JobQueueItem)>,
+async fn process_job(
+    id: u64,
+    queue_item: JobQueueItem,
     queued_jobs: JobMap,
     ramiel_url: String,
     pool: SqlitePool,
     broadcast: broadcast::Sender<BroadcastMessage>,
 ) {
+    PROCESSING_JOB.store(id, Ordering::SeqCst);
+
+    log::info!("Processing job {id}: {}", queue_item.info());
+
+    let res = queue_item.run(&ramiel_url, &pool, &broadcast).await;
+
+    let mut job_map_writer = queued_jobs.write().await;
+    let job = job_map_writer.get_mut(&id).expect("Job missing in job map");
+
+    match res {
+        Ok(res) => {
+            job.response = Some(res);
+        }
+        Err(e) => {
+            let body = serde_json::to_value(e).unwrap();
+            job.error = Some(body);
+        }
+    }
+
+    broadcast
+        .send(BroadcastMessage::FinishedJob(job.clone()))
+        .ok();
+
+    let job_map = queued_jobs.clone();
+    // Set timeout to remove the job from the job map to prevent it from growing out of control
+    tokio::spawn(async move {
+        sleep(Duration::from_secs(10)).await;
+
+        job_map.write().await.remove(&id);
+        log::info!("Job {id} purged from job map");
+    });
+}
+
+pub async fn job_worker(
+    mut rx: mpsc::UnboundedReceiver<(u64, JobQueueItem)>,
+    queued_jobs: JobMap,
+    ramiel_url: String,
+    pool: SqlitePool,
+    broadcast: broadcast::Sender<BroadcastMessage>,
+    parallel_job_count: u8,
+) {
     log::info!("Started job worker");
 
+    let mut tasks: VecDeque<JoinHandle<()>> = VecDeque::with_capacity(parallel_job_count.into());
+
     while let Some((id, queue_item)) = rx.recv().await {
-        PROCESSING_JOB.store(id, Ordering::SeqCst);
-
-        log::info!("Processing job {id}: {}", queue_item.info());
-
-        let res = queue_item.run(&ramiel_url, &pool, &broadcast).await;
-
-        let mut job_map_writer = queued_jobs.write().await;
-        let job = job_map_writer.get_mut(&id).expect("Job missing in job map");
-
-        match res {
-            Ok(res) => {
-                job.response = Some(res);
-            }
-            Err(e) => {
-                let body = serde_json::to_value(e).unwrap();
-                job.error = Some(body);
+        if tasks.len() >= parallel_job_count.into() {
+            if let Some(task) = tasks.pop_front() {
+                task.await.unwrap();
             }
         }
 
-        broadcast
-            .send(BroadcastMessage::FinishedJob(job.clone()))
-            .ok();
-
-        let job_map = queued_jobs.clone();
-        // Set timeout to remove the job from the job map to prevent it from growing out of control
-        tokio::spawn(async move {
-            sleep(Duration::from_secs(10)).await;
-
-            job_map.write().await.remove(&id);
-            log::info!("Job {id} purged from job map");
-        });
+        let ramiel_url = ramiel_url.clone();
+        let queued_jobs = queued_jobs.clone();
+        let broadcast = broadcast.clone();
+        let pool = pool.clone();
+        tasks.push_back(tokio::spawn(async move {
+            process_job(id, queue_item, queued_jobs, ramiel_url, pool, broadcast).await;
+        }));
     }
 }
 

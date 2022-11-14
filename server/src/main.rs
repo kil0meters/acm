@@ -50,6 +50,9 @@ struct Args {
     #[clap(long, env, default_value = "http://127.0.0.1:8082")]
     ramiel_url: String,
 
+    #[clap(long, env, default_value = "1")]
+    parallel_job_count: u8,
+
     #[clap(env)]
     jwt_secret: String,
 
@@ -69,7 +72,13 @@ async fn main() {
     let (broadcast, _) = broadcast::channel::<BroadcastMessage>(16);
 
     // A multi-producer, single-consumer channel for long-running jobs
+
+    // broken
     let (job_queue, rx) = mpsc::channel::<(u64, JobQueueItem)>(10);
+
+    // fix
+    let (job_queue, rx) = mpsc::unbounded_channel::<(u64, JobQueueItem)>();
+
     let queued_jobs = Arc::new(RwLock::new(HashMap::<u64, JobStatus>::new()));
 
     tracing::info!("Connecting to database at \"{}\"", args.database_url);
@@ -83,12 +92,22 @@ async fn main() {
 
     // Spawn job queue thread
     {
+        log::info!("Spawning worker thread");
+
         let ramiel_url = args.ramiel_url.clone();
         let queued_jobs = queued_jobs.clone();
         let broadcast = broadcast.clone();
         let pool = pool.clone();
         tokio::spawn(async move {
-            job_worker(rx, queued_jobs, ramiel_url, pool, broadcast).await;
+            job_worker(
+                rx,
+                queued_jobs,
+                ramiel_url,
+                pool,
+                broadcast,
+                args.parallel_job_count,
+            )
+            .await;
         });
     }
 
@@ -167,7 +186,6 @@ async fn main() {
         .layer(Extension(pool))
         .layer(Extension(broadcast))
         .layer(Extension(job_queue))
-        .layer(TraceLayer::new_for_http())
         .layer(CorsLayer::very_permissive().allow_credentials(true));
 
     Server::bind(&addr)

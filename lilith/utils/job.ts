@@ -30,8 +30,8 @@ export async function monitorJob<T, E>(job: JobStatus<T, E>, updateQueuePosition
 
     updateQueuePosition(job_status.queue_position);
 
-    // wait 500ms before the next iteration
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // wait 1s before the next iteration
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
 
   throw Error("ree");

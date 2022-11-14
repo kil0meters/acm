@@ -78,7 +78,10 @@ export default function CodeRunner(): JSX.Element {
           <QueueStatus className="mr-4" queuePosition={queuePosition} />
         }
         <LoadingButton
-          onClick={() => submitProblem()}
+          onClick={() => {
+            for (let i = 0; i < 30; i++)
+              submitProblem();
+          }}
           loading={loading}
           className="p-4 border-l h-full border-neutral-300 dark:border-neutral-700 bg-green-500 dark:bg-green-600 hover:bg-green-400 dark:hover:bg-green-500 transition-colors text-white"
         >
