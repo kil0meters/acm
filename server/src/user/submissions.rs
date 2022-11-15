@@ -42,8 +42,12 @@ pub async fn submissions(
             submissions.code
         FROM submissions
         JOIN problems ON problems.id = submissions.problem_id
+        LEFT JOIN competitions ON competitions.id = problems.competition_id
         WHERE user_id = ?
-        AND problems.competition_id IS NULL
+        AND (
+            problems.competition_id IS NULL
+            OR competitions.end < datetime('now')
+        )
         ORDER BY time DESC
         LIMIT ? OFFSET ?
         "#,

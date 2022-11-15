@@ -91,7 +91,7 @@ function RecentSubmissions({ username }: { username: string }): JSX.Element {
 
       <LoadingButton
         loading={isValidating}
-        className="rounded-full bg-neutral-200 hover:bg-neutral-300 px-6 py-3 transition-colors mx-auto"
+        className="rounded-full bg-neutral-200 hover:bg-neutral-300 px-6 py-3 transition-colors mx-auto dark:hover:bg-neutral-700 dark:bg-neutral-800"
         onClick={() => setSize(size + 1)}
       >Load more</LoadingButton>
     </div>

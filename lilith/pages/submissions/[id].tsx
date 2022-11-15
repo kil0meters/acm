@@ -105,7 +105,7 @@ const SubmissionPage: NextPage = () => {
     </Head>
 
     <div className="grid grid-cols-[minmax(0,1fr)] grid-rows-min-full gap-4 lg:grid-cols-[minmax(0,1fr)_320px] mt-4 md:flex-row max-w-screen-lg md:mx-auto md:mt-8">
-      <div className="p-4 border-neutral-300 border-y lg:border lg:rounded-md flex flex-col gap-4 max-w row-start-2 lg:row-start-1">
+      <div className="p-4 border-neutral-300 dark:border-neutral-700 border-y lg:border lg:rounded-md flex flex-col gap-4 max-w row-start-2 lg:row-start-1">
         <div className="flex flex-col gap-1">
           <div className="flex flex-col">
             <h1 className="text-3xl font-extrabold">{"Problem "} {submission.problem_id}</h1>
@@ -140,7 +140,7 @@ const SubmissionPage: NextPage = () => {
         </a>
       </div>
       <div className="col-row-1">
-        <div className="border-y lg:border lg:rounded-md border-neutral-300 overflow-hidden">
+        <div className="border-y lg:border lg:rounded-md border-neutral-300 dark:border-neutral-700 overflow-hidden">
           <SubmissionFeedback inProblemView={false} {...submission} />
         </div>
 

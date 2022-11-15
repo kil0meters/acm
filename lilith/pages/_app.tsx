@@ -1,7 +1,6 @@
 import "../styles/globals.css";
-import "prismjs/themes/prism.css";
+import "prismjs/themes/prism-okaidia.css";
 import "katex/dist/katex.css";
-// import "prismjs/themes/prism-dark.css";
 import type { AppProps } from "next/app";
 import Prism from "prismjs";
 import "prismjs/components/prism-c.js";
