@@ -10,6 +10,7 @@ import { useStore } from "../../utils/state";
 import Tabbed from "../tabbed";
 import CodeRunner from "./code-runner";
 import Description from "./description";
+import ProblemLeaderboard from "./leaderboard";
 import SubmissionHistory from "./submission/history";
 import TestContainer from "./submission/tests/container";
 const Editor = dynamic(import("../../components/editor"), { ssr: false });
@@ -99,11 +100,12 @@ export default function ProblemView({ id }: ProblemViewProps): JSX.Element {
             <TestContainer />
 
             <Tabbed
-              titles={["Description", "History"]}
+              titles={["Description", "History", "Leaderboard"]}
               className="h-full overflow-y-auto"
             >
               <Description />
               <SubmissionHistory />
+              <ProblemLeaderboard />
             </Tabbed>
           </div>
 

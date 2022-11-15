@@ -6,6 +6,7 @@ use serde::Serialize;
 
 mod history;
 mod index;
+mod leaderboard;
 mod new;
 mod problem;
 mod recent_submission;
@@ -39,6 +40,7 @@ pub fn routes() -> Router {
         .route("/:problem_id", get(problem::problem))
         .route("/:problem_id/tests", get(tests::tests))
         .route("/:problem_id/history", get(history::history))
+        .route("/:problem_id/leaderboard", get(leaderboard::leaderboard))
         .route(
             "/:problem_id/recent-submission",
             get(recent_submission::recent_submission),
