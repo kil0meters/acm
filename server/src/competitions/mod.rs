@@ -25,23 +25,27 @@ pub struct Competition {
 
 // verifies that a competition is editable: must be
 async fn verify_time_competition(id: i64, pool: &SqlitePool) -> Result<bool, ServerError> {
-    sqlx::query_scalar(
+    let res = sqlx::query_scalar!(
         "SELECT datetime('now') < end FROM competitions WHERE id = ?",
+        id
     )
-    .bind(id)
     .fetch_one(pool)
     .await
-    .map_err(|_| ServerError::NotFound)
+    .map_err(|_| ServerError::NotFound)?;
+
+    Ok(res == 1)
 }
 
 async fn verify_time_team(id: i64, pool: &SqlitePool) -> Result<bool, ServerError> {
-    sqlx::query_scalar(
-        "SELECT datetime('now') < end FROM competitions WHERE id = (SELECT competition_id FROM teams WHERE team_id = ?)",
+    let res = sqlx::query_scalar!(
+        "SELECT datetime('now') < end FROM competitions WHERE id = (SELECT competition_id FROM teams WHERE id = ?)",
+        id
     )
-    .bind(id)
     .fetch_one(pool)
     .await
-    .map_err(|_| ServerError::NotFound)
+    .map_err(|_| ServerError::NotFound)?;
+
+    Ok(res == 1)
 }
 
 pub fn routes() -> Router {
