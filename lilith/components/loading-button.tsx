@@ -14,7 +14,7 @@ export default function LoadingButton({
   children,
 }: LoadingButtonProps): JSX.Element {
   const contentStyles = useSpring({
-    marginLeft: loading ? "30px" : "0px",
+    to: { marginLeft: loading ? "30px" : "0px" },
   });
 
   const spinnerStyles = useTransition(loading, {
@@ -30,6 +30,7 @@ export default function LoadingButton({
       opacity: 0,
       left: "-8px",
     },
+    trail: 200
   });
 
   return (

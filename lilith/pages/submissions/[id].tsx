@@ -3,13 +3,15 @@ import Error from "next/error";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import Prism from "prismjs";
 import useSWR, { mutate } from "swr";
 import Navbar from "../../components/navbar";
 import SubmissionFeedback from "../../components/problem/submission";
 import { api_url, fetcher } from "../../utils/fetcher";
 import { Submission, User, useStore } from "../../utils/state";
 import { timeFormat } from "../../utils/time";
+import { Problem } from "../problems";
+import { useEffect, useRef } from "react";
+import SourceCodeBlock from "../../components/source-code";
 
 function InvalidateButton({ id }: { id?: number }): JSX.Element {
   const submit = async () => {
@@ -74,6 +76,21 @@ function UserInfo({ id }: UserInfoProps): JSX.Element {
   );
 }
 
+function ProblemTitle({ id }: { id: number }): JSX.Element {
+  const { data } = useSWR<Problem>(
+    api_url(`/problems/${id}`),
+    fetcher
+  );
+
+  if (!data) return (
+    <div className="animate-pulse bg-neutral-300 dark:bg-neutral-700 h-9 w-[75%] rounded-md"></div>
+  );
+
+  return (
+    <h1 className="text-3xl font-extrabold">{data.title}</h1>
+  );
+}
+
 const SubmissionPage: NextPage = () => {
   const router = useRouter();
   const id = router.isReady ? parseInt(router.query.id as string) : undefined;
@@ -105,10 +122,10 @@ const SubmissionPage: NextPage = () => {
     </Head>
 
     <div className="grid grid-cols-[minmax(0,1fr)] grid-rows-min-full gap-4 lg:grid-cols-[minmax(0,1fr)_320px] mt-4 md:flex-row max-w-screen-lg md:mx-auto md:mt-8">
-      <div className="p-4 border-neutral-300 dark:border-neutral-700 border-y lg:border lg:rounded-md flex flex-col gap-4 max-w row-start-2 lg:row-start-1">
+      <div className="p-4 border-neutral-300 bg-white dark:bg-black dark:border-neutral-700 border-y lg:border lg:rounded-md flex flex-col gap-4 max-w row-start-2 lg:row-start-1">
         <div className="flex flex-col gap-1">
           <div className="flex flex-col">
-            <h1 className="text-3xl font-extrabold">{"Problem "} {submission.problem_id}</h1>
+            <ProblemTitle id={submission.problem_id} />
           </div>
           <span className="text-sm text-neutral-500">
             <UserInfo id={submission.user_id} />
@@ -117,12 +134,7 @@ const SubmissionPage: NextPage = () => {
           </span>
         </div>
 
-        <pre
-          className="language-cpp rounded-md bg-blue-50 dark:bg-slate-800 p-2 overflow-auto border border-blue-200 dark:border-slate-700"
-          dangerouslySetInnerHTML={{
-            __html: Prism.highlight(submission.code, Prism.languages.cpp, "cpp"),
-          }}
-        />
+        <SourceCodeBlock text={submission.code} />
 
         <div className="mt-auto p-4 rounded-md bg-yellow-300 border-yellow-500 border text-yellow-900">
           <h1 className="font-bold text-xl mb-2">{"Warning"}</h1>

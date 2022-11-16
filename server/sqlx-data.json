@@ -558,66 +558,6 @@
     },
     "query": "\n        SELECT\n            id,\n            name,\n            username,\n            discord_id,\n            auth as \"auth: Auth\"\n        FROM\n            users\n        WHERE\n            username = ?\n        "
   },
-  "497a2f24e15bc3a6a7ab195bc2cd0fa402b5d2cc6af2cee5d90bf3b4131d3f68": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 1,
-          "type_info": "Int64"
-        },
-        {
-          "name": "problem_id",
-          "ordinal": 2,
-          "type_info": "Int64"
-        },
-        {
-          "name": "success",
-          "ordinal": 3,
-          "type_info": "Bool"
-        },
-        {
-          "name": "runtime",
-          "ordinal": 4,
-          "type_info": "Int64"
-        },
-        {
-          "name": "error",
-          "ordinal": 5,
-          "type_info": "Text"
-        },
-        {
-          "name": "time",
-          "ordinal": 6,
-          "type_info": "Datetime"
-        },
-        {
-          "name": "code",
-          "ordinal": 7,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 2
-      }
-    },
-    "query": "\n        SELECT\n            id,\n            user_id,\n            problem_id,\n            success,\n            runtime,\n            error,\n            time,\n            code\n        FROM\n            submissions\n        WHERE\n            user_id = ? and problem_id = ?\n        ORDER BY\n            time DESC\n        "
-  },
   "4d1755a636b8c4870331fec9231b6eae9397b6b70612e0278ab6bee645697eee": {
     "describe": {
       "columns": [
@@ -1611,6 +1551,48 @@
       }
     },
     "query": "\n        DELETE FROM team_members\n        WHERE id IN (\n            SELECT team_members.id\n            FROM team_members\n            JOIN teams ON teams.id = team_members.team_id\n            WHERE team_members.user_id = ? AND teams.competition_id = ?\n        )"
+  },
+  "f70893fe939964bf8071eb4b2641074f9993b1082f3e86d15701e56c21aa6ad2": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "success",
+          "ordinal": 1,
+          "type_info": "Bool"
+        },
+        {
+          "name": "runtime",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "error",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "time",
+          "ordinal": 4,
+          "type_info": "Datetime"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "\n        SELECT\n            id,\n            success,\n            runtime,\n            error,\n            time\n        FROM\n            submissions\n        WHERE\n            user_id = ? and problem_id = ?\n        ORDER BY\n            time DESC\n        LIMIT ? OFFSET ?\n        "
   },
   "fbec0128a853b4b42c540ea3352b0f879f4d6a8b9b335ba155922e0751ff82f8": {
     "describe": {

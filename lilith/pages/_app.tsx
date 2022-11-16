@@ -1,27 +1,23 @@
 import "../styles/globals.css";
-import "prismjs/themes/prism-okaidia.css";
 import "katex/dist/katex.css";
 import type { AppProps } from "next/app";
-import Prism from "prismjs";
-import "prismjs/components/prism-c.js";
-import "prismjs/components/prism-cpp.js";
 import ErrorBox from "../components/error-box";
 import Modal from "../components/modal";
 import { useSession } from "../utils/state";
 import shallow from "zustand/shallow";
-import { marked } from "marked";
 import Head from "next/head";
 
-// TODO: Defer loading of prism and marked until needed.
-marked.setOptions({
-  highlight: (code, lang) => {
-    if (Prism.languages[lang]) {
-      return Prism.highlight(code, Prism.languages[lang], lang);
-    } else {
-      return code;
-    }
-  },
-});
+// marked.setOptions({
+//   highlight: (code, lang, callback) => {
+//     const highlight = async () => {
+//       const monaco = await import("monaco-editor");
+//       monaco.editor.colorize(code, lang, {}).then((code) => {
+//         callback!(undefined, code);
+//       })
+//     }
+//     highlight();
+//   },
+// });
 
 function ErrorDisplay(): JSX.Element {
   const [error, shown, setError] = useSession(

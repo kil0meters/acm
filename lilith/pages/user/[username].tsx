@@ -5,12 +5,12 @@ import Navbar from "../../components/navbar";
 import Error from "next/error";
 import { api_url, fetcher } from "../../utils/fetcher";
 import Link from "next/link";
-import Prism from "prismjs";
 import { User, useSession, useStore } from "../../utils/state";
 import useSWRInfinite from "swr/infinite";
 import { useState } from "react";
 import LoadingButton from "../../components/loading-button";
 import Head from "next/head";
+import SourceCodeBlock from "../../components/source-code";
 
 type Submission = {
   id: number;
@@ -63,12 +63,7 @@ function RecentSubmissions({ username }: { username: string }): JSX.Element {
           </Link>
         </div>
 
-        <pre
-          className="language-cpp rounded-md bg-blue-50 dark:bg-slate-800 p-2 overflow-auto max-h-72 border border-blue-200 dark:border-slate-700"
-          dangerouslySetInnerHTML={{
-            __html: Prism.highlight(code, Prism.languages.cpp, "cpp"),
-          }}
-        />
+        <SourceCodeBlock text={code} />
       </div>
     );
   }
