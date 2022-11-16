@@ -9,8 +9,10 @@ export type JobStatus<T, E> = {
 };
 
 export async function monitorJob<T, E>(job: JobStatus<T, E>, updateQueuePosition: (pos: number) => void): Promise<[T?, E?]> {
+  let oldQueuePosition = 0;
+
   // Max timeout = 50s
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 500; i++) {
     let res = await fetch(api_url(`/run/check/${job.id}`), {
       headers: {
         "Content-Type": "application/json",
@@ -28,11 +30,15 @@ export async function monitorJob<T, E>(job: JobStatus<T, E>, updateQueuePosition
       return [undefined, job_status.error];
     }
 
+    // Reset queue timeout if queue position updated
+    if (oldQueuePosition != job_status.queue_position)
+      i = 0;
+
     updateQueuePosition(job_status.queue_position);
 
     // wait 1s before the next iteration
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 500));
   }
 
-  throw Error("ree");
+  throw Error("Test took too long");
 }
