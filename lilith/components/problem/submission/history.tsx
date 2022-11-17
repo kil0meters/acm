@@ -45,7 +45,7 @@ function HistoryEntry({
           Error
         </span>
         <span className="ml-auto text-red-600 dark:text-red-200 text-sm">
-          {timeFormat(time)}
+          {timeFormat(time + 'Z')}
         </span>
         <LoadHistoryButton id={id} />
       </div>
@@ -64,7 +64,7 @@ function HistoryEntry({
 
         <span className="text-sm text-green-600" title={fuelLong}>{fuelCompact}</span>
         <span className="ml-auto text-sm text-green-600 dark:text-emerald-200">
-          {timeFormat(time)}
+          {timeFormat(time + 'Z')}
         </span>
         <LoadHistoryButton id={id} />
       </div>
@@ -76,7 +76,7 @@ function HistoryEntry({
           Failed
         </span>
         <span className="ml-auto text-neutral-400 dark:text-red-300 text-sm">
-          {timeFormat(time)}
+          {timeFormat(time + 'Z')}
         </span>
         <LoadHistoryButton id={id} />
       </div>

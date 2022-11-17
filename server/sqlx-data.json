@@ -1048,6 +1048,60 @@
     },
     "query": "\n        SELECT\n            id,\n            name,\n            username,\n            discord_id,\n            auth as \"auth: Auth\"\n        FROM\n            users\n        WHERE\n            id = ?\n        "
   },
+  "77e277bc42b0ac8dde0731298544da29ed3dc3d3136e3d89cef842111af3407a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "problem_title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "success",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "runtime",
+          "ordinal": 3,
+          "type_info": "Int64"
+        },
+        {
+          "name": "error",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "time",
+          "ordinal": 5,
+          "type_info": "Datetime"
+        },
+        {
+          "name": "code",
+          "ordinal": 6,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "\n        SELECT\n            submissions.id,\n            problems.title AS problem_title,\n            submissions.success,\n            submissions.runtime,\n            submissions.error,\n            submissions.time,\n            submissions.code\n        FROM submissions\n        JOIN problems ON problems.id = submissions.problem_id\n        LEFT JOIN competitions ON competitions.id = problems.competition_id\n        WHERE user_id = ?\n        AND (\n            problems.competition_id IS NULL\n            OR competitions.end < datetime('now')\n        )\n        ORDER BY time DESC\n        LIMIT ? OFFSET ?\n        "
+  },
   "808daa7e5caf4d37ab0e417b18018f44ebe4807330d950075d919301bd590b6c": {
     "describe": {
       "columns": [
@@ -1436,6 +1490,24 @@
     },
     "query": "\n                    SELECT\n                        id,\n                        title,\n                        description,\n                        runner,\n                        template,\n                        competition_id\n                    FROM\n                        problems\n                    WHERE\n                        visible = false AND publish_time < datetime('now')\n                "
   },
+  "e144a362b64a00e9b312f7e0ce2d17b4b6a6752dea408726a7c4fcf10f009550": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n        SELECT COUNT(DISTINCT(problem_id)) AS count\n        FROM users\n        JOIN submissions ON users.id = submissions.user_id\n        WHERE success = true\n        AND users.id = ?;\n        "
+  },
   "e9e60d80a1da905d89fd29acbb43cbb61f3c0b6bb91bd84ac136608f5378cc27": {
     "describe": {
       "columns": [],
@@ -1445,66 +1517,6 @@
       }
     },
     "query": "INSERT INTO team_members (user_id, team_id) VALUES (?, ?)"
-  },
-  "ea77dc20ed76a48503a5bbb3b52c1a1ed4d9a6ed33ace667ccc45b706dfbb7c5": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "problem_id",
-          "ordinal": 1,
-          "type_info": "Int64"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 2,
-          "type_info": "Int64"
-        },
-        {
-          "name": "success",
-          "ordinal": 3,
-          "type_info": "Bool"
-        },
-        {
-          "name": "runtime",
-          "ordinal": 4,
-          "type_info": "Int64"
-        },
-        {
-          "name": "error",
-          "ordinal": 5,
-          "type_info": "Text"
-        },
-        {
-          "name": "time",
-          "ordinal": 6,
-          "type_info": "Datetime"
-        },
-        {
-          "name": "code",
-          "ordinal": 7,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 3
-      }
-    },
-    "query": "\n        SELECT\n            submissions.id,\n            submissions.problem_id,\n            submissions.user_id,\n            submissions.success,\n            submissions.runtime,\n            submissions.error,\n            submissions.time,\n            submissions.code\n        FROM submissions\n        JOIN problems ON problems.id = submissions.problem_id\n        LEFT JOIN competitions ON competitions.id = problems.competition_id\n        WHERE user_id = ?\n        AND (\n            problems.competition_id IS NULL\n            OR competitions.end < datetime('now')\n        )\n        ORDER BY time DESC\n        LIMIT ? OFFSET ?\n        "
   },
   "ebec559dc453e6cc3ebc8b02d355a72827e530ee411233da8c7d30b43796f13d": {
     "describe": {

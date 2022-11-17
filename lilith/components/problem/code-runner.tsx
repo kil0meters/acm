@@ -15,6 +15,7 @@ import { SUBMISSION_TESTS_QUERY } from "./submission/tests";
 export default function CodeRunner(): JSX.Element {
   const [dockerShown, setDockerShown] = useState(false);
   const [settingsShown, setSettingsShown] = useState(false);
+  const setSubmissionShown = useSession((session) => session.setSubmissionShown);
 
   function SubmitButton(): JSX.Element {
     const id = useContext(ProblemIDContext)!;
@@ -53,6 +54,7 @@ export default function CodeRunner(): JSX.Element {
 
         if (data) {
           setTimeout(() => {
+            setSubmissionShown(true);
             mutate(api_url(`/problems/${id}/recent-submission`));
             mutate(SUBMISSION_TESTS_QUERY);
           }, 0);

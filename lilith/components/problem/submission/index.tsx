@@ -16,7 +16,7 @@ export default function SubmissionFeedback({
     const setSubmissionShown = useSession((session) => session.setSubmissionShown);
 
     return (
-      <button className={className} onClick={() => setSubmissionShown(true)}>
+      <button className={className} onClick={() => setSubmissionShown(false)}>
         ⨯
       </button>
     )

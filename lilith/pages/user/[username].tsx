@@ -11,14 +11,32 @@ import { useState } from "react";
 import LoadingButton from "../../components/loading-button";
 import Head from "next/head";
 import SourceCodeBlock from "../../components/source-code";
+import { timeFormat } from "../../utils/time";
 
 type Submission = {
   id: number;
   problem_id: number;
+  problem_title: string;
   success: boolean;
+  time: string;
   runtime: number;
   code: string;
 };
+
+function StarCount({ id }: { id?: number }): JSX.Element {
+  const { data } = useSWR<{ count: number }>(
+    id ? api_url(`/user/star-count/${id}`) : null,
+    fetcher
+  );
+
+  if (!data || (data && data.count == 0)) return <></>;
+
+  return (
+    <div className="bg-yellow-300 text-yellow-800 rounded-full px-4 h-9 self-center flex items-center">
+      {data.count} ★
+    </div>
+  )
+}
 
 function RecentSubmissions({ username }: { username: string }): JSX.Element {
   const { data: submissions, error, isValidating, size, setSize } = useSWRInfinite<Submission[]>(
@@ -33,6 +51,8 @@ function RecentSubmissions({ username }: { username: string }): JSX.Element {
     id,
     success,
     runtime,
+    problem_title,
+    time,
     code,
   }: Submission): JSX.Element {
     let compact = Intl.NumberFormat('en', { notation: "compact" }).format(runtime) + " fuel";
@@ -41,20 +61,36 @@ function RecentSubmissions({ username }: { username: string }): JSX.Element {
     return (
       <div className="border-y border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black sm:rounded-md sm:m-2 md:m-0 sm:border p-4 flex flex-col gap-4">
         <div className="flex gap-2">
-          {success ? (
-            <>
-              <span className="font-bold text-green-600 text-2xl self-center">
-                Passed
-              </span>
-              <span className="text-green-600 self-center text-sm" title={long}>
-                {compact}
-              </span>
-            </>
-          ) : (
-            <span className="font-bold text-red-600 text-2xl self-center">
-              Failed
-            </span>
-          )}
+          <div>
+            <h1 className="text-2xl font-extrabold">{problem_title}</h1>
+            <div className="flex items-center gap-2 text-neutral-500">
+              {success ? (
+                <>
+                  <span className="font-bold text-green-600 text-lg">
+                    Passed
+                  </span>
+                  {" • "}
+                  <span title={long}>
+                    {compact}
+                  </span>
+                  {" • "}
+                  <span>
+                    {timeFormat(time + 'Z')}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="font-bold text-red-600 text-lg">
+                    Failed
+                  </span>
+                  {" • "}
+                  <span>
+                    {timeFormat(time + 'Z')}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
 
           <Link href={`/submissions/${id}`}>
             <a className="ml-auto self-center bg-blue-700 hover:bg-blue-500 transition-colors text-blue-50 px-3 py-2 text-sm rounded-full font-bold">
@@ -74,7 +110,7 @@ function RecentSubmissions({ username }: { username: string }): JSX.Element {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-2xl font-bold pt-4 px-4 lg:p-0">
+      <h2 className="text-2xl font-extrabold pt-4 px-4 lg:p-0">
         Recent Submissions
       </h2>
 
@@ -113,13 +149,19 @@ const UserPage: NextPage = () => {
     const showEditButton = currentUser?.username == username || currentUser?.auth == "ADMIN";
 
     return (
-      <div className="flex flex-col gap-2 p-4 lg:p-0">
-        <h1 className="text-2xl font-bold">{name}</h1>
-        <h3 className="text-neutral-500 dark:text-neutral-400">{username}</h3>
+      <div className="flex flex-col gap-4 p-4 lg:p-0">
+        <div>
+          <h1 className="text-2xl font-extrabold">{name}</h1>
+          <h3 className="text-neutral-500 dark:text-neutral-400">{username}</h3>
+        </div>
 
-        <span className="rounded-full px-4 p-2 bg-neutral-600 text-neutral-50 self-start text-sm">
-          {auth[0] + auth.slice(1).toLowerCase()}
-        </span>
+        <div className="flex gap-2">
+          <span className="rounded-full px-4 p-2 bg-neutral-600 text-neutral-50 self-start text-sm">
+            {auth[0] + auth.slice(1).toLowerCase()}
+          </span>
+
+          <StarCount id={user?.id} />
+        </div>
 
         {showEditButton && <button
           onClick={() => setEditingProfile(true)}

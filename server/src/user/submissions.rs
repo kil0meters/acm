@@ -2,19 +2,31 @@ use axum::{
     extract::{Path, Query},
     Extension, Json,
 };
+use chrono::NaiveDateTime;
+use serde::Serialize;
 use sqlx::SqlitePool;
 
 use crate::{
     error::{ServerError, UserError},
     pagination::Pagination,
-    submissions::Submission,
 };
+
+#[derive(Serialize)]
+pub struct UserSubmission {
+    id: i64,
+    problem_title: String,
+    success: bool,
+    error: Option<String>,
+    runtime: i64,
+    code: String,
+    time: NaiveDateTime,
+}
 
 pub async fn submissions(
     Path(username): Path<String>,
     Query(pagination): Query<Pagination<0, 10>>,
     Extension(pool): Extension<SqlitePool>,
-) -> Result<Json<Vec<Submission>>, ServerError> {
+) -> Result<Json<Vec<UserSubmission>>, ServerError> {
     let user_id = sqlx::query!(
         r#"
         SELECT id
@@ -29,12 +41,11 @@ pub async fn submissions(
     .id;
 
     let submissions = sqlx::query_as!(
-        Submission,
+        UserSubmission,
         r#"
         SELECT
             submissions.id,
-            submissions.problem_id,
-            submissions.user_id,
+            problems.title AS problem_title,
             submissions.success,
             submissions.runtime,
             submissions.error,
