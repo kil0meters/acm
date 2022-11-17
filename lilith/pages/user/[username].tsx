@@ -13,6 +13,24 @@ import Head from "next/head";
 import SourceCodeBlock from "../../components/source-code";
 import { timeFormat } from "../../utils/time";
 
+export function SubmissionTime({ time }: { time: string }): JSX.Element {
+  let dateTime = new Date(time);
+
+  let date = dateTime.toLocaleDateString("en-us", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+  let timet = dateTime.toLocaleTimeString("en-us", {
+    hour: "numeric",
+    minute: "numeric",
+  });
+
+  return (
+    <span>{date} {timet}</span>
+  );
+}
+
 type Submission = {
   id: number;
   problem_id: number;
@@ -59,44 +77,38 @@ function RecentSubmissions({ username }: { username: string }): JSX.Element {
     let long = Intl.NumberFormat('en', { notation: "standard" }).format(runtime) + " fuel";
 
     return (
-      <div className="border-y border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black sm:rounded-md sm:m-2 md:m-0 sm:border p-4 flex flex-col gap-4">
-        <div className="flex gap-2">
-          <div>
-            <h1 className="text-2xl font-extrabold">{problem_title}</h1>
-            <div className="flex items-center gap-2 text-neutral-500">
-              {success ? (
-                <>
-                  <span className="font-bold text-green-600 text-lg">
-                    Passed
-                  </span>
-                  {" • "}
-                  <span title={long}>
-                    {compact}
-                  </span>
-                  {" • "}
-                  <span>
-                    {timeFormat(time + 'Z')}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span className="font-bold text-red-600 text-lg">
-                    Failed
-                  </span>
-                  {" • "}
-                  <span>
-                    {timeFormat(time + 'Z')}
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-
+      <div className="border-y border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black sm:rounded-md sm:m-2 md:m-0 sm:border p-4 flex flex-col gap-2 sm:gap-4">
+        <div className="grid grid-cols-full-min grid-rows-2">
+          <h1 className="text-2xl font-extrabold self-start">{problem_title}</h1>
           <Link href={`/submissions/${id}`}>
-            <a className="ml-auto self-center bg-blue-700 hover:bg-blue-500 transition-colors text-blue-50 px-3 py-2 text-sm rounded-full font-bold">
-              View Submission
+            <a className="sm:row-span-2 sm:self-center self-start row-span-1 ml-auto bg-blue-700 hover:bg-blue-500 transition-colors text-blue-50 px-3 py-2 text-sm rounded-full font-bold">
+              Open
             </a>
           </Link>
+
+          <div className="flex gap-2 text-neutral-500 col-span-2 sm:col-span-1">
+            {success ? (
+              <>
+                <span className="font-bold text-green-600 text-lg">
+                  Passed
+                </span>
+                {" • "}
+                <span title={long}>
+                  {compact}
+                </span>
+                {" • "}
+                <SubmissionTime time={time + 'Z'} />
+              </>
+            ) : (
+              <>
+                <span className="font-bold text-red-600 text-lg">
+                  Failed
+                </span>
+                {" • "}
+                <SubmissionTime time={time + 'Z'} />
+              </>
+            )}
+          </div>
         </div>
 
         <SourceCodeBlock text={code} />

@@ -93,12 +93,16 @@ export default function TestEntries(): JSX.Element {
     fetcher
   );
 
+  useEffect(() => {
+    mutate(SUBMISSION_TESTS_QUERY);
+  }, [submission])
+
   const { data, error } = useSWR<Test[] | TestResult[]>(
     SUBMISSION_TESTS_QUERY,
     () =>
       fetcher(
         api_url(
-          submission
+          (submission && !submission.error)
             ? `/problems/${problemId}/recent-tests`
             : `/problems/${problemId}/tests`
         )
@@ -116,7 +120,7 @@ export default function TestEntries(): JSX.Element {
             ? Array(5)
               .fill(0)
               .map((_, i) => <LoadingTest key={i} />)
-            : submission
+            : (submission && !submission.error)
               ? (data as TestResult[]).map((test, i) => (
                 <TestResultEntry key={i} {...test} />
               ))

@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { useContext, useState } from "react";
 import useSWRInfinite from "swr/infinite";
+import { ShareButton } from ".";
 import { ProblemIDContext } from "..";
 import { api_url, fetcher } from "../../../utils/fetcher";
 import { Submission, useStore } from "../../../utils/state";
@@ -47,6 +49,7 @@ function HistoryEntry({
         <span className="ml-auto text-red-600 dark:text-red-200 text-sm">
           {timeFormat(time + 'Z')}
         </span>
+        <ShareButton className="px-4 py-2 text-sm bg-neutral-300 hover:bg-neutral-200 rounded-full font-bold transition-colors" path={`/submissions/${id}`} />
         <LoadHistoryButton id={id} />
       </div>
     );
@@ -57,27 +60,29 @@ function HistoryEntry({
 
   if (success) {
     return (
-      <div className="flex gap-2 items-center bg-green-100 dark:bg-emerald-900 p-4 border-neutral-300 dark:border-emerald-700 border-b">
+      <div className="flex gap-2 items-center bg-white dark:bg-black p-4 border-neutral-300 dark:border-emerald-700 border-b">
         <span className="font-bold text-lg text-green-600 dark:text-emerald-200">
           Passed
         </span>
 
         <span className="text-sm text-green-600" title={fuelLong}>{fuelCompact}</span>
-        <span className="ml-auto text-sm text-green-600 dark:text-emerald-200">
+        <span className="ml-auto text-sm text-neutral-500 dark:text-emerald-200">
           {timeFormat(time + 'Z')}
         </span>
+        <ShareButton className="px-4 py-2 text-sm bg-neutral-300 hover:bg-neutral-200 rounded-full font-bold transition-colors" path={`/submissions/${id}`} />
         <LoadHistoryButton id={id} />
       </div>
     );
   } else {
     return (
-      <div className="flex gap-2 items-center bg-neutral-50 dark:bg-neutral-900 p-4 border-neutral-300 dark:border-neutral-700 border-b">
-        <span className="text-red-600 dark:text-red-400 font-bold text-lg">
+      <div className="flex gap-2 items-center bg-white dark:bg-black p-4 border-neutral-300 dark:border-neutral-700 border-b">
+        <span className="text-red-700 dark:text-red-400 font-bold text-lg">
           Failed
         </span>
-        <span className="ml-auto text-neutral-400 dark:text-red-300 text-sm">
+        <span className="ml-auto text-sm text-neutral-500 dark:text-emerald-200">
           {timeFormat(time + 'Z')}
         </span>
+        <ShareButton className="px-4 py-2 text-sm bg-neutral-300 hover:bg-neutral-200 rounded-full font-bold transition-colors" path={`/submissions/${id}`} />
         <LoadHistoryButton id={id} />
       </div>
     );

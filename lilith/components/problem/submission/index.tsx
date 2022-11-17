@@ -1,6 +1,38 @@
 import { useState } from "react";
 import { Submission, useSession } from "../../../utils/state";
 
+export function ShareButton({
+  className,
+  path,
+}: {
+  className: string;
+  path: string;
+}): JSX.Element {
+  const [buttonText, setButtonText] = useState("Share");
+
+  const onClick = async () => {
+    const url = `${location.protocol}//${location.host}${path}`;
+    const contentType = "text/plain";
+
+    navigator.clipboard.write([
+      new ClipboardItem({
+        [contentType]: new Blob([url], { type: contentType }),
+      }),
+    ]);
+
+    setButtonText("Copied!");
+    setTimeout(() => {
+      setButtonText("Share");
+    }, 1000);
+  };
+
+  return (
+    <button onClick={onClick} className={className}>
+      {buttonText}
+    </button>
+  );
+}
+
 export default function SubmissionFeedback({
   inProblemView,
   id,
@@ -20,38 +52,6 @@ export default function SubmissionFeedback({
         ⨯
       </button>
     )
-  }
-
-  function ShareButton({
-    className,
-    path,
-  }: {
-    className: string;
-    path: string;
-  }): JSX.Element {
-    const [buttonText, setButtonText] = useState("Share");
-
-    const onClick = async () => {
-      const url = `${location.protocol}//${location.host}${path}`;
-      const contentType = "text/plain";
-
-      navigator.clipboard.write([
-        new ClipboardItem({
-          [contentType]: new Blob([url], { type: contentType }),
-        }),
-      ]);
-
-      setButtonText("Copied!");
-      setTimeout(() => {
-        setButtonText("Share");
-      }, 1000);
-    };
-
-    return (
-      <button onClick={onClick} className={className}>
-        {buttonText}
-      </button>
-    );
   }
 
   if (error) {
