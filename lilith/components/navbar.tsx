@@ -134,7 +134,6 @@ export default function Navbar(): JSX.Element {
           Dashboard
         </NavbarLink>}
 
-
         {sidebar}
       </div>
     </div>

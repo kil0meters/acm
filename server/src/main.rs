@@ -10,10 +10,10 @@ use tokio::sync::{broadcast, mpsc, RwLock};
 use axum::{routing::get, Extension, Router, Server};
 use clap::Parser;
 use sqlx::SqlitePool;
-use tower_http::{cors::CorsLayer};
+use tower_http::cors::CorsLayer;
 
 use crate::{
-    problems::Problem,
+    problems::{Difficulty, Problem},
     run::{job_worker, JobQueueItem, JobStatus},
     ws::BroadcastMessage,
 };
@@ -123,7 +123,9 @@ async fn main() {
                         description,
                         runner,
                         template,
-                        competition_id
+                        competition_id,
+                        visible,
+                        difficulty as "difficulty: Difficulty"
                     FROM
                         problems
                     WHERE

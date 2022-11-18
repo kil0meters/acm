@@ -200,6 +200,66 @@
     },
     "query": "\n        UPDATE submissions\n        SET success = false,\n            error = 'Manually overridden by officer'\n        WHERE id = ?"
   },
+  "1a39d6edef5b88fba0f9e63ca6737126b1f14ea988e65506502aa693c284ba32": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "runner",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "template",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "competition_id",
+          "ordinal": 5,
+          "type_info": "Int64"
+        },
+        {
+          "name": "visible",
+          "ordinal": 6,
+          "type_info": "Bool"
+        },
+        {
+          "name": "difficulty: Difficulty",
+          "ordinal": 7,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 10
+      }
+    },
+    "query": "\n        INSERT INTO problems (\n            title,\n            description,\n            runner,\n            reference,\n            template,\n            activity_id,\n            visible,\n            publish_time,\n            runtime_multiplier,\n            competition_id\n        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n        RETURNING\n            id,\n            title,\n            description,\n            runner,\n            template,\n            competition_id,\n            visible,\n            difficulty as \"difficulty: Difficulty\"\n        "
+  },
   "1c033b8f650a8573a79cbdbe0bd0cc7b497f41e4e650b70707fd89972359a46c": {
     "describe": {
       "columns": [
@@ -287,54 +347,6 @@
       }
     },
     "query": "\n        SELECT\n            id,\n            title,\n            description,\n            meeting_time\n        FROM\n            meetings\n        WHERE\n            DATETIME('now', 'localtime', 'start of day') < DATETIME(meeting_time)\n        ORDER BY\n            DATETIME(meeting_time) ASC\n        "
-  },
-  "3011aa0aa78b18639efa2289ef6928cc20f08b20e235a47ed225ba23801921b5": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "title",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "description",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "runner",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "template",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "competition_id",
-          "ordinal": 5,
-          "type_info": "Int64"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "parameters": {
-        "Right": 2
-      }
-    },
-    "query": "\n                SELECT\n                    id,\n                    title,\n                    description,\n                    runner,\n                    template,\n                    competition_id\n                FROM problems\n                WHERE visible = true\n                AND competition_id is NULL\n                ORDER BY update_dt DESC\n                LIMIT ? OFFSET ?\n                "
   },
   "32679f4e982464317244cdeea012fccf7c681f5fa0ad79472a902bbdb5747afe": {
     "describe": {
@@ -558,54 +570,6 @@
     },
     "query": "\n        SELECT\n            id,\n            name,\n            username,\n            discord_id,\n            auth as \"auth: Auth\"\n        FROM\n            users\n        WHERE\n            username = ?\n        "
   },
-  "4d1755a636b8c4870331fec9231b6eae9397b6b70612e0278ab6bee645697eee": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "title",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "description",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "runner",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "template",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "competition_id",
-          "ordinal": 5,
-          "type_info": "Int64"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "parameters": {
-        "Right": 3
-      }
-    },
-    "query": "\n                SELECT\n                    id,\n                    title,\n                    description,\n                    runner,\n                    template,\n                    competition_id\n                FROM problems\n                WHERE visible = true\n                AND competition_id = ?\n                ORDER BY update_dt DESC\n                LIMIT ? OFFSET ?\n                "
-  },
   "52253fe9103b5a5ec67cb610459c05d0dcaa9e7a219f81ee09a79bde8fc77d0b": {
     "describe": {
       "columns": [
@@ -791,54 +755,6 @@
       }
     },
     "query": "\n        SELECT\n            id,\n            name,\n            username,\n            discord_id,\n            auth as \"auth: Auth\"\n        FROM\n            users\n        WHERE discord_id = ?\n        "
-  },
-  "5bfd13e904996147cad73f6fc9149973f7ef6134573071571b7f454d1ff7d040": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "title",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "description",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "runner",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "template",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "competition_id",
-          "ordinal": 5,
-          "type_info": "Int64"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "parameters": {
-        "Right": 1
-      }
-    },
-    "query": "\n        SELECT\n            id,\n            title,\n            description,\n            runner,\n            template,\n            competition_id\n        FROM\n            problems\n        WHERE\n            id = ?\n        "
   },
   "5c21784de904f02f9aa7321bbf32b36a6bf723b5a9515e69dacfb12eae9e1439": {
     "describe": {
@@ -1120,6 +1036,66 @@
     },
     "query": "\n        SELECT user_id\n        FROM team_members\n        JOIN teams ON teams.id = team_members.team_id\n        WHERE user_id = ? AND competition_id = (SELECT competition_id FROM teams WHERE team_id = ?)\n    "
   },
+  "83a93a622f2c6ff1313b832210a826b189833bb44f510d622a695d390d517cb0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "runner",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "template",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "competition_id",
+          "ordinal": 5,
+          "type_info": "Int64"
+        },
+        {
+          "name": "visible",
+          "ordinal": 6,
+          "type_info": "Bool"
+        },
+        {
+          "name": "difficulty: Difficulty",
+          "ordinal": 7,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n                    SELECT\n                        id,\n                        title,\n                        description,\n                        runner,\n                        template,\n                        competition_id,\n                        visible,\n                        difficulty as \"difficulty: Difficulty\"\n                    FROM\n                        problems\n                    WHERE\n                        visible = false AND publish_time < datetime('now')\n                "
+  },
   "8977d8067449874d9522799438f0dfb62c417fe0be5ac0407a6c691861067216": {
     "describe": {
       "columns": [],
@@ -1214,6 +1190,16 @@
     },
     "query": "SELECT COUNT(id) as count FROM submissions WHERE problem_id = ? AND success = true"
   },
+  "8c1aae98f70d1608759764f82f6f5dac75aed1511feb70e35bc8636f53599f8c": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 5
+      }
+    },
+    "query": "\n        UPDATE problems SET\n        title = ?,\n        description = ?,\n        difficulty = ?,\n        visible = ?\n        WHERE id = ?\n        "
+  },
   "934778f4ac7f92fad27440366dbecf5569da493ba5a60882c975053fdfb9eed3": {
     "describe": {
       "columns": [
@@ -1231,102 +1217,6 @@
       }
     },
     "query": "INSERT INTO teams (competition_id, name) VALUES (?, ?) RETURNING id"
-  },
-  "97715c4e51f192dd3408648801d97338ac4c74cbd5604dfbd1c35ffe210ff6bc": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "title",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "description",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "runner",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "template",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "competition_id",
-          "ordinal": 5,
-          "type_info": "Int64"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "parameters": {
-        "Right": 2
-      }
-    },
-    "query": "\n                SELECT\n                    id,\n                    title,\n                    description,\n                    runner,\n                    template,\n                    competition_id\n                FROM problems\n                WHERE competition_id is NULL\n                ORDER BY update_dt DESC\n                LIMIT ? OFFSET ?\n                "
-  },
-  "9e55b48a61cc5495cb9191546677c6a9ddb16fbd0db068a71d23b23e585dee95": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "title",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "description",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "runner",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "template",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "competition_id",
-          "ordinal": 5,
-          "type_info": "Int64"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "parameters": {
-        "Right": 3
-      }
-    },
-    "query": "\n                SELECT\n                    id,\n                    title,\n                    description,\n                    runner,\n                    template,\n                    competition_id\n                FROM problems\n                WHERE competition_id = ?\n                ORDER BY update_dt DESC\n                LIMIT ? OFFSET ?\n                "
   },
   "acffc909dd5541562cae5a4b01689a21d46e759d7ace521aa2cae0abb15d6020": {
     "describe": {
@@ -1442,7 +1332,7 @@
     },
     "query": "SELECT * FROM competitions"
   },
-  "d1d789e909f124528025f9f3dc2b4cf238ff5634f62e871e7ea671945f6b56b8": {
+  "d52d85e133b5c2e6706a0d4c279a23d75b4f3f359384ba6646ab5c51c5a2b793": {
     "describe": {
       "columns": [
         {
@@ -1474,6 +1364,16 @@
           "name": "competition_id",
           "ordinal": 5,
           "type_info": "Int64"
+        },
+        {
+          "name": "visible",
+          "ordinal": 6,
+          "type_info": "Bool"
+        },
+        {
+          "name": "difficulty: Difficulty",
+          "ordinal": 7,
+          "type_info": "Text"
         }
       ],
       "nullable": [
@@ -1482,13 +1382,15 @@
         false,
         false,
         false,
-        true
+        true,
+        false,
+        false
       ],
       "parameters": {
-        "Right": 0
+        "Right": 1
       }
     },
-    "query": "\n                    SELECT\n                        id,\n                        title,\n                        description,\n                        runner,\n                        template,\n                        competition_id\n                    FROM\n                        problems\n                    WHERE\n                        visible = false AND publish_time < datetime('now')\n                "
+    "query": "\n        SELECT\n            id,\n            title,\n            description,\n            runner,\n            template,\n            competition_id,\n            visible,\n            difficulty as \"difficulty: Difficulty\"\n        FROM\n            problems\n        WHERE\n            id = ?\n        "
   },
   "e144a362b64a00e9b312f7e0ce2d17b4b6a6752dea408726a7c4fcf10f009550": {
     "describe": {
@@ -1641,54 +1543,6 @@
       }
     },
     "query": "\n        SELECT\n            id,\n            title,\n            description,\n            meeting_time\n        FROM\n            meetings\n        WHERE\n            id = ?\n        "
-  },
-  "fcdbdf07958f742b42f4052c8035cb639d37bc310ef28087e40421ad9b01a691": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "title",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "description",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "runner",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "template",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "competition_id",
-          "ordinal": 5,
-          "type_info": "Int64"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "parameters": {
-        "Right": 10
-      }
-    },
-    "query": "\n        INSERT INTO problems (\n            title,\n            description,\n            runner,\n            reference,\n            template,\n            activity_id,\n            visible,\n            publish_time,\n            runtime_multiplier,\n            competition_id\n        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n        RETURNING\n            id,\n            title,\n            description,\n            runner,\n            template,\n            competition_id\n        "
   },
   "fe1d80b4ccce2aa6fec3e6b6ce69c8bad42cba0cad75fb5f4c565bcaa887badb": {
     "describe": {

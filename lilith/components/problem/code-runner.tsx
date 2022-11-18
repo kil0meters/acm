@@ -56,7 +56,6 @@ export default function CodeRunner(): JSX.Element {
           setTimeout(() => {
             setSubmissionShown(true);
             mutate(api_url(`/problems/${id}/recent-submission`));
-            mutate(SUBMISSION_TESTS_QUERY);
           }, 0);
         }
 

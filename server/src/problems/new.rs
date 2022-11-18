@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use tokio::sync::broadcast::Sender;
 
-use super::Problem;
+use super::{Difficulty, Problem};
 use crate::{auth::Claims, error::ServerError, ws::BroadcastMessage};
 
 #[derive(Deserialize)]
@@ -60,7 +60,9 @@ pub async fn new(
             description,
             runner,
             template,
-            competition_id
+            competition_id,
+            visible,
+            difficulty as "difficulty: Difficulty"
         "#,
         form.title,
         form.description,

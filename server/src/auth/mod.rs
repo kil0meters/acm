@@ -59,16 +59,17 @@ impl Keys {
 
 #[derive(Debug, Clone, Copy, Type, Deserialize, Serialize, PartialEq)]
 #[sqlx(rename_all = "SCREAMING_SNAKE_CASE")]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Auth {
-    ADMIN,
-    OFFICER,
-    MEMBER,
-    LOGGED_OUT,
+    Admin,
+    Officer,
+    Member,
+    LoggedOut,
 }
 
 impl Default for Auth {
     fn default() -> Self {
-        Auth::MEMBER
+        Auth::Member
     }
 }
 #[derive(Debug, Serialize, Deserialize)]
@@ -82,14 +83,14 @@ impl Claims {
     /// Raises an error if the request is not of sufficient authorization
     pub fn validate_officer(&self) -> Result<(), ServerError> {
         match self.auth {
-            Auth::ADMIN | Auth::OFFICER => Ok(()),
-            Auth::MEMBER | Auth::LOGGED_OUT => Err(AuthError::WrongCredentials.into()),
+            Auth::Admin | Auth::Officer => Ok(()),
+            Auth::Member | Auth::LoggedOut => Err(AuthError::WrongCredentials.into()),
         }
     }
 
     pub fn validate_logged_in(&self) -> Result<(), ServerError> {
         match self.auth {
-            Auth::LOGGED_OUT => Err(AuthError::WrongCredentials.into()),
+            Auth::LoggedOut => Err(AuthError::WrongCredentials.into()),
             _ => Ok(()),
         }
     }
@@ -111,7 +112,7 @@ where
             None => {
                 return Ok(Claims {
                     user_id: -1,
-                    auth: Auth::LOGGED_OUT,
+                    auth: Auth::LoggedOut,
                     exp: 0,
                 })
             }

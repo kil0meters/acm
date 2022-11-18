@@ -1,13 +1,14 @@
 use axum::{extract::Path, Extension, Json};
 use sqlx::SqlitePool;
 
-use crate::error::ServerError;
+use crate::{auth::Claims, error::ServerError};
 
-use super::Problem;
+use super::{Difficulty, Problem};
 
 pub async fn problem(
     Path(problem_id): Path<i64>,
     Extension(pool): Extension<SqlitePool>,
+    claims: Claims,
 ) -> Result<Json<Problem>, ServerError> {
     let problem = sqlx::query_as!(
         Problem,
@@ -18,7 +19,9 @@ pub async fn problem(
             description,
             runner,
             template,
-            competition_id
+            competition_id,
+            visible,
+            difficulty as "difficulty: Difficulty"
         FROM
             problems
         WHERE
@@ -30,5 +33,9 @@ pub async fn problem(
     .await
     .map_err(|_| ServerError::NotFound)?;
 
-    Ok(Json(problem))
+    if problem.visible || claims.validate_officer().is_ok() {
+        Ok(Json(problem))
+    } else {
+        Err(ServerError::NotFound)
+    }
 }

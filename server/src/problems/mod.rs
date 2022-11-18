@@ -2,8 +2,10 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use sqlx::{FromRow, Type};
 
+mod edit;
 mod history;
 mod index;
 mod leaderboard;
@@ -13,7 +15,14 @@ mod recent_submission;
 mod recent_tests;
 mod tests;
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Type)]
+pub enum Difficulty {
+    Easy,
+    Medium,
+    Hard,
+}
+
+#[derive(Serialize, Clone, FromRow)]
 pub struct Problem {
     pub id: i64,
 
@@ -31,6 +40,10 @@ pub struct Problem {
 
     /// Template that's shown when you start a problem
     pub template: String,
+
+    pub visible: bool,
+
+    pub difficulty: Difficulty,
 }
 
 pub fn routes() -> Router {
@@ -38,6 +51,7 @@ pub fn routes() -> Router {
         .route("/", get(index::problems))
         .route("/new", post(new::new))
         .route("/:problem_id", get(problem::problem))
+        .route("/:problem_id/edit", post(edit::edit))
         .route("/:problem_id/tests", get(tests::tests))
         .route("/:problem_id/history", get(history::history))
         .route("/:problem_id/leaderboard", get(leaderboard::leaderboard))

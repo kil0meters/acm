@@ -31,6 +31,9 @@ export type Problem = {
 
   // markdown formatted
   description: string;
+
+  visible: boolean;
+  difficulty: string;
 };
 
 type ProblemStatus = "Complete" | "InProgress" | "NotStarted";
@@ -48,13 +51,13 @@ function ProblemTeamStatus({ problem_id }: { problem_id: number }): JSX.Element 
 
   if (data == "InProgress") {
     return (
-      <div className="ml-auto bg-blue-700 text-blue-50 rounded-full px-4 py-2">
+      <div className="ml-auto bg-blue-700 text-blue-50 rounded-full px-4 py-2 text-sm">
         In Progress
       </div>
     );
   } else if (data == "Complete") {
     return (
-      <div className="ml-auto bg-green-700 text-blue-50 rounded-full px-4 py-2">
+      <div className="ml-auto bg-green-700 text-blue-50 rounded-full px-4 py-2 text-sm">
         Completed
       </div>
     );
@@ -67,7 +70,23 @@ interface ProblemListingProps extends Problem {
   show_team_status?: boolean;
 };
 
-function ProblemListing({ id, title, description, show_team_status }: ProblemListingProps): JSX.Element {
+function DifficultyBadge({ difficulty }: { difficulty: string }): JSX.Element {
+  if (difficulty == "Easy") {
+    return <span className="bg-green-600 text-green-50 rounded-full px-4 py-2 text-sm">Easy</span>;
+  }
+
+  if (difficulty == "Medium") {
+    return <span className="bg-yellow-600 text-yellow-50 rounded-full px-4 py-2 text-sm">Medium</span>;
+  }
+
+  if (difficulty == "Hard") {
+    return <span className="bg-red-600 text-red-50 rounded-full px-4 py-2 text-sm">Hard</span>;
+  }
+
+  return <>{difficulty}</>;
+}
+
+function ProblemListing({ id, title, description, show_team_status, difficulty }: ProblemListingProps): JSX.Element {
   let desc = marked.parse(description);
   const content = useRef<HTMLDivElement>(null);
 
@@ -82,7 +101,11 @@ function ProblemListing({ id, title, description, show_team_status }: ProblemLis
       <a className="sm:rounded-md border-neutral-300 dark:border-neutral-700 border-y sm:border sm:mx-2 md:m-0 bg-white dark:bg-black dark:hover:bg-neutral-800 p-4 hover:shadow-md max-h-52 hover:max-h-64 overflow-hidden transition-all">
         <div className="flex items-center mb-4">
           <h1 className="text-2xl font-extrabold">{title}</h1>
-          {show_team_status && <ProblemTeamStatus problem_id={id} />}
+
+          <div className="flex ml-auto gap-4">
+            <DifficultyBadge difficulty={difficulty} />
+            {show_team_status && <ProblemTeamStatus problem_id={id} />}
+          </div>
         </div>
 
         <div
@@ -109,13 +132,15 @@ function ListLoading(): JSX.Element {
 export function ProblemList({ problems, show_team_status }: { problems: Problem[], show_team_status?: boolean }): JSX.Element {
   return (
     <>
-      {problems.map(({ id, title, description }) => (
+      {problems.map(({ id, title, description, difficulty, visible }) => (
         <ProblemListing
           key={id}
           id={id}
           title={title}
           description={description}
           show_team_status={show_team_status}
+          difficulty={difficulty}
+          visible={visible}
         />
       ))}
     </>
@@ -123,14 +148,19 @@ export function ProblemList({ problems, show_team_status }: { problems: Problem[
 }
 
 const ProblemListPage: NextPage = () => {
+  const [difficulty, setDifficulty] = useState(0);
+  const [showCompetitionProblems, setShowCompetitionProblems] = useState(false);
+  const [sortBy, setSortBy] = useState("Newest");
+
   const { data, error, isValidating, size, setSize } = useSWRInfinite<Problem[]>(
     (pageIndex, previousProblems) => {
       if (previousProblems && !previousProblems.length) return null;
-      return api_url(`/problems?offset=${7 * pageIndex}&count=7`);
+      return api_url(`/problems?offset=${7 * pageIndex}&count=7&difficulty=${difficulty}&show_competition_problems=${showCompetitionProblems}&sort_by=${sortBy}`);
     },
     fetcher
   );
   const [isComponentMounted, setIsComponentMounted] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const { data: user } = useSWR<User>(
     api_url("/user/me"),
@@ -151,13 +181,62 @@ const ProblemListPage: NextPage = () => {
       </Head>
 
       <div className="max-w-screen-md mx-auto my-4 flex flex-col gap-4">
-        {isComponentMounted && user && (user.auth === "OFFICER" || user.auth === "ADMIN") && (
-          <Link href="/problems/new">
-            <a className="ml-auto text-green-50 text-sm font-bold rounded-full bg-green-700 hover:bg-green-500 transition-colors px-4 py-2 mr-4 md:mr-0">
-              New Problem
-            </a>
-          </Link>
-        )}
+        <div className="flex items-center">
+          <button onClick={() => setShowFilters(!showFilters)} className="bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-neutral-200 px-4 py-2 rounded-full transition-colors">
+            Filters
+          </button>
+          {isComponentMounted && user && (user.auth === "OFFICER" || user.auth === "ADMIN") && (
+            <Link href="/problems/new">
+              <a className="ml-auto text-green-50 text-sm font-bold rounded-full bg-green-700 hover:bg-green-500 transition-colors px-4 py-2 mr-4 md:mr-0">
+                New Problem
+              </a>
+            </Link>
+          )}
+        </div>
+
+        {showFilters && <div className="bg-neutral-100 dark:bg-neutral-800 rounded-xl p-4 flex flex-col gap-4 sm:flex-row sm:gap-24">
+          <div className="flex flex-col">
+            <span className="font-bold mb-2">Difficulty</span>
+
+            <div className="flex items-center gap-2">
+              <input id="easy" type="checkbox" value={difficulty & 1} onChange={() => setDifficulty(difficulty ^ 1)} />
+              <label htmlFor="easy">Easy</label>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input id="medium" type="checkbox" value={difficulty & 2} onChange={() => setDifficulty(difficulty ^ 2)} />
+              <label htmlFor="medium">Medium</label>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input id="hard" type="checkbox" value={difficulty & 4} onChange={() => setDifficulty(difficulty ^ 4)} />
+              <label htmlFor="medium">Hard</label>
+            </div>
+          </div>
+
+          <div>
+            <span className="font-bold">Misc</span>
+
+            <div className="flex items-center gap-2">
+              <input type="checkbox" name="time" checked={showCompetitionProblems} onChange={() => setShowCompetitionProblems(!showCompetitionProblems)} />
+              Show competition problems
+            </div>
+          </div>
+
+          <div>
+            <span className="font-bold">Sort By</span>
+
+            <div className="flex items-center gap-2">
+              <input id="newest" type="radio" name="sort-by" checked={sortBy == "Newest"} onChange={() => setSortBy("Newest")} />
+              <label htmlFor="oldest">Newest</label>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input id="oldest" type="radio" name="sort-by" checked={sortBy == "Oldest"} onChange={() => setSortBy("Oldest")} />
+              <label htmlFor="oldest">Oldest</label>
+            </div>
+          </div>
+        </div>}
 
         {!data ? <ListLoading /> : data.map((problems, i) => <ProblemList key={i} problems={problems} />)}
 

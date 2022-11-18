@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
-import Navbar from "../../components/navbar";
+import Navbar from "../../../components/navbar";
 import { useRouter } from "next/router";
-import ProblemView from "../../components/problem";
+import ProblemView from "../../../components/problem";
 
 const ProblemPage: NextPage = () => {
   const { query, isReady } = useRouter();

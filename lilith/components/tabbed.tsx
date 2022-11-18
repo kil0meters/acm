@@ -3,7 +3,7 @@ import { useState } from "react";
 type TabbedProps = {
   titles: string[];
   children: JSX.Element[];
-  className: string;
+  className?: string;
 };
 
 export default function Tabbed({

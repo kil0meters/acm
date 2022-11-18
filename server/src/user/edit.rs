@@ -26,7 +26,7 @@ pub async fn edit(
 ) -> Result<Json<User>, ServerError> {
     claims.validate_logged_in()?;
 
-    if claims.auth != Auth::ADMIN {
+    if claims.auth != Auth::Admin {
         if claims.user_id != user_id {
             return Err(AuthError::Unauthorized.into());
         } else {
