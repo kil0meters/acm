@@ -1,18 +1,6 @@
-FROM lukemathwalker/cargo-chef:latest-rust-latest AS chef
-WORKDIR app
-
-FROM chef AS planner
+FROM rustlang/rust:nightly AS builder
 COPY . .
-RUN cargo chef prepare --bin ramiel --recipe-path recipe.json
-
-
-FROM chef AS builder
-COPY --from=planner /app/recipe.json recipe.json
-RUN cargo chef cook --package ramiel --release --recipe-path recipe.json
-
-COPY . .
-RUN cargo build --release --package ramiel
-
+RUN cargo +nightly build --release --package ramiel
 
 FROM debian:bullseye-slim
 
@@ -27,7 +15,7 @@ RUN apt-get purge -y wget; \
     apt-get autoremove -y; \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app/target/release/ramiel /usr/local/bin/ramiel
+COPY --from=builder /target/release/ramiel /usr/local/bin/ramiel
 COPY ./wasmtime-cache.toml .
 
 CMD ["ramiel"]

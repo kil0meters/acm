@@ -52,7 +52,7 @@ function TestResultView({ index, success, problemId }: TestResultDescription): J
 
   if (error) return (
     <ErrorBox>
-      There was a problem fetching this test. (Perhaps it's from an old version of the website?)
+      There was a problem fetching this test. (Perhaps its from an old version of the website?)
     </ErrorBox>
   );
 
@@ -124,8 +124,8 @@ export function TestResultInner({ index, input, output, expected_output, error, 
         <label>Input</label>
 
         <div className="flex flex-col gap-4">
-          {input.arguments.map(arg =>
-            <FunctionTypeDisplay data={arg} />
+          {input.arguments.map((arg, i) =>
+            <FunctionTypeDisplay key={i} data={arg} />
           )}
         </div>
       </div>

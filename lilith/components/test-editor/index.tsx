@@ -1,8 +1,6 @@
 import produce from "immer";
-import { Component, useEffect, useState } from "react";
-import useSWR from "swr";
-import { api_url, fetcher } from "../../utils/fetcher";
-import { FunctionType, FunctionTypeDisplay, Test } from "../problem/submission/tests";
+import { useEffect, useState } from "react";
+import { FunctionType } from "../problem/submission/tests";
 
 // Any is the easiest way out of this :(
 // Give me rust enums please
@@ -17,7 +15,7 @@ function GridEditor({ data, onChange }: GridEditorProps) {
 
   useEffect(() => {
     onChange(grid);
-  }, [grid]);
+  }, [grid, onChange]);
 
   // I hate that react makes us do this but what can you do
   const addRow = () => {
@@ -60,6 +58,7 @@ function GridEditor({ data, onChange }: GridEditorProps) {
           grid.map((row, y) =>
             row.map((element, x) =>
               <input
+                key={y * row[0].length + x}
                 className="border p-2 w-full"
                 type="text"
                 value={element.toString()}
@@ -116,7 +115,7 @@ function GraphEditor({ data, onChange }: GraphEditorProps) {
 
   useEffect(() => {
     onChange(graph);
-  }, [graph]);
+  }, [graph, onChange]);
 
   const addRow = () => {
     setGraph(produce(graph, newGraph => {
@@ -151,11 +150,12 @@ function GraphEditor({ data, onChange }: GraphEditorProps) {
       <div>
         {
           graph.map((row, y) =>
-            <div className="flex">
+            <div key={y} className="flex">
               <span className="my-auto mr-2 font-mono">{y}:</span>
               <div className="border flex w-full">
                 {row.map((element, x) =>
                   <input
+                    key={x}
                     className="border p-2 w-full"
                     type="text"
                     value={element.toString()}
@@ -214,7 +214,7 @@ function ListEditor({ data, onChange }: ListEditorProps) {
 
   useEffect(() => {
     onChange(list);
-  }, [list]);
+  }, [list, onChange]);
 
   const addElement = () => {
     setList(produce(list, newList => {
@@ -237,6 +237,7 @@ function ListEditor({ data, onChange }: ListEditorProps) {
           <div className="border flex w-full">
             {list.map((element, i) =>
               <input
+                key={i}
                 className="border p-2 w-full"
                 type="text"
                 value={element.toString()}
@@ -280,7 +281,7 @@ function SingleEditor({ value, onChange }: SingleEditorProps) {
 
   useEffect(() => {
     onChange(data);
-  }, [data]);
+  }, [data, onChange]);
 
   return (
     <input

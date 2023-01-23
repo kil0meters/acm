@@ -136,7 +136,7 @@ export interface AdminState {
   setProblemDateShown: (shown: boolean) => void;
 
   updateProblemTest: (index: number, test: Partial<Test>) => void;
-  pushProblemTest: (test?: Test) => void;
+  pushProblemTest: (test: Test) => void;
   popProblemTest: () => void;
   setProblemTests: (tests: Test[]) => void;
 
@@ -230,16 +230,10 @@ export const useAdminStore = create<AdminState>()(
           })
         ),
 
-      pushProblemTest: (test?: Test) =>
+      pushProblemTest: (test: Test) =>
         set(
           produce((state: AdminState) => {
-            state.problemTests.push(test ?? {
-              id: 0,
-              index: state.problemTests.length,
-              input: "",
-              expected_output: "",
-              max_runtime: 0,
-            });
+            state.problemTests.push(test);
           })
         ),
 

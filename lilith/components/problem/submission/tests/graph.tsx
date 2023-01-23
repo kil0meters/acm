@@ -32,7 +32,7 @@ const GraphEvents: React.FC = () => {
 };
 
 
-function LoadGraph({ data }: { data: T[][] }) {
+function LoadGraph<T extends ReactNode>({ data }: { data: T[][] }) {
   const loadGraph = useLoadGraph();
 
   useEffect(() => {
