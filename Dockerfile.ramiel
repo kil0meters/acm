@@ -28,6 +28,6 @@ RUN apt-get purge -y wget; \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/target/release/ramiel /usr/local/bin/ramiel
-COPY ./ramiel/wasmtime-cache.toml .
+COPY ./wasmtime-cache.toml .
 
 CMD ["ramiel"]

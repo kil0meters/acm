@@ -69,8 +69,6 @@ export default function ProblemView({ id }: ProblemViewProps): JSX.Element {
 
     if (!competitionId || error || !data) return <></>;
 
-    console.log("hello");
-
     return (
       <div className="border-neutral-300 dark:border-neutral-700 border-b p-2">
         <h1 className="font-bold text-lg">{data.name}</h1>

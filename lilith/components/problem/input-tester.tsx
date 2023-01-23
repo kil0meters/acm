@@ -1,17 +1,19 @@
+import produce from "immer";
 import { Dispatch, SetStateAction, useContext, useState } from "react";
+import useSWR from "swr";
 import { ProblemIDContext } from ".";
-import { api_url } from "../../utils/fetcher";
+import { api_url, fetcher } from "../../utils/fetcher";
 import { JobStatus, monitorJob } from "../../utils/job";
 import { useSession, useStore } from "../../utils/state";
 import LoadingButton from "../loading-button";
 import QueueStatus from "../queue-status";
+import { TestEditor } from "../test-editor";
 import ErrorDisplay, { isRunnerError, RunnerError, ServerError } from "./submission/error";
-import TestResultInfo from "./submission/test-result";
-import { TestResult } from "./submission/tests";
+import { Test, TestResult, WasmFunctionArgs } from "./submission/tests";
+import { TestResultInner } from "./submission/tests/test_result_view";
 
-export default function InputTester(): JSX.Element {
+export default function InputTester() {
   const [loading, setLoading] = useState(false);
-  const [input, setInput] = useState("");
   const [queuePosition, setQueuePosition] = useState(0);
   const [testResult, setTestResult] = useState<TestResult | RunnerError | null>(
     null
@@ -23,6 +25,12 @@ export default function InputTester(): JSX.Element {
     problem_id ? state.problemImpls[problem_id] : undefined
   );
 
+  let { data, error } = useSWR<Test>(problem_id ? api_url(`/problems/${problem_id}/tests/0`) : null, fetcher);
+
+  if (!data || error) return null;
+
+  let input = data.input;
+
   const testInput = async () => {
     if (!implementation) {
       setError("You must modify the answer before submitting.", true);
@@ -30,7 +38,7 @@ export default function InputTester(): JSX.Element {
     }
 
     setLoading(true);
-    awful: try {
+    try {
       let res = await fetch(api_url("/run/custom"), {
         method: "POST",
         headers: {
@@ -66,18 +74,16 @@ export default function InputTester(): JSX.Element {
     }
   };
 
-  console.log(testResult);
-
   return (
-    <div className="border-t border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black flex flex-col lg:flex-row min-h-0">
-      <div className="flex flex-col gap-2 lg:w-96 p-4">
+    <div className="border-t max-h-[40vh] lg:max-h-full border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black flex flex-col lg:flex-row min-h-0">
+      <div className="flex flex-col gap-2 lg:w-96 p-4 lg:h-80 overflow-y-auto">
         <label>{"Input"}</label>
-        <textarea
-          onChange={(event) => {
-            setInput((event.target as HTMLTextAreaElement).value);
-          }}
-          className="rounded border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 outline-0 transition-shadow focus:ring-2 ring-neutral-300 dark:ring-neutral-700 resize-none p-2 lg:flex-auto"
-        ></textarea>
+
+        {problem_id && <TestEditor baseArgs={data.input.arguments} onChange={(args) => {
+          if (input) {
+            input.arguments = args;
+          }
+        }} />}
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
           <LoadingButton
@@ -97,8 +103,8 @@ export default function InputTester(): JSX.Element {
           (isRunnerError(testResult) ? (
             <ErrorDisplay {...testResult} />
           ) : (
-            <div className="my-4">
-              <TestResultInfo {...testResult} />
+            <div className="my-4 mx-1">
+              <TestResultInner {...testResult} />
             </div>
           ))}
       </div>

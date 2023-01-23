@@ -198,9 +198,6 @@ const UserPage: NextPage = () => {
       shouldRetryOnError: false,
     });
 
-    // console.log(currentUser);
-    console.log("Hello");
-
     const formClasses = "border-neutral-300 dark:border-neutral-700 border rounded p-2 bg-neutral-50 dark:bg-neutral-900 outline-0 transition-shadow focus:ring dark:ring-neutral-700 ring-neutral-300";
 
     function submitUserEdit() {

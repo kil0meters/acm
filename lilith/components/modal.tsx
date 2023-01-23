@@ -38,6 +38,8 @@ export default function Modal({
     },
   });
 
+  let mousePressed = false;
+
   return fadeIn(
     (styles, item) =>
       item && (
@@ -49,7 +51,14 @@ export default function Modal({
               : node.removeAttribute("inert"))
           }
           style={styles}
-          onClick={onClose}
+          onMouseDown={() => {
+            mousePressed = true;
+          }}
+          onMouseUp={() => {
+            if (mousePressed) {
+              onClose();
+            }
+          }}
           className="fixed left-0 right-0 top-0 bottom-0 bg-black/30 z-50 overflow-y-auto"
         >
           {zoomIn(
@@ -57,7 +66,7 @@ export default function Modal({
               item && (
                 <animated.div
                   style={styles}
-                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
                   className="mt-16 max-w-lg mx-auto p-2 relative"
                 >
                   {children}
