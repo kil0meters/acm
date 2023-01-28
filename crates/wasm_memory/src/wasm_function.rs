@@ -76,6 +76,45 @@ impl FunctionValue {
 
         Ok(next_offset)
     }
+
+    pub fn scaling_factor(&self) -> f32 {
+        match self {
+            FunctionValue::String(ContainerVariant::Single(s)) => s.len() as f32,
+            FunctionValue::String(ContainerVariant::List(l)) => l.len() as f32,
+            FunctionValue::String(ContainerVariant::Grid(g)) => (g[0].len() * g.len()) as f32,
+            FunctionValue::String(ContainerVariant::Graph(g)) => g.len() as f32, // for now we just do number of nodes, should factor edges though
+
+            FunctionValue::Int(ContainerVariant::Single(s)) => s.abs() as f32,
+            FunctionValue::Int(ContainerVariant::List(l)) => l.len() as f32,
+            FunctionValue::Int(ContainerVariant::Grid(g)) => (g[0].len() * g.len()) as f32,
+            FunctionValue::Int(ContainerVariant::Graph(g)) => g.len() as f32,
+
+            FunctionValue::Long(ContainerVariant::Single(s)) => s.abs() as f32,
+            FunctionValue::Long(ContainerVariant::List(l)) => l.len() as f32,
+            FunctionValue::Long(ContainerVariant::Grid(g)) => (g[0].len() * g.len()) as f32,
+            FunctionValue::Long(ContainerVariant::Graph(g)) => g.len() as f32,
+
+            FunctionValue::Float(ContainerVariant::Single(s)) => s.abs() as f32,
+            FunctionValue::Float(ContainerVariant::List(l)) => l.len() as f32,
+            FunctionValue::Float(ContainerVariant::Grid(g)) => (g[0].len() * g.len()) as f32,
+            FunctionValue::Float(ContainerVariant::Graph(g)) => g.len() as f32,
+
+            FunctionValue::Double(ContainerVariant::Single(s)) => s.abs() as f32,
+            FunctionValue::Double(ContainerVariant::List(l)) => l.len() as f32,
+            FunctionValue::Double(ContainerVariant::Grid(g)) => (g[0].len() * g.len()) as f32,
+            FunctionValue::Double(ContainerVariant::Graph(g)) => g.len() as f32,
+
+            FunctionValue::Char(ContainerVariant::Single(_)) => 1.0,
+            FunctionValue::Char(ContainerVariant::List(l)) => l.len() as f32,
+            FunctionValue::Char(ContainerVariant::Grid(g)) => (g[0].len() * g.len()) as f32,
+            FunctionValue::Char(ContainerVariant::Graph(g)) => g.len() as f32,
+
+            FunctionValue::Bool(ContainerVariant::Single(_)) => 1.0,
+            FunctionValue::Bool(ContainerVariant::List(l)) => l.len() as f32,
+            FunctionValue::Bool(ContainerVariant::Grid(g)) => (g[0].len() * g.len()) as f32,
+            FunctionValue::Bool(ContainerVariant::Graph(g)) => g.len() as f32,
+        }
+    }
 }
 
 impl PartialEq for FunctionValue {

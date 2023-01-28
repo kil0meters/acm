@@ -10,5 +10,6 @@ anyhow.workspace = true
 byteorder.workspace = true
 serde.workspace = true
 log.workspace = true
+sqlx.workspace = true
 thiserror.workspace = true
 wasmtime.workspace = true

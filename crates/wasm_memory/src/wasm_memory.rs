@@ -417,7 +417,7 @@ mod tests {
         let memory = Memory::new(&mut store, MemoryType::new(1, None))?;
         memory.grow(&mut store, 2)?;
         let linker = Linker::new(&engine);
-        let module = Module::new(&engine, include_bytes!("../malloc.wasm"))?;
+        let module = Module::new(&engine, include_bytes!("../test.wasm"))?;
         let instance = linker.instantiate(&mut store, &module)?;
         let allocator: AllocatorFunc = instance.get_typed_func(&mut store, "alloc")?;
 

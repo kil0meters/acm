@@ -10,66 +10,6 @@
     },
     "query": "\n                    UPDATE\n                        problems\n                    SET\n                        visible = true\n                    WHERE\n                        id = ?\n                    "
   },
-  "02627e4c19530ec8535cf4987c0241774e7ee5de9cc671825d1a249a87961c2f": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "problem_id",
-          "ordinal": 1,
-          "type_info": "Int64"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 2,
-          "type_info": "Int64"
-        },
-        {
-          "name": "success",
-          "ordinal": 3,
-          "type_info": "Bool"
-        },
-        {
-          "name": "runtime",
-          "ordinal": 4,
-          "type_info": "Int64"
-        },
-        {
-          "name": "error",
-          "ordinal": 5,
-          "type_info": "Text"
-        },
-        {
-          "name": "code",
-          "ordinal": 6,
-          "type_info": "Text"
-        },
-        {
-          "name": "time",
-          "ordinal": 7,
-          "type_info": "Datetime"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 1
-      }
-    },
-    "query": "\n            SELECT *\n            FROM submissions\n            WHERE id = ?\n        "
-  },
   "06911aa537434d8fab530d4d892ed2247361809599caf79d202673452dab6c4f": {
     "describe": {
       "columns": [
@@ -315,66 +255,6 @@
       }
     },
     "query": "\n        SELECT\n            users.id,\n            users.name,\n            users.username,\n            users.discord_id,\n            users.auth as \"auth: Auth\"\n        FROM teams\n        JOIN team_members ON teams.id = team_members.team_id\n        JOIN users ON team_members.user_id = users.id\n        WHERE teams.id = ?\n    "
-  },
-  "58a66f84905ae2d47ec3eda94b1a4b59f07fa77bec3937d6782f52f7e9b1afb9": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "problem_id",
-          "ordinal": 1,
-          "type_info": "Int64"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 2,
-          "type_info": "Int64"
-        },
-        {
-          "name": "success",
-          "ordinal": 3,
-          "type_info": "Bool"
-        },
-        {
-          "name": "runtime",
-          "ordinal": 4,
-          "type_info": "Int64"
-        },
-        {
-          "name": "error",
-          "ordinal": 5,
-          "type_info": "Text"
-        },
-        {
-          "name": "code",
-          "ordinal": 6,
-          "type_info": "Text"
-        },
-        {
-          "name": "time",
-          "ordinal": 7,
-          "type_info": "Null"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        null
-      ],
-      "parameters": {
-        "Right": 1
-      }
-    },
-    "query": "\n        SELECT\n            id,\n            problem_id,\n            user_id,\n            success,\n            runtime,\n            error,\n            code,\n            min(time) as time\n        FROM\n            submissions\n        WHERE\n            success = true AND DATETIME(time) > DATETIME(?, 'localtime')\n        GROUP BY\n            user_id,\n            problem_id\n        "
   },
   "5a93325c7b768cabb796adf44b98ef32adbb9a0c8685d19b9b3fdecaddfff9e8": {
     "describe": {

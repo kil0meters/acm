@@ -3514,6 +3514,7 @@ dependencies = [
  "byteorder",
  "log",
  "serde",
+ "sqlx",
  "thiserror",
  "wasmtime",
 ]

@@ -16,8 +16,7 @@ pub async fn new_completions(
 ) -> Json<Vec<Submission>> {
     let since = query.since.unwrap_or_else(|| Utc::now().naive_local());
 
-    let submissions = sqlx::query_as_unchecked!(
-        Submission,
+    let submissions: Vec<Submission> = sqlx::query_as(
         r#"
         SELECT
             id,
@@ -36,8 +35,8 @@ pub async fn new_completions(
             user_id,
             problem_id
         "#,
-        since
     )
+    .bind(since)
     .fetch_all(&pool)
     .await
     .unwrap_or_default();

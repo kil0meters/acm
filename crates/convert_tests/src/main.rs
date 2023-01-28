@@ -745,7 +745,7 @@ async fn convert_problem_tests(
     function_name: &str,
     conversion_function: Box<dyn Fn(&str, OldTest) -> Result<Test>>,
 ) -> Result<()> {
-    let pool = SqlitePool::connect("./db.sqlite").await?;
+    let pool = SqlitePool::connect("./live-db.sqlite").await?;
 
     let tests: Vec<OldTest> = sqlx::query_as(
         "SELECT id, test_number, max_runtime, input, expected_output
@@ -784,43 +784,44 @@ async fn convert_problem_tests(
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    convert_problem_tests(15, "replicate", Box::new(replicate)).await?; // rename solution to replicate and change to vector<vector<char>> out return type
-    convert_problem_tests(14, "computeC", Box::new(need_for_speed)).await?;
-    convert_problem_tests(13, "maxNonadjacentSum", Box::new(maximum_nonadjacent_sum)).await?;
-    convert_problem_tests(12, "treeVCSize", Box::new(tree_vertex_cover)).await?;
-    convert_problem_tests(11, "permuteDigits", Box::new(two_strings)).await?;
-    convert_problem_tests(10, "maxNonconsecutiveSum", Box::new(vec_i32)).await?;
-    convert_problem_tests(9, "branch", Box::new(convert_raw_string)).await?;
-    convert_problem_tests(8, "rainbowRoads", Box::new(rainbow_roads)).await?;
-    convert_problem_tests(7, "ways", Box::new(int_int)).await?;
-    convert_problem_tests(6, "treeCount", Box::new(convert_raw_string)).await?;
-    convert_problem_tests(5, "deadEndDetector", Box::new(convert_raw_string)).await?;
-    convert_problem_tests(4, "goodOrBad", Box::new(convert_raw_string)).await?;
-    convert_problem_tests(2, "fibonacci", Box::new(int_int)).await?;
-    convert_problem_tests(1, "fizzBuzz", Box::new(int_string)).await?;
-
-    convert_problem_tests(17, "delayed_work", Box::new(delayed_work)).await?;
-    convert_problem_tests(18, "dominating_duos", Box::new(vec_i32)).await?;
-    convert_problem_tests(20, "fear_factor", Box::new(fear_factoring)).await?;
-    convert_problem_tests(23, "kth_subtree", Box::new(kth_subtree)).await?;
-    convert_problem_tests(26, "mission_imporbable", Box::new(mission_improbable)).await?;
-    convert_problem_tests(28, "paper_cuts", Box::new(papercuts)).await?;
-    convert_problem_tests(29, "permutation", Box::new(convert_raw_string)).await?;
-    convert_problem_tests(31, "rectangles", Box::new(rectangles)).await?;
-    convert_problem_tests(34, "straight_shot", Box::new(convert_raw_string)).await?;
-    convert_problem_tests(35, "ant_typing", Box::new(string_int)).await?;
-
-    convert_problem_tests(16, "coloring_contention", Box::new(coloring_contention)).await?;
-    convert_problem_tests(19, "excellence", Box::new(vec_i32)).await?;
-    convert_problem_tests(21, "gravity", Box::new(replicate)).await?; // change to vector<vector<char>> with out parameter
-    convert_problem_tests(22, "forbidden_zero", Box::new(int_int)).await?;
-    #[rustfmt::skip]
-    convert_problem_tests(24, "longest_common_subsequence", Box::new(longest_common_subsequence)).await?;
-    convert_problem_tests(25, "meeting", Box::new(meeting)).await?;
-    convert_problem_tests(27, "odd_palindrome", Box::new(string_bool)).await?;
-    convert_problem_tests(30, "poker_hand", Box::new(poker_hand)).await?; // change function signature to take vector<string>
-    convert_problem_tests(32, "runes", Box::new(string_int)).await?;
-    convert_problem_tests(33, "star_arrangements", Box::new(star_arrangements)).await?;
+    // convert_problem_tests(15, "replicate", Box::new(replicate)).await?; // rename solution to replicate and change to vector<vector<char>> out return type
+    // convert_problem_tests(14, "computeC", Box::new(need_for_speed)).await?;
+    // convert_problem_tests(13, "maxNonadjacentSum", Box::new(maximum_nonadjacent_sum)).await?;
+    // convert_problem_tests(12, "treeVCSize", Box::new(tree_vertex_cover)).await?;
+    // convert_problem_tests(11, "permuteDigits", Box::new(two_strings)).await?;
+    // convert_problem_tests(10, "maxNonconsecutiveSum", Box::new(vec_i32)).await?;
+    // convert_problem_tests(9, "branch", Box::new(convert_raw_string)).await?;
+    // convert_problem_tests(8, "rainbowRoads", Box::new(rainbow_roads)).await?;
+    // convert_problem_tests(7, "ways", Box::new(int_int)).await?;
+    // convert_problem_tests(6, "treeCount", Box::new(convert_raw_string)).await?;
+    // convert_problem_tests(5, "deadEndDetector", Box::new(convert_raw_string)).await?;
+    // convert_problem_tests(4, "goodOrBad", Box::new(convert_raw_string)).await?;
+    convert_problem_tests(3, "addOne", Box::new(int_int)).await?;
+    // convert_problem_tests(2, "fibonacci", Box::new(int_int)).await?;
+    // convert_problem_tests(1, "fizzBuzz", Box::new(int_string)).await?;
+    //
+    // convert_problem_tests(17, "delayed_work", Box::new(delayed_work)).await?;
+    // convert_problem_tests(18, "dominating_duos", Box::new(vec_i32)).await?;
+    // convert_problem_tests(20, "fear_factor", Box::new(fear_factoring)).await?;
+    // convert_problem_tests(23, "kth_subtree", Box::new(kth_subtree)).await?;
+    // convert_problem_tests(26, "mission_imporbable", Box::new(mission_improbable)).await?;
+    // convert_problem_tests(28, "paper_cuts", Box::new(papercuts)).await?;
+    // convert_problem_tests(29, "permutation", Box::new(convert_raw_string)).await?;
+    // convert_problem_tests(31, "rectangles", Box::new(rectangles)).await?;
+    // convert_problem_tests(34, "straight_shot", Box::new(convert_raw_string)).await?;
+    // convert_problem_tests(35, "ant_typing", Box::new(string_int)).await?;
+    //
+    // convert_problem_tests(16, "coloring_contention", Box::new(coloring_contention)).await?;
+    // convert_problem_tests(19, "excellence", Box::new(vec_i32)).await?;
+    // convert_problem_tests(21, "gravity", Box::new(replicate)).await?; // change to vector<vector<char>> with out parameter
+    // convert_problem_tests(22, "forbidden_zero", Box::new(int_int)).await?;
+    // #[rustfmt::skip]
+    // convert_problem_tests(24, "longest_common_subsequence", Box::new(longest_common_subsequence)).await?;
+    // convert_problem_tests(25, "meeting", Box::new(meeting)).await?;
+    // convert_problem_tests(27, "odd_palindrome", Box::new(string_bool)).await?;
+    // convert_problem_tests(30, "poker_hand", Box::new(poker_hand)).await?; // change function signature to take vector<string>
+    // convert_problem_tests(32, "runes", Box::new(string_int)).await?;
+    // convert_problem_tests(33, "star_arrangements", Box::new(star_arrangements)).await?;
 
     Ok(())
 }

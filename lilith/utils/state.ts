@@ -19,15 +19,26 @@ const idb: StateStorage = {
 
 type EditorThemeType = "light" | "dark" | "system";
 
+type Auth = "ADMIN" | "OFFICER" | "MEMBER";
+
 export interface User {
   id: number;
   name: string;
   username: string;
   discord_id: string;
-  auth: "ADMIN" | "OFFICER" | "MEMBER";
+  auth: Auth;
 }
 
-export interface Submission {
+export type AsymptoticComplexity =
+  "EXPONENTIAL" |
+  "QUADRATIC" |
+  "LOG_LINEAR" |
+  "LINEAR" |
+  "SQRT" |
+  "LOG" |
+  "CONSTANT";
+
+export type Submission = {
   id: number;
   problem_id: number;
   user_id: number;
@@ -36,11 +47,13 @@ export interface Submission {
   code: string;
   runtime: number;
   time: string;
+  complexity?: AsymptoticComplexity;
 }
 
+
 export interface Store {
-  vimEnabled: boolean,
-  editorTheme: EditorThemeType,
+  vimEnabled: boolean;
+  editorTheme: EditorThemeType;
 
   problemImpls: { [key: number]: string };
 

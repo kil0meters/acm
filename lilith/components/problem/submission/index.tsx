@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Submission, useSession } from "../../../utils/state";
+import { useEffect, useRef, useState } from "react";
+import renderLatex from "../../../utils/latex";
+import { AsymptoticComplexity, Submission, useSession } from "../../../utils/state";
 
 export function ShareButton({
   className,
@@ -33,12 +34,45 @@ export function ShareButton({
   );
 }
 
+function AsymptoticComplexityDisplay({ complexity }: { complexity: AsymptoticComplexity }) {
+  const element = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (element.current) {
+      renderLatex(element.current);
+    }
+  });
+
+  let content: string;
+
+  if (complexity == "LOG") {
+    content = "$\\mathrm{O}(\\log n)$";
+  } else if (complexity == "SQRT") {
+    content = "$\\mathrm{O}(\\sqrt{n})$";
+  } else if (complexity == "LINEAR") {
+    content = "$\\mathrm{O}(n)$";
+  } else if (complexity == "CONSTANT") {
+    content = "$\\mathrm{O}(1)$";
+  } else if (complexity == "QUADRATIC") {
+    content = "$\\mathrm{O}(n^2)$";
+  } else if (complexity == "LOG_LINEAR") {
+    content = "$\\mathrm{O}(n \\log n)$";
+  } else if (complexity == "EXPONENTIAL") {
+    content = "$\\mathrm{O}(2^n)$";
+  } else {
+    content = "";
+  }
+
+  return <span ref={element}>{content}</span>;
+}
+
 export default function SubmissionFeedback({
   inProblemView,
   id,
   error,
   success,
   runtime,
+  complexity
 }: Submission & { inProblemView: boolean }): JSX.Element {
   function CloseButton({
     className
@@ -89,16 +123,20 @@ export default function SubmissionFeedback({
 
   if (success) {
     return (
-      <div className="flex-col flex p-4 bg-green-500 dark:bg-green-800 text-green-50 h-full">
+      <div className="flex-col flex p-4 bg-green-500 dark:bg-green-800 text-green-50 h-full gap-2">
         <div className="flex items-start">
           <span className="font-bold text-2xl">Congratulations!</span>
+
           {inProblemView && <ShareButton
             path={`/submissions/${id}`}
             className="bg-green-700 hover:bg-green-600 text-green-50 rounded-full px-4 py-2 ml-auto text-sm transition-colors"
           />}
         </div>
-        <span>Your code passed all of the supplied tests.</span>
-        {fuel}
+        <span>The code passed all of the supplied tests.</span>
+        {complexity && <span>
+          Estimated Time Complexity: <AsymptoticComplexityDisplay complexity={complexity} />
+        </span>}
+        <span>{fuel}</span>
       </div>
     );
   } else {
@@ -112,7 +150,7 @@ export default function SubmissionFeedback({
           />}
         </div>
 
-        <span>Your code did not pass all of the tests.</span>
+        <span>The code did not pass all of the tests.</span>
         {fuel}
 
       </div>

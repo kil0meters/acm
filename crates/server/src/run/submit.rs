@@ -1,7 +1,7 @@
 use axum::{async_trait, Extension, Json};
 use chrono::Utc;
 use reqwest::Client;
-use serde::{Deserialize};
+use serde::Deserialize;
 use serde_json::Value;
 use shared::models::{
     forms::SubmitJob,
@@ -87,8 +87,14 @@ impl Queueable for SubmitJob {
             Err(err) => (false, 0, Some(err.to_string()), vec![]),
         };
 
+        // find the asymptotic complexity
+        let inputs = tests.iter().map(|test| test.input.clone()).collect();
+        let times = tests.iter().map(|test| test.fuel as f32).collect();
+        let complexity = wasm_memory::estimate_asymptotic_complexity(inputs, times);
+
         let now = Utc::now().naive_utc();
         let mut tx = pool.begin().await.unwrap();
+
         let submission: Submission = sqlx::query_as(
             r#"
             INSERT INTO submissions (
@@ -98,9 +104,10 @@ impl Queueable for SubmitJob {
                 runtime,
                 error,
                 code,
-                time
+                time,
+                complexity
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             RETURNING *
             "#,
         )
@@ -111,6 +118,7 @@ impl Queueable for SubmitJob {
         .bind(error)
         .bind(&self.implementation)
         .bind(now)
+        .bind(complexity)
         .fetch_one(&mut tx)
         .await
         .map_err(|_| ServerError::InternalError)?;

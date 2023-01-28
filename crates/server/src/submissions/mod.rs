@@ -2,6 +2,7 @@ use axum::{routing::get, Router};
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
+use wasm_memory::AsymptoticComplexity;
 
 mod invalidate;
 mod new_completions;
@@ -17,6 +18,7 @@ pub struct Submission {
     pub success: bool,
     pub runtime: i64,
     pub error: Option<String>,
+    pub complexity: Option<AsymptoticComplexity>,
     pub time: NaiveDateTime,
     pub code: String,
 }

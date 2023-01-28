@@ -138,14 +138,18 @@ fn process_file(file: &str, entry_names: &[&str]) -> String {
 fn add_attribute(file: &str, entry_name: &str) -> String {
     let mut new_file = String::new();
 
+    let mut found = false;
+
     // this is far from perfect obviously but it should be more than sufficient for 99% of cases.
     // we break at the start of the first line that has the entrypoint function name
     for line in file.lines() {
-        if line.find(entry_name).is_some() {
+        if !found && line.find(entry_name).is_some() {
             new_file.push_str(&format!(
                 "__attribute__((export_name(\"{}\")))\n",
                 entry_name
             ));
+
+            found = true;
         }
 
         new_file.push_str(line);
