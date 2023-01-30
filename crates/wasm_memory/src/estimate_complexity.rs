@@ -28,17 +28,25 @@ fn transpose<T>(list: Vec<Vec<T>>) -> Vec<Vec<T>> {
         .collect()
 }
 
-fn sort_and_normalize(list: &mut Vec<f32>) {
-    list.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap());
-    normalize_sorted(list);
-}
+fn normalize(list: &mut Vec<f32>) {
+    let min = *list
+        .iter()
+        .min_by(|a, b| a.partial_cmp(b).unwrap())
+        .unwrap();
+    let max = *list
+        .iter()
+        .max_by(|a, b| a.partial_cmp(b).unwrap())
+        .unwrap();
 
-fn normalize_sorted(list: &mut Vec<f32>) {
-    let min = *list.first().unwrap();
-    let max = *list.last().unwrap();
-
-    for item in list.iter_mut() {
-        *item = (*item - min) / (max - min);
+    // simple case
+    if min == max {
+        for item in list.iter_mut() {
+            *item = 1.0;
+        }
+    } else {
+        for item in list.iter_mut() {
+            *item = (*item - min) / (max - min);
+        }
     }
 }
 
@@ -50,98 +58,119 @@ fn calculate_mean_difference(a: &Vec<f32>, b: &Vec<f32>) -> f32 {
         / a.len() as f32
 }
 
+fn normalize_with_sample_function<F>(inputs: &Vec<Vec<(f32, usize)>>, function: F) -> Vec<Vec<f32>>
+where
+    F: Fn(f32, usize) -> f32,
+{
+    inputs
+        .clone()
+        .into_iter()
+        .map(|argument| {
+            let mut argument = argument
+                .into_iter()
+                .map(|(factor, i)| factor / function(factor, i))
+                .collect();
+
+            normalize(&mut argument);
+            argument
+        })
+        .collect()
+}
+
 pub fn estimate_asymptotic_complexity(
     inputs: Vec<WasmFunctionCall>,
     times: Vec<f32>,
-) -> AsymptoticComplexity {
-    let inputs = inputs
-        .into_iter()
-        .zip(times.into_iter())
-        .map(|(input, time)| {
-            input
-                .arguments
-                .into_iter()
-                .map(|argument| argument.scaling_factor() / time)
-                .collect()
-        })
-        .collect::<Vec<_>>();
+) -> Option<AsymptoticComplexity> {
+    let inputs = transpose(
+        inputs
+            .into_iter()
+            .enumerate()
+            .map(|(i, input)| {
+                let mut argument = input
+                    .arguments
+                    .into_iter()
+                    .map(|argument| (argument.scaling_factor(), i))
+                    .collect::<Vec<_>>();
 
-    let input_length = inputs.len();
+                // sort by input difficulty factor
+                argument.sort_unstable_by(|(a, _), (b, _)| a.partial_cmp(b).unwrap());
 
-    // transpose, then normalize and sort
-    let factors = transpose(inputs)
-        .into_iter()
-        .map(|mut argument| {
-            sort_and_normalize(&mut argument);
-            argument
-        })
-        .collect::<Vec<_>>();
+                argument
+            })
+            .collect::<Vec<_>>(),
+    );
 
-    // This should be possible to precompute somehow.
-    let mut exponential = (0..input_length).map(|x| (x as f32).exp()).collect();
-    sort_and_normalize(&mut exponential);
+    // println!("times: {:?}", times);
+    // println!("base data: {:?}\n", inputs);
 
-    let mut quadratic = (0..input_length).map(|x| (x as f32).powi(2)).collect();
-    sort_and_normalize(&mut quadratic);
+    let factors = normalize_with_sample_function(&inputs, |_, i| times[i]);
+    let exponentials = normalize_with_sample_function(&inputs, |i, _| (i as f32).exp());
+    let quadratics = normalize_with_sample_function(&inputs, |i, _| (i as f32 + 1.0).powi(2));
+    let log_linears =
+        normalize_with_sample_function(&inputs, |i, _| (i as f32 + 1.0) * (i as f32 + 2.0).log2());
+    let linears = normalize_with_sample_function(&inputs, |i, _| i as f32 + 1.0);
+    let sqrts = normalize_with_sample_function(&inputs, |i, _| (i as f32 + 1.0).sqrt());
+    let logs = normalize_with_sample_function(&inputs, |i, _| (i as f32 + 2.0).log2());
+    let constants = normalize_with_sample_function(&inputs, |_, _| 1.0);
 
-    let mut log_linear = (0..input_length)
-        .map(|x| x as f32 * (x as f32 + 1.0).log2())
-        .collect();
-    sort_and_normalize(&mut log_linear);
-
-    let mut linear = (0..input_length).map(|x| x as f32).collect();
-    sort_and_normalize(&mut linear);
-
-    let mut sqrt = (0..input_length).map(|x| (x as f32).sqrt()).collect();
-    sort_and_normalize(&mut sqrt);
-
-    let mut log = (0..input_length).map(|x| (x as f32 + 1.0).log2()).collect();
-    sort_and_normalize(&mut log);
-
-    let constant = vec![0.0; input_length];
+    // println!("actual: {:?}\n", factors);
+    // println!("exponentials: {:?}", exponentials);
+    // println!("quadratics: {:?}", quadratics);
+    // println!("log_linears: {:?}", log_linears);
+    // println!("linears: {:?}", linears);
+    // println!("sqrts: {:?}", sqrts);
+    // println!("constants: {:?}", constants);
 
     let mut detected_complexities = vec![];
 
-    for factor in factors {
+    for (i, factor) in factors.iter().enumerate() {
         let mut mean_differences = vec![];
 
         mean_differences.push((
             AsymptoticComplexity::Exponential,
-            calculate_mean_difference(&exponential, &factor),
+            calculate_mean_difference(&exponentials[i], &factor),
         ));
         mean_differences.push((
             AsymptoticComplexity::Quadratic,
-            calculate_mean_difference(&quadratic, &factor),
+            calculate_mean_difference(&quadratics[i], &factor),
         ));
         mean_differences.push((
             AsymptoticComplexity::LogLinear,
-            calculate_mean_difference(&log_linear, &factor),
+            calculate_mean_difference(&log_linears[i], &factor),
         ));
         mean_differences.push((
             AsymptoticComplexity::Linear,
-            calculate_mean_difference(&linear, &factor),
+            calculate_mean_difference(&linears[i], &factor),
         ));
         mean_differences.push((
             AsymptoticComplexity::Sqrt,
-            calculate_mean_difference(&sqrt, &factor),
+            calculate_mean_difference(&sqrts[i], &factor),
         ));
         mean_differences.push((
             AsymptoticComplexity::Log,
-            calculate_mean_difference(&log, &factor),
+            calculate_mean_difference(&logs[i], &factor),
         ));
         mean_differences.push((
             AsymptoticComplexity::Constant,
-            calculate_mean_difference(&constant, &factor),
+            calculate_mean_difference(&constants[i], &factor),
         ));
 
         // find min index
-        let (detected, _) = mean_differences
+        let idx = mean_differences
             .iter()
             .min_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap())
             .unwrap();
 
-        detected_complexities.push(*detected);
+        detected_complexities.push(*idx);
     }
 
-    *detected_complexities.iter().max().unwrap()
+    // We only give a complexity estimate if we're pretty confident.
+    // This saves us from giving some incorrect answers.
+    for (complexity, mean_diff) in detected_complexities {
+        if mean_diff < 0.1 {
+            return Some(complexity);
+        }
+    }
+
+    None
 }

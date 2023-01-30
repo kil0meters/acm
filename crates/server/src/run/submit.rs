@@ -88,9 +88,13 @@ impl Queueable for SubmitJob {
         };
 
         // find the asymptotic complexity
-        let inputs = tests.iter().map(|test| test.input.clone()).collect();
-        let times = tests.iter().map(|test| test.fuel as f32).collect();
-        let complexity = wasm_memory::estimate_asymptotic_complexity(inputs, times);
+        let complexity = if passed {
+            let inputs = tests.iter().map(|test| test.input.clone()).collect();
+            let times = tests.iter().map(|test| test.fuel as f32).collect();
+            wasm_memory::estimate_asymptotic_complexity(inputs, times)
+        } else {
+            None
+        };
 
         let now = Utc::now().naive_utc();
         let mut tx = pool.begin().await.unwrap();
