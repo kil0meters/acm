@@ -12,9 +12,8 @@ pub struct SubmitJob {
     pub tests: Vec<Test>,
 }
 
-#[derive(Deserialize, Serialize)]
-pub struct GenerateTestsForm {
-    pub runner: String,
+#[derive(Serialize, Deserialize, Clone)]
+pub struct GenerateTestsJob {
     pub reference: String,
     pub user_id: i64,
     pub runtime_multiplier: f64,

@@ -1,7 +1,7 @@
 use actix_web::rt::task;
 use async_trait::async_trait;
 use shared::models::{
-    forms::{CustomInputJob, GenerateTestsForm, SubmitJob},
+    forms::{CustomInputJob, GenerateTestsJob, SubmitJob},
     runner::{RunnerError, RunnerResponse},
     test::{Test, TestResult},
 };
@@ -19,7 +19,7 @@ pub use cplusplus::CPlusPlus;
 #[async_trait]
 pub trait Runner {
     async fn run_tests(&self, form: SubmitJob) -> Result<RunnerResponse, RunnerError>;
-    async fn generate_tests(&self, form: GenerateTestsForm) -> Result<Vec<Test>, RunnerError>;
+    async fn generate_tests(&self, form: GenerateTestsJob) -> Result<Vec<Test>, RunnerError>;
     async fn run_custom_input(&self, form: CustomInputJob) -> Result<TestResult, RunnerError>;
 }
 

@@ -5,14 +5,13 @@ use shared::models::test::Test;
 use sqlx::SqlitePool;
 use tokio::sync::broadcast::Sender;
 
-use super::{Problem};
+use super::Problem;
 use crate::{auth::Claims, error::ServerError, ws::BroadcastMessage};
 
 #[derive(Deserialize)]
 pub struct NewForm {
     title: String,
     description: String,
-    runner: String,
     reference: String,
     template: String,
     tests: Vec<Test>,
@@ -61,12 +60,12 @@ pub async fn new(
             template,
             competition_id,
             visible,
-            difficulty as "difficulty: Difficulty"
+            difficulty
         "#,
     )
     .bind(form.title)
     .bind(form.description)
-    .bind(form.runner)
+    .bind("")
     .bind(form.reference)
     .bind(form.template)
     .bind(form.activity_id)

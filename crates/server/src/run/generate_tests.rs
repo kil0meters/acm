@@ -1,8 +1,7 @@
 use axum::{async_trait, Extension, Json};
 use reqwest::Client;
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use shared::models::{runner::RunnerError, test::Test};
+use shared::models::{forms::GenerateTestsJob, runner::RunnerError, test::Test};
 use sqlx::SqlitePool;
 use tokio::sync::broadcast::{self, Sender};
 
@@ -31,15 +30,6 @@ pub async fn generate_tests(
     Ok(Json(job))
 }
 
-#[derive(Serialize, Deserialize, Clone)]
-pub struct GenerateTestsJob {
-    pub runner: String,
-    pub reference: String,
-    pub user_id: i64,
-    pub runtime_multiplier: f64,
-    pub inputs: Vec<String>,
-}
-
 #[async_trait]
 impl Queueable for GenerateTestsJob {
     async fn run(
@@ -56,8 +46,6 @@ impl Queueable for GenerateTestsJob {
             .await
             // TODO: Handle error
             .unwrap();
-
-        // panic!();
 
         let tests: Result<Vec<Test>, RunnerError> = res.json().await.unwrap();
 

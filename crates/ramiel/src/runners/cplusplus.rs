@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use futures::future::join_all;
 use shared::models::{
-    forms::{CustomInputJob, GenerateTestsForm, SubmitJob},
+    forms::{CustomInputJob, GenerateTestsJob, SubmitJob},
     runner::{RunnerError, RunnerResponse},
     test::{Test, TestResult},
 };
@@ -57,10 +57,12 @@ impl Runner for CPlusPlus {
         Ok(test_results.into())
     }
 
-    async fn generate_tests(&self, form: GenerateTestsForm) -> Result<Vec<Test>, RunnerError> {
+    async fn generate_tests(&self, form: GenerateTestsJob) -> Result<Vec<Test>, RunnerError> {
         let prefix = format!("/tmp/acm/problem_editor/{}", form.user_id);
 
-        let command = compile_problem(&prefix, &form.reference).await?;
+        // TODO actually get unique function names from tests
+        let reference = process_file(&form.reference, &[&form.inputs[0].name]);
+        let command = compile_problem(&prefix, &reference).await?;
 
         let mut outputs = Vec::new();
         let mut i = 0;

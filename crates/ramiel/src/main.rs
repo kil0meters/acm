@@ -1,5 +1,5 @@
 use shared::models::{
-    forms::{CustomInputJob, GenerateTestsForm, SubmitJob},
+    forms::{CustomInputJob, GenerateTestsJob, SubmitJob},
     runner::{RunnerError, RunnerResponse},
     test::{Test, TestResult},
 };
@@ -18,7 +18,7 @@ async fn cplusplus_run(form: Json<SubmitJob>) -> Json<Result<RunnerResponse, Run
 
 #[post("/generate-tests/c++")]
 async fn cplusplus_generate_tests(
-    form: Json<GenerateTestsForm>,
+    form: Json<GenerateTestsJob>,
 ) -> Json<Result<Vec<Test>, RunnerError>> {
     Json(CPlusPlus.generate_tests(form.into_inner()).await)
 }

@@ -740,10 +740,18 @@ fn star_arrangements(function_name: &str, test: OldTest) -> Result<Test> {
     })
 }
 
+async fn generate_insert_statements(
+    problem_id: i64,
+    function_name: &str,
+    conversion_function: impl Fn(&str, OldTest) -> Result<Test>,
+) {
+    println!("INSERT INTO TESTS")
+}
+
 async fn convert_problem_tests(
     problem_id: i64,
     function_name: &str,
-    conversion_function: Box<dyn Fn(&str, OldTest) -> Result<Test>>,
+    conversion_function: impl Fn(&str, OldTest) -> Result<Test>,
 ) -> Result<()> {
     let pool = SqlitePool::connect("./live-db.sqlite").await?;
 
@@ -796,7 +804,7 @@ async fn main() -> Result<()> {
     // convert_problem_tests(6, "treeCount", Box::new(convert_raw_string)).await?;
     // convert_problem_tests(5, "deadEndDetector", Box::new(convert_raw_string)).await?;
     // convert_problem_tests(4, "goodOrBad", Box::new(convert_raw_string)).await?;
-    convert_problem_tests(3, "addOne", Box::new(int_int)).await?;
+    // convert_problem_tests(3, "addOne", Box::new(int_int)).await?;
     // convert_problem_tests(2, "fibonacci", Box::new(int_int)).await?;
     // convert_problem_tests(1, "fizzBuzz", Box::new(int_string)).await?;
     //
