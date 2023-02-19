@@ -7,9 +7,9 @@ FROM debian:bullseye-slim
 RUN apt-get update; \
     apt-get install -y openssl libxml2 wget libxkbcommon-x11-0 libncurses5 ca-certificates
 
-RUN wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-15/wasi-sdk_15.0_amd64.deb; \
-    dpkg -i wasi-sdk_15.0_amd64.deb; \
-    rm -f wasi-sdk_15.0_amd64.deb
+RUN wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-19/wasi-sdk_19.0_amd64.deb; \
+    dpkg -i wasi-sdk_19.0_amd64.deb; \
+    rm -f wasi-sdk_19.0_amd64.deb
 
 RUN apt-get purge -y wget; \
     apt-get autoremove -y; \
