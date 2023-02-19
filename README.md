@@ -1,18 +1,18 @@
 # Chico ACM Website
 
-This repository holds the code for the website that may or may not be used by
-the CSU Chico chapter of the ACM.
+This repository holds the code for the website that is currently in use by the
+Chico chapter of the Association of Computing Machinery (ACM) at
+[chicoacm.org](https://chicoacm.org). 
 
-## Project organization
+The website compiles arbitrary C++ code using
+[wasi-sdk](https://github.com/WebAssembly/wasi-sdk) and runs it against
+pre-defined tests. The Chico ACM chapter uses the site to both host local
+competitions and conduct our weekly meetings.
 
-Currently, the project is laid out as follows: 
-
-- `./app` — Code for the frontend
-    - `./app/styles` — Currently stores all css styling for the website
-- `./server` — Code for the backend
-- `./ramiel` - Service for running tests
-- `./src` — Shared code between the frontend and backend, such as forms.
-- `./sql` - Database schemas
+<p align="center">
+  <img alt="Screenshot showing the problem editor view of the website." src="https://user-images.githubusercontent.com/32966690/219970015-3bc81d53-9811-4a33-901a-736dfc7047e5.png" width="45%">
+  <img alt="Screenshot showing the submission view of the website." src="https://user-images.githubusercontent.com/32966690/219970017-b9efecda-0583-498f-9705-8c1ca65c3594.png" width="45%">
+</p>
 
 ## Running
 
@@ -25,28 +25,28 @@ cd acm
 
 Initialize the database:
 
-```
+```sh
 echo "DATABASE_URL=sqlite://./sqlite.db" > .env
-cat sql/*.sql | sqlite3 db.sqlite
+touch db.sqlite
 ```
 
 Build the frontend automatically on changes
 
 ```sh
-cd app
-trunk watch
+cd lilith
+yarn install
+yarn run dev
 ```
 
 Then run the server:
 
 ```sh
-cargo run
+JWT_SECRET={JWT_SECRET} DISCORD_SECRET={DISCORD_SECRET} cargo run --package server
 ```
 
-Alternatively, if you have
-[`cargo-watch`](https://github.com/watchexec/cargo-watch) installed:
+And finally run the build server.
 
 ```sh
-cargo watch -i "db.sqlite*" -x run
+cargo run --package ramiel
 ```
 
