@@ -187,7 +187,7 @@ async fn compile_problem(prefix: &str, implementation: &str) -> Result<String, R
 
     File::create(&implementation_filename)
         .await?
-        .write(implementation.as_bytes())
+        .write_all(implementation.as_bytes())
         .await?;
 
     let output = Command::new("/opt/wasi-sdk/bin/clang++")
