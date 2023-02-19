@@ -55,7 +55,14 @@ pub fn routes() -> Router {
         .route("/:problem_id/tests", get(tests::tests))
         .route("/:problem_id/tests/:test_number", get(tests::problem_test))
         .route("/:problem_id/history", get(history::history))
-        .route("/:problem_id/leaderboard", get(leaderboard::leaderboard))
+        .route(
+            "/:problem_id/leaderboard/users",
+            get(leaderboard::leaderboard_users),
+        )
+        .route(
+            "/:problem_id/leaderboard/submissions",
+            get(leaderboard::leaderboard_submissions),
+        )
         .route(
             "/:problem_id/recent-submission",
             get(recent_submission::recent_submission),
