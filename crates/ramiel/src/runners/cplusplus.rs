@@ -35,12 +35,19 @@ impl Runner for CPlusPlus {
 
         let command = compile_problem(&prefix, &implementation).await?;
 
-        let tests = join_all(
-            form.tests
-                .into_iter()
-                .map(|test| async { run_test_timed(&command, test).await }),
-        )
-        .await;
+        // MAYBE WHEN WE HAVE MORE RAM
+        // let tests = join_all(
+        //     form.tests
+        //         .into_iter()
+        //         .map(|test| async { run_test_timed(&command, test).await }),
+        // )
+        // .await;
+
+        // SAD SOLUTION FOR NOW
+        let mut tests = vec![];
+        for test in form.tests {
+            tests.push(run_test_timed(&command, test).await);
+        }
 
         let mut total_runtime = 0;
 
