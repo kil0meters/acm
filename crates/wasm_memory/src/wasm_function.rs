@@ -312,7 +312,7 @@ impl WasmFunctionCall {
             _ => params.push(Val::I32(0 as i32)),
         }
 
-        const ARG_ALLOC_FUEL_DEFAULT: u64 = 1_000_000_000;
+        const ARG_ALLOC_FUEL_DEFAULT: u64 = 100_000_000_000;
         // because we need to allocate for some args, it's possible to improperly run out of fuel
         store.add_fuel(ARG_ALLOC_FUEL_DEFAULT)?;
 
@@ -337,8 +337,8 @@ impl WasmFunctionCall {
         }
 
         let initial_fuel = store.fuel_consumed().unwrap();
-        store.consume_fuel(ARG_ALLOC_FUEL_DEFAULT - initial_fuel)?;
-        let initial_fuel = store.fuel_consumed().unwrap();
+        // store.consume_fuel(ARG_ALLOC_FUEL_DEFAULT - initial_fuel)?;
+        // let initial_fuel = store.fuel_consumed().unwrap();
 
         instance
             .get_func(&mut store, &self.name)
