@@ -164,6 +164,8 @@ function TestsEditorList(): JSX.Element {
         }
     };
 
+    console.log(testCount);
+
     return (
         <div className="flex flex-col gap-2 p-2 overflow-y-auto">
             {Array(testCount)

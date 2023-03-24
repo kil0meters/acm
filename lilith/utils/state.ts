@@ -3,19 +3,6 @@ import { persist, StateStorage } from "zustand/middleware";
 import produce from "immer";
 import { FunctionValue, Test, WasmFunctionCall } from "../components/problem/submission/tests";
 import { Activity } from "../pages/meetings/new";
-import { get, set, del } from 'idb-keyval';
-
-const idb: StateStorage = {
-    getItem: async (name: string): Promise<string | null> => {
-        return (await get(name)) || null
-    },
-    setItem: async (name: string, value: string): Promise<void> => {
-        await set(name, value)
-    },
-    removeItem: async (name: string): Promise<void> => {
-        await del(name)
-    },
-}
 
 type EditorThemeType = "light" | "dark" | "system";
 
@@ -93,7 +80,6 @@ export const useStore = create<Store>()(
         }),
         {
             name: "data",
-            getStorage: () => idb,
         }
     )
 );
@@ -354,7 +340,6 @@ export const useAdminStore = create<AdminState>()(
         }),
         {
             name: "admin_data",
-            getStorage: () => idb,
         }
     )
 );

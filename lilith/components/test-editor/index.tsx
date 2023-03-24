@@ -11,95 +11,26 @@ type GridEditorProps = {
 };
 
 function GridEditor({ data, onChange }: GridEditorProps) {
-    let [grid, setGrid] = useState(data);
+    const [gridString, setGridString] = useState(JSON.stringify(data));
+    const [isValid, setIsValid] = useState(false);
 
     useEffect(() => {
-        onChange(grid);
-    }, [grid, onChange]);
-
-    // I hate that react makes us do this but what can you do
-    const addRow = () => {
-        setGrid([
-            ...grid,
-            Array(grid[0].length).fill("")
-        ]);
-    };
-
-    const removeRow = () => {
-        if (grid.length > 1) {
-            let newGrid = [...grid];
-            newGrid.pop();
-            setGrid(newGrid);
+        try {
+            let grid = JSON.parse(gridString);
+            setIsValid(true);
+            onChange(grid);
         }
-    };
+        catch (_e) {
+            setIsValid(false);
+        }
 
-    const addCol = () => {
-        let newGrid = [...grid].map((row) => [...row, ""]);
-        setGrid(newGrid);
-    };
-
-    const removeCol = () => {
-        let newGrid = [...grid].map((row) => {
-            let newRow = [...row];
-            newRow.pop();
-            return newRow;
-        });
-
-        setGrid(newGrid);
-    };
+    }, [gridString]);
 
     return (
-        <div className="grid grid-cols-[minmax(0,1fr),40px] grid-rows-[minmax(0,1fr),40px]">
-            <div className="grid overflow-auto border border-blue-200 dark:border-slate-700" style={{
-                gridTemplateRows: `repeat(${grid.length}, 1fr)`,
-                gridTemplateColumns: `repeat(${grid[0].length}, 1fr)`
-            }}>
-                {
-                    grid.map((row, y) =>
-                        row.map((element, x) =>
-                            <input
-                                key={y * row[0].length + x}
-                                className="border border-blue-200 dark:border-slate-700 p-2 w-full dark:bg-slate-800 bg-blue-50"
-                                type="text"
-                                value={element.toString()}
-                                onChange={(e) => {
-                                    let newGrid = [...grid];
-
-                                    try {
-                                        newGrid[y][x] = JSON.parse(e.target.value);
-                                    } catch {
-                                        newGrid[y][x] = e.target.value as any;
-                                    }
-
-                                    setGrid(newGrid);
-                                }}
-                            />
-                        )
-                    )
-                }
-            </div>
-
-            <div className="flex flex-col my-auto gap-4">
-                <button
-                    onClick={addCol}
-                    className="bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-700 dark:hover:bg-neutral-600 transition-colors rounded-full mx-auto w-6 py-2 px-1"
-                >+</button>
-                <button
-                    onClick={removeCol}
-                    className="bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-700 dark:hover:bg-neutral-600 transition-colors rounded-full mx-auto w-6 py-2 px-1"
-                >-</button>
-            </div>
-
-            <div className="flex mx-auto my-auto gap-4">
-                <button
-                    onClick={addRow}
-                    className="bg-neutral-200 hover:bg-neutral-300 transition-colors rounded-full h-6 px-4 dark:bg-neutral-700 dark:hover:bg-neutral-600"
-                >+</button>
-                <button
-                    onClick={removeRow}
-                    className="bg-neutral-200 hover:bg-neutral-300 transition-colors rounded-full h-6 px-4 dark:bg-neutral-700 dark:hover:bg-neutral-600"
-                >-</button>
-            </div>
+        <div>
+            <textarea value={gridString} className={`p-2 outline w-full font-mono focus:outline-4 rounded-md ${isValid ? "outline-green-500" : "outline-red-500"}`} onChange={(e) => {
+                setGridString(e.currentTarget.value);
+            }} />
         </div>
     );
 }
@@ -208,65 +139,30 @@ type ListEditorProps = {
 };
 
 function ListEditor({ data, onChange }: ListEditorProps) {
-    let [list, setList] = useState(data);
-
-    // console.table(list);
-    console.log("Hello");
+    const [list, setList] = useState(data);
+    const [listString, setListString] = useState("[]");
+    const [isValid, setIsValid] = useState(false);
 
     useEffect(() => {
         onChange(list);
     }, [list, onChange]);
 
-    const addElement = () => {
-        setList(produce(list, newList => {
-            newList.push("");
-        }));
-    };
-
-    const removeElement = () => {
-        if (list.length > 1) {
-            setList(produce(list, newList => {
-                newList.pop();
-            }));
+    useEffect(() => {
+        try {
+            setList(JSON.parse(listString));
+            setIsValid(true);
         }
-    };
+        catch (_e) {
+            setIsValid(false);
+        }
+
+    }, [listString]);
 
     return (
-        <div className="flex flex-col gap-2">
-            <div>
-                <div className="flex">
-                    <div className="border flex w-full border-blue-200 dark:border-slate-700">
-                        {list.map((element, i) =>
-                            <input
-                                key={i}
-                                className="border p-2 w-full border-blue-200 dark:border-slate-700 dark:bg-slate-800 bg-blue-50"
-                                type="text"
-                                value={element.toString()}
-                                onChange={(e) => {
-                                    setList(produce(list, newList => {
-                                        try {
-                                            newList[i] = JSON.parse(e.target.value);
-                                        } catch {
-                                            newList[i] = e.target.value as any;
-                                        }
-                                    }));
-                                }}
-                            />
-                        )}
-                    </div>
-
-                    <div className="flex mx-auto my-auto gap-2 ml-2">
-                        <button
-                            onClick={() => addElement()}
-                            className="bg-neutral-200 hover:bg-neutral-300 transition-colors rounded-full h-6 px-4 dark:bg-neutral-700 dark:hover:bg-neutral-600"
-                        >+</button>
-                        <button
-                            onClick={() => removeElement()}
-                            className="bg-neutral-200 hover:bg-neutral-300 transition-colors rounded-full h-6 px-4 dark:bg-neutral-700 dark:hover:bg-neutral-600"
-                        >-</button>
-                    </div>
-                </div>
-            </div>
+        <div>
+            <input value={listString} className={`outline p-2 focus:outline-4 font-mono rounded-md ${isValid ? "outline-green-500" : "outline-red-500"}`} onChange={(e) => {
+                setListString(e.currentTarget.value);
+            }} />
         </div>
     );
 }
@@ -286,7 +182,7 @@ function SingleEditor({ value, onChange }: SingleEditorProps) {
 
     return (
         <input
-            className="border-2 p-2 w-full mr-40"
+            className="outline focus:outline-4 p-2 w-full rounded-md outline-green-500"
             value={data.toString()}
             onChange={(e) => {
                 try {
