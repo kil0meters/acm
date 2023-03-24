@@ -277,9 +277,11 @@ impl WasmFunctionCall {
         self,
         mut store: &mut Store<S>,
         instance: &Instance,
-    ) -> Result<(FunctionValue, Option<u64>)> {
+    ) -> Result<(FunctionValue, u64)> {
         let allocator: AllocatorFunc = instance.get_typed_func(&mut store, "alloc")?;
-        let memory = instance.get_memory(&mut store, "memory").unwrap();
+        let memory = instance
+            .get_memory(&mut store, "memory")
+            .expect("Failed to get memory");
 
         memory.grow(&mut store, Self::PAGE_OFFSET as u64)?;
 
@@ -310,6 +312,10 @@ impl WasmFunctionCall {
             _ => params.push(Val::I32(0 as i32)),
         }
 
+        const ARG_ALLOC_FUEL_DEFAULT: u64 = 1_000_000_000;
+        // because we need to allocate for some args, it's possible to improperly run out of fuel
+        store.add_fuel(ARG_ALLOC_FUEL_DEFAULT)?;
+
         for arg in self.arguments {
             match arg {
                 FunctionValue::Int(ContainerVariant::Single(i)) => params.push(Val::I32(i)),
@@ -328,18 +334,18 @@ impl WasmFunctionCall {
                     params.push(Val::I32(address as i32));
                 }
             }
-
-            // log::info!("Writing argument {arg:?}.\nWrote to address {address}.");
         }
 
-        let initial_fuel = store.fuel_consumed();
+        let initial_fuel = store.fuel_consumed().unwrap();
+        store.consume_fuel(ARG_ALLOC_FUEL_DEFAULT - initial_fuel)?;
+        let initial_fuel = store.fuel_consumed().unwrap();
 
         instance
             .get_func(&mut store, &self.name)
             .ok_or_else(|| FunctionError::NameNotFound(self.name))?
             .call(&mut store, &params, &mut results)?;
 
-        let after_fuel = store.fuel_consumed();
+        let after_fuel = store.fuel_consumed().unwrap();
 
         // If the return type is a simple singleton, we can simply take the value directly from the
         // return value. Otherwise, we must read it from memory, with the address given by the
@@ -374,11 +380,6 @@ impl WasmFunctionCall {
                 .from_memory(store, &memory, params[0].unwrap_i32() as usize)?,
         };
 
-        let fuel_consumed = match (initial_fuel, after_fuel) {
-            (Some(initial), Some(after)) => Some(after - initial),
-            _ => None,
-        };
-
-        Ok((return_value, fuel_consumed))
+        Ok((return_value, after_fuel - initial_fuel))
     }
 }

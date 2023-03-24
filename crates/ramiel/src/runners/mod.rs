@@ -99,7 +99,7 @@ async fn run_command(
             .cache_config_load("./wasmtime-cache.toml")
             .expect("Failed to load cache configuration");
 
-        let engine = Engine::new(&config).unwrap();
+        let engine = Engine::new(&config).expect("Failed to create engine");
 
         let mut linker = Linker::new(&engine);
         wasmtime_wasi::add_to_linker(&mut linker, |state: &mut MyState| &mut state.wasi).map_err(
@@ -108,14 +108,10 @@ async fn run_command(
             },
         )?;
 
-        let stdout = WritePipe::new_in_memory();
-
         let mut store = Store::new(
             &engine,
             MyState {
-                wasi: WasiCtxBuilder::new()
-                    .stdout(Box::new(stdout.clone()))
-                    .build(),
+                wasi: WasiCtxBuilder::new().build(),
                 limits: StoreLimitsBuilder::new()
                     .memory_size(MAX_MEMORY)
                     .instances(2)
@@ -149,21 +145,17 @@ async fn run_command(
         let result = input.call(&mut store, &instance);
 
         match result {
-            Ok((res, fuel)) => Ok((res, fuel.unwrap_or(0))),
+            Ok((res, fuel)) => Ok((res, fuel)),
             Err(e) => Err(RunnerError::RuntimeError {
                 message: e.to_string(),
             }),
         }
-
-        // so we can read from the writepipe
-        /* drop(store);
-        let bytes = stdout.try_into_inner().unwrap().into_inner();
-        let message = String::from_utf8_lossy(&bytes).to_string(); */
-
-        // Ok((message, fuel))
     })
     .await
-    .map_err(|_| RunnerError::InternalServerError {
-        message: "Failed to create thread".to_string(),
+    .map_err(|e| {
+        println!("caught error: {e}");
+        return RunnerError::InternalServerError {
+            message: "Failed to create thread".to_string(),
+        };
     })?
 }
