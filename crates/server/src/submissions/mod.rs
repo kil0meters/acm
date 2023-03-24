@@ -28,6 +28,6 @@ pub fn routes() -> Router {
         .route("/:submission_id", get(submission::submission))
         .route("/:submission_id/invalidate", get(invalidate::invalidate))
         .route("/:submission_id/validate", get(validate::validate))
-        .route("/:submission_id/tests", get(tests::tests))
+        // .route("/:submission_id/tests", get(tests::tests))
         .route("/new-completions", get(new_completions::new_completions))
 }

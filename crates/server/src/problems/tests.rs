@@ -44,14 +44,18 @@ pub async fn problem_test(
     Path((problem_id, test_number)): Path<(i64, i64)>,
 ) -> Result<Json<Option<Test>>, ServerError> {
     // check if the test is hidden
-    let (hidden,): (bool,) = sqlx::query_as("SELECT hidden FROM tests WHERE test_number = ?")
-        .bind(test_number)
-        .fetch_one(&pool)
-        .await
-        .map_err(|e| {
-            log::error!("{e}");
-            ServerError::NotFound
-        })?;
+    let (hidden,): (bool,) =
+        sqlx::query_as("SELECT hidden FROM tests WHERE test_number = ? AND problem_id = ?")
+            .bind(test_number)
+            .bind(problem_id)
+            .fetch_one(&pool)
+            .await
+            .map_err(|e| {
+                log::error!("{e}");
+                ServerError::NotFound
+            })?;
+
+    log::info!("hidden: {hidden}");
 
     if hidden {
         return Ok(Json(None));
