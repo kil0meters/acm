@@ -10,6 +10,7 @@ use crate::{auth::Claims, error::ServerError};
 pub struct EditForm {
     title: String,
     description: String,
+    template: String,
     visible: bool,
     difficulty: Difficulty,
 }
@@ -30,13 +31,15 @@ pub async fn edit(
         title = ?,
         description = ?,
         difficulty = ?,
-        visible = ?
+        visible = ?,
+        template = ?
         WHERE id = ?
         "#,
         form.title,
         form.description,
         form.difficulty,
         form.visible,
+        form.template,
         id
     )
     .execute(&pool)

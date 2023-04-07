@@ -362,6 +362,16 @@
     },
     "query": "SELECT datetime('now') < end FROM competitions WHERE id = ?"
   },
+  "6d82dd6674c37465a4dd976614490e82548e075fa6b3341ae2746d34f827e3d7": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 6
+      }
+    },
+    "query": "\n        UPDATE problems SET\n        title = ?,\n        description = ?,\n        difficulty = ?,\n        visible = ?,\n        template = ?\n        WHERE id = ?\n        "
+  },
   "73a9f0421bb76eca718c087fe20d8c7f30ece15c882f1462086c33602d10fc55": {
     "describe": {
       "columns": [
@@ -535,16 +545,6 @@
       }
     },
     "query": "SELECT COUNT(id) as count FROM submissions WHERE problem_id = ? AND success = true"
-  },
-  "8c1aae98f70d1608759764f82f6f5dac75aed1511feb70e35bc8636f53599f8c": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 5
-      }
-    },
-    "query": "\n        UPDATE problems SET\n        title = ?,\n        description = ?,\n        difficulty = ?,\n        visible = ?\n        WHERE id = ?\n        "
   },
   "934778f4ac7f92fad27440366dbecf5569da493ba5a60882c975053fdfb9eed3": {
     "describe": {

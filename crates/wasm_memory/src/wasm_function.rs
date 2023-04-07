@@ -336,9 +336,10 @@ impl WasmFunctionCall {
             }
         }
 
+        let consumed_for_args = store.fuel_consumed().unwrap();
+        store.consume_fuel(ARG_ALLOC_FUEL_DEFAULT - consumed_for_args - 1)?;
+
         let initial_fuel = store.fuel_consumed().unwrap();
-        // store.consume_fuel(ARG_ALLOC_FUEL_DEFAULT - initial_fuel)?;
-        // let initial_fuel = store.fuel_consumed().unwrap();
 
         instance
             .get_func(&mut store, &self.name)
