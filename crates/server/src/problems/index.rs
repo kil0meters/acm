@@ -41,7 +41,7 @@ pub async fn problems(
     let is_officer = claims.validate_officer().is_ok();
 
     let mut query_builder = QueryBuilder::new(
-        r#"SELECT id, title, description, runner, template, competition_id, visible, difficulty as "difficulty: Difficulty" FROM problems WHERE "#,
+        r#"SELECT id, title, description, runner, template, competition_id, visible, runtime_multiplier, difficulty as "difficulty: Difficulty" FROM problems WHERE "#,
     );
 
     let mut has_where = false;
