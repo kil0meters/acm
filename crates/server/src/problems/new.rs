@@ -59,6 +59,7 @@ pub async fn new(
             runner,
             template,
             competition_id,
+            runtime_multiplier,
             visible,
             difficulty
         "#,
