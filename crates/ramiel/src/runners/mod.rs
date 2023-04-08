@@ -147,7 +147,7 @@ async fn run_command(
         match result {
             Ok((res, fuel)) => Ok((res, fuel)),
             Err(e) => Err(RunnerError::RuntimeError {
-                message: e.to_string(),
+                message: e.root_cause().to_string(),
             }),
         }
     })

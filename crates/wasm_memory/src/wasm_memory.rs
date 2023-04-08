@@ -94,9 +94,9 @@ where
 /// maps to `std::string`
 ///
 /// c++ string memory representation (for long strings)
-/// capacity (length) - u32
-/// size (length) - u32
 /// data (pointer) - u32
+/// size (length) - u32
+/// capacity (length) - u32
 impl WasmMemory for String {
     const CPP_SIZE_OF: usize = 12;
 

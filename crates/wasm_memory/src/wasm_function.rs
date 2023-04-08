@@ -1,11 +1,10 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
 use wasmtime::*;
 
 use crate::{AllocatorFunc, WasmMemory};
 
-#[derive(Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 enum FunctionError {
     #[error("Expected a function with name \"{0}\", but it was not found.")]
     NameNotFound(String),
@@ -316,6 +315,9 @@ impl WasmFunctionCall {
         // because we need to allocate for some args, it's possible to improperly run out of fuel
         store.add_fuel(ARG_ALLOC_FUEL_DEFAULT)?;
 
+        let init: TypedFunc<(), ()> = instance.get_typed_func(&mut store, "_initialize")?;
+        init.call(&mut store, ())?;
+
         for arg in self.arguments {
             match arg {
                 FunctionValue::Int(ContainerVariant::Single(i)) => params.push(Val::I32(i)),
@@ -336,18 +338,16 @@ impl WasmFunctionCall {
             }
         }
 
-        // let consumed_for_args = store.fuel_consumed().unwrap();
-        // println!("consumed ofr ags: {consumed_for_args}");
-        // store.consume_fuel(ARG_ALLOC_FUEL_DEFAULT - consumed_for_args - 1)?;
-
-        let initial_fuel = store.fuel_consumed().unwrap();
+        let consumed_for_args = store.fuel_consumed().unwrap_or(0);
+        let initial_fuel = store.consume_fuel(ARG_ALLOC_FUEL_DEFAULT - consumed_for_args)?;
+        println!("remaining fuel: {initial_fuel}");
 
         instance
             .get_func(&mut store, &self.name)
             .ok_or_else(|| FunctionError::NameNotFound(self.name))?
             .call(&mut store, &params, &mut results)?;
 
-        let after_fuel = store.fuel_consumed().unwrap();
+        let remaining_fuel = store.consume_fuel(0)?;
 
         // If the return type is a simple singleton, we can simply take the value directly from the
         // return value. Otherwise, we must read it from memory, with the address given by the
@@ -382,6 +382,6 @@ impl WasmFunctionCall {
                 .from_memory(store, &memory, params[0].unwrap_i32() as usize)?,
         };
 
-        Ok((return_value, after_fuel - initial_fuel))
+        Ok((return_value, initial_fuel - remaining_fuel))
     }
 }
