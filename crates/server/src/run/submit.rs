@@ -51,11 +51,19 @@ pub async fn submit(
     .await
     .map_err(|_| ServerError::NotFound)?;
 
+    let (runtime_multiplier,): (Option<f64>,) =
+        sqlx::query_as(r#"SELECT runtime_multiplier FROM problems WHERE id = ?"#)
+            .bind(form.problem_id)
+            .fetch_one(&pool)
+            .await
+            .map_err(|_| ServerError::NotFound)?;
+
     let queue_item = Box::new(SubmitJob {
         problem_id: form.problem_id,
         user_id: claims.user_id,
         implementation: form.implementation.clone(),
         tests,
+        runtime_multiplier,
     });
 
     let job = add_job(claims.user_id, job_queue, job_map, queue_item, broadcast).await?;

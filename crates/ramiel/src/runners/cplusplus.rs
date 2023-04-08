@@ -31,8 +31,6 @@ impl Runner for CPlusPlus {
 
         let implementation = process_file(&form.implementation, &function_names);
 
-        println!("{}", implementation);
-
         let command = compile_problem(&prefix, &implementation).await?;
 
         // MAYBE WHEN WE HAVE MORE RAM
@@ -45,7 +43,8 @@ impl Runner for CPlusPlus {
 
         // SAD SOLUTION FOR NOW
         let mut tests = vec![];
-        for test in form.tests {
+        for mut test in form.tests {
+            test.adjust_runtime(form.runtime_multiplier);
             tests.push(run_test_timed(&command, test).await);
         }
 
@@ -78,7 +77,7 @@ impl Runner for CPlusPlus {
             outputs.push(Test {
                 id: 0,
                 index: i,
-                max_fuel: Some(((fuel as f64) * form.runtime_multiplier) as i64),
+                max_fuel: Some(fuel as i64),
                 input,
                 expected_output: output,
             });
@@ -102,8 +101,8 @@ impl Runner for CPlusPlus {
         let reference = process_file(&form.reference, &[&form.input.name]);
         let implementation = process_file(&form.implementation, &[&form.input.name]);
 
-        println!("REFERENCE: {reference}");
-        println!("IMPLEMENTATION: {implementation}");
+        // println!("REFERENCE: {reference}");
+        // println!("IMPLEMENTATION: {implementation}");
 
         let reference_command = compile_problem(&reference_prefix, &reference).await?;
         let implementation_command =
@@ -112,13 +111,15 @@ impl Runner for CPlusPlus {
         let (expected_output, fuel) =
             run_command(&reference_command, form.input.clone(), None).await?;
 
-        let test = Test {
+        let mut test = Test {
             id: 0,
             index: 0,
             input: form.input,
             expected_output,
-            max_fuel: Some(((fuel as f64) * form.runtime_multiplier) as i64),
+            max_fuel: Some(fuel as i64),
         };
+
+        test.adjust_runtime(form.runtime_multiplier);
 
         run_test_timed(&implementation_command, test).await
     }

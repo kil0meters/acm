@@ -21,6 +21,7 @@ pub async fn problem(
             template,
             competition_id,
             visible,
+            runtime_multiplier,
             difficulty as "difficulty: Difficulty"
         FROM
             problems

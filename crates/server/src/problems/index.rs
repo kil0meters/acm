@@ -4,7 +4,7 @@ use sqlx::{Execute, QueryBuilder, Row, SqlitePool};
 
 use crate::{auth::Claims, error::ServerError, pagination::Pagination};
 
-use super::{Problem};
+use super::Problem;
 
 #[derive(Deserialize)]
 enum ProblemOrdering {
@@ -130,6 +130,7 @@ pub async fn problems(
             title: row.get_unchecked("title"),
             description: row.get_unchecked("description"),
             runner: row.get_unchecked("runner"),
+            runtime_multiplier: row.get_unchecked("runtime_multiplier"),
             template: row.get_unchecked("template"),
             visible: row.get_unchecked("visible"),
             difficulty: row.get_unchecked(r#"difficulty: Difficulty"#),

@@ -48,7 +48,7 @@ pub async fn custom(
         problem_id: form.problem_id,
         user_id: claims.user_id,
         implementation: form.implementation,
-        runtime_multiplier: runtime_multiplier.unwrap_or(1.5),
+        runtime_multiplier,
         reference,
         input: form.input,
     });

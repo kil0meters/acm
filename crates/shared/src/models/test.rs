@@ -36,6 +36,12 @@ impl FromRow<'_, SqliteRow> for Test {
 }
 
 impl Test {
+    pub fn adjust_runtime(&mut self, runtime_multiplier: Option<f64>) {
+        self.max_fuel = self
+            .max_fuel
+            .map(|fuel| (fuel as f64 * runtime_multiplier.unwrap_or(1.5)) as i64);
+    }
+
     pub fn make_result(self, output: FunctionValue, fuel: u64) -> TestResult {
         TestResult {
             id: self.id,
@@ -77,6 +83,14 @@ pub struct TestResult {
     pub fuel: i64,
     pub error: Option<String>,
     pub max_fuel: Option<i64>,
+}
+
+impl TestResult {
+    pub fn adjust_runtime(&mut self, runtime_multiplier: Option<f64>) {
+        self.max_fuel = self
+            .max_fuel
+            .map(|fuel| (fuel as f64 * runtime_multiplier.unwrap_or(1.5)) as i64);
+    }
 }
 
 impl Eq for TestResult {}

@@ -74,11 +74,14 @@ pub async fn recent_tests_test(
                 ServerError::NotFound
             })?;
 
-    if hidden {
-        return Ok(Json(None));
-    }
+    let (runtime_multiplier,): (Option<f64>,) =
+        sqlx::query_as(r#"SELECT runtime_multiplier FROM problems WHERE id = ?"#)
+            .bind(problem_id)
+            .fetch_one(&pool)
+            .await
+            .map_err(|_| ServerError::NotFound)?;
 
-    let test: TestResult = sqlx::query_as(
+    let mut test: TestResult = sqlx::query_as(
         r#"
         SELECT
             test_results.id as id,
@@ -117,5 +120,11 @@ pub async fn recent_tests_test(
         ServerError::NotFound
     })?;
 
-    Ok(Json(Some(test)))
+    if hidden && !test.error.is_some() {
+        Ok(Json(None))
+    } else {
+        test.adjust_runtime(runtime_multiplier);
+
+        Ok(Json(Some(test)))
+    }
 }

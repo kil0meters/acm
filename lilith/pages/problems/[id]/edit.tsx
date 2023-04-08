@@ -39,6 +39,7 @@ const ProblemEditor: NextPage = () => {
     const [description, setDescription] = useState("");
     const [template, setTemplate] = useState("");
     const [title, setTitle] = useState("");
+    const [runtimeMultiplier, setRuntimeMultiplier] = useState(1.0);
     const [visible, setVisible] = useState(false);
     const router = useRouter();
 
@@ -54,6 +55,7 @@ const ProblemEditor: NextPage = () => {
             setTemplate(data.template);
             setVisible(data.visible);
             setDifficulty(data.difficulty);
+            setRuntimeMultiplier(data.runtime_multiplier);
         }
     }, [data]);
 
@@ -75,7 +77,8 @@ const ProblemEditor: NextPage = () => {
                 description,
                 template,
                 visible,
-                difficulty
+                difficulty,
+                runtime_multiplier: runtimeMultiplier
             })
         });
 
@@ -165,6 +168,26 @@ const ProblemEditor: NextPage = () => {
                             <label htmlFor="visible">Visible</label>
                         </div>
 
+                    </div>
+
+                    <div className="p-4">
+                        <label className="font-bold mb-2">Runtime Multiplier</label>
+
+                        <div className="flex gap-2 align-end">
+                            <output className="self-center">{
+                                Intl.NumberFormat('en-US', {
+                                    minimumFractionDigits: 1
+                                }).format(runtimeMultiplier)
+                            }</output>
+                            <input
+                                type="range"
+                                min="1"
+                                max="5"
+                                step="0.1"
+                                value={runtimeMultiplier}
+                                onInput={(e) => setRuntimeMultiplier(parseFloat((e.target as HTMLInputElement).value))}
+                            />
+                        </div>
                     </div>
 
                     <button onClick={submit} className="mt-auto mb-4 bg-blue-600 text-blue-50 py-2 mx-4 rounded-full hover:bg-blue-500 transition-colors">

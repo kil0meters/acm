@@ -108,6 +108,72 @@
     },
     "query": "\n            SELECT\n                users.id,\n                users.name,\n                users.username,\n                users.discord_id,\n                users.auth as \"auth: Auth\"\n            FROM teams\n            JOIN team_members ON teams.id = team_members.team_id\n            JOIN users ON team_members.user_id = users.id\n            WHERE teams.id = ?\n        "
   },
+  "1c7e2b7c440b90328c057ce452e1b20cb7c5e7de34f9ddc9dbbd9415b6dcf525": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "runner",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "template",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "competition_id",
+          "ordinal": 5,
+          "type_info": "Int64"
+        },
+        {
+          "name": "visible",
+          "ordinal": 6,
+          "type_info": "Bool"
+        },
+        {
+          "name": "runtime_multiplier",
+          "ordinal": 7,
+          "type_info": "Float"
+        },
+        {
+          "name": "difficulty: Difficulty",
+          "ordinal": 8,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n        SELECT\n            id,\n            title,\n            description,\n            runner,\n            template,\n            competition_id,\n            visible,\n            runtime_multiplier,\n            difficulty as \"difficulty: Difficulty\"\n        FROM\n            problems\n        WHERE\n            id = ?\n        "
+  },
   "1cdef306b560169f74a139276c24127fdedca0c136ce8af3d88eab14c4306eac": {
     "describe": {
       "columns": [],
@@ -362,16 +428,6 @@
     },
     "query": "SELECT datetime('now') < end FROM competitions WHERE id = ?"
   },
-  "6d82dd6674c37465a4dd976614490e82548e075fa6b3341ae2746d34f827e3d7": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 6
-      }
-    },
-    "query": "\n        UPDATE problems SET\n        title = ?,\n        description = ?,\n        difficulty = ?,\n        visible = ?,\n        template = ?\n        WHERE id = ?\n        "
-  },
   "73a9f0421bb76eca718c087fe20d8c7f30ece15c882f1462086c33602d10fc55": {
     "describe": {
       "columns": [
@@ -450,6 +506,16 @@
     },
     "query": "\n        SELECT\n            id,\n            name,\n            username,\n            discord_id,\n            auth as \"auth: Auth\"\n        FROM\n            users\n        WHERE\n            id = ?\n        "
   },
+  "802c06313ec2af4c1aaf6ccdbf42b4712d840a663f23af980f52861b01d82f88": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 7
+      }
+    },
+    "query": "\n        UPDATE problems SET\n        title = ?,\n        description = ?,\n        difficulty = ?,\n        visible = ?,\n        template = ?,\n        runtime_multiplier = ?\n        WHERE id = ?\n        "
+  },
   "808daa7e5caf4d37ab0e417b18018f44ebe4807330d950075d919301bd590b6c": {
     "describe": {
       "columns": [
@@ -467,66 +533,6 @@
       }
     },
     "query": "\n        SELECT user_id\n        FROM team_members\n        JOIN teams ON teams.id = team_members.team_id\n        WHERE user_id = ? AND competition_id = (SELECT competition_id FROM teams WHERE team_id = ?)\n    "
-  },
-  "83a93a622f2c6ff1313b832210a826b189833bb44f510d622a695d390d517cb0": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "title",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "description",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "runner",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "template",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "competition_id",
-          "ordinal": 5,
-          "type_info": "Int64"
-        },
-        {
-          "name": "visible",
-          "ordinal": 6,
-          "type_info": "Bool"
-        },
-        {
-          "name": "difficulty: Difficulty",
-          "ordinal": 7,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "\n                    SELECT\n                        id,\n                        title,\n                        description,\n                        runner,\n                        template,\n                        competition_id,\n                        visible,\n                        difficulty as \"difficulty: Difficulty\"\n                    FROM\n                        problems\n                    WHERE\n                        visible = false AND publish_time < datetime('now')\n                "
   },
   "8bb94b1f035f45983c2b2e4c08ad0507b2737c6159ba180bac37f7186381ea89": {
     "describe": {
@@ -563,6 +569,72 @@
       }
     },
     "query": "INSERT INTO teams (competition_id, name) VALUES (?, ?) RETURNING id"
+  },
+  "ab9a8f2580a2ab07b881532d2c6070885d25c4388d835a113cd582f8d80171db": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "description",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "runner",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "template",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "runtime_multiplier",
+          "ordinal": 5,
+          "type_info": "Float"
+        },
+        {
+          "name": "competition_id",
+          "ordinal": 6,
+          "type_info": "Int64"
+        },
+        {
+          "name": "visible",
+          "ordinal": 7,
+          "type_info": "Bool"
+        },
+        {
+          "name": "difficulty: Difficulty",
+          "ordinal": 8,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n                    SELECT\n                        id,\n                        title,\n                        description,\n                        runner,\n                        template,\n                        runtime_multiplier,\n                        competition_id,\n                        visible,\n                        difficulty as \"difficulty: Difficulty\"\n                    FROM\n                        problems\n                    WHERE\n                        visible = false AND publish_time < datetime('now')\n                "
   },
   "b19e4c1a75c45b4e6e1220b11c0694541e0ae039a300cb2e98a00be70f0345db": {
     "describe": {
@@ -635,66 +707,6 @@
       }
     },
     "query": "SELECT * FROM competitions"
-  },
-  "d52d85e133b5c2e6706a0d4c279a23d75b4f3f359384ba6646ab5c51c5a2b793": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "title",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "description",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "runner",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "template",
-          "ordinal": 4,
-          "type_info": "Text"
-        },
-        {
-          "name": "competition_id",
-          "ordinal": 5,
-          "type_info": "Int64"
-        },
-        {
-          "name": "visible",
-          "ordinal": 6,
-          "type_info": "Bool"
-        },
-        {
-          "name": "difficulty: Difficulty",
-          "ordinal": 7,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 1
-      }
-    },
-    "query": "\n        SELECT\n            id,\n            title,\n            description,\n            runner,\n            template,\n            competition_id,\n            visible,\n            difficulty as \"difficulty: Difficulty\"\n        FROM\n            problems\n        WHERE\n            id = ?\n        "
   },
   "e144a362b64a00e9b312f7e0ce2d17b4b6a6752dea408726a7c4fcf10f009550": {
     "describe": {

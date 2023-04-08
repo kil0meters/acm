@@ -41,6 +41,8 @@ pub struct Problem {
     /// Template that's shown when you start a problem
     pub template: String,
 
+    pub runtime_multiplier: Option<f64>,
+
     pub visible: bool,
 
     pub difficulty: Difficulty,

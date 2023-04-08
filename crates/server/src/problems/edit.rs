@@ -11,8 +11,9 @@ pub struct EditForm {
     title: String,
     description: String,
     template: String,
-    visible: bool,
+    runtime_multiplier: f64,
     difficulty: Difficulty,
+    visible: bool,
 }
 
 pub async fn edit(
@@ -32,7 +33,8 @@ pub async fn edit(
         description = ?,
         difficulty = ?,
         visible = ?,
-        template = ?
+        template = ?,
+        runtime_multiplier = ?
         WHERE id = ?
         "#,
         form.title,
@@ -40,6 +42,7 @@ pub async fn edit(
         form.difficulty,
         form.visible,
         form.template,
+        form.runtime_multiplier,
         id
     )
     .execute(&pool)

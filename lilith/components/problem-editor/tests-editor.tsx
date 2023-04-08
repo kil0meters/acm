@@ -123,7 +123,6 @@ function TestsEditorList(): JSX.Element {
         const {
             problemReference: reference,
             problemTests: tests,
-            problemRuntimeMultiplier: runtime_multiplier
         } = useAdminStore.getState();
 
         try {
@@ -136,7 +135,6 @@ function TestsEditorList(): JSX.Element {
                 body: JSON.stringify({
                     reference,
                     user_id: user!.id,
-                    runtime_multiplier,
                     inputs: tests.map((test) => test.input),
                 })
             });

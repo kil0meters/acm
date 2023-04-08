@@ -9,6 +9,7 @@ pub struct SubmitJob {
     pub problem_id: i64,
     pub user_id: i64,
     pub implementation: String,
+    pub runtime_multiplier: Option<f64>,
     pub tests: Vec<Test>,
 }
 
@@ -16,7 +17,6 @@ pub struct SubmitJob {
 pub struct GenerateTestsJob {
     pub reference: String,
     pub user_id: i64,
-    pub runtime_multiplier: f64,
     pub inputs: Vec<WasmFunctionCall>,
 }
 
@@ -25,9 +25,9 @@ pub struct GenerateTestsJob {
 pub struct CustomInputJob {
     pub problem_id: i64,
     pub user_id: i64,
-    pub runtime_multiplier: f64,
     pub reference: String,
     pub implementation: String,
+    pub runtime_multiplier: Option<f64>,
     pub input: WasmFunctionCall,
 }
 

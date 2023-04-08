@@ -31,6 +31,7 @@ export type Problem = {
 
     // markdown formatted
     description: string;
+    runtime_multiplier: number;
 
     template: string;
 
@@ -140,6 +141,7 @@ export function ProblemList({ problems, show_team_status }: { problems: Problem[
                     id={id}
                     title={title}
                     template={""}
+                    runtime_multiplier={0.0}
                     description={description}
                     show_team_status={show_team_status}
                     difficulty={difficulty}

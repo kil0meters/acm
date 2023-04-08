@@ -123,6 +123,7 @@ async fn main() {
                         description,
                         runner,
                         template,
+                        runtime_multiplier,
                         competition_id,
                         visible,
                         difficulty as "difficulty: Difficulty"

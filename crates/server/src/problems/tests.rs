@@ -61,7 +61,14 @@ pub async fn problem_test(
         return Ok(Json(None));
     }
 
-    let test: Test = sqlx::query_as(
+    let (runtime_multiplier,): (Option<f64>,) =
+        sqlx::query_as(r#"SELECT runtime_multiplier FROM problems WHERE id = ?"#)
+            .bind(problem_id)
+            .fetch_one(&pool)
+            .await
+            .map_err(|_| ServerError::NotFound)?;
+
+    let mut test: Test = sqlx::query_as(
         r#"
         SELECT
             id,
@@ -85,6 +92,8 @@ pub async fn problem_test(
         log::error!("{e}");
         ServerError::NotFound
     })?;
+
+    test.adjust_runtime(runtime_multiplier);
 
     Ok(Json(Some(test)))
 }
