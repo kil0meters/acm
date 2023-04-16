@@ -48,8 +48,8 @@ export default function CodeRunner(): JSX.Element {
                     }),
                 });
 
-                let job: JobStatus<Submission, ServerError> = await res.json();
-
+                let job: JobStatus<Submission, string> = await res.json();
+                console.log(job);
                 let [data, err] = await monitorJob(job, (n) => setQueuePosition(n));
 
                 if (data) {
@@ -60,12 +60,11 @@ export default function CodeRunner(): JSX.Element {
                 }
 
                 if (err) {
-                    console.log(err);
-                    setError(err.error, true);
+                    console.log(`${err}`)
+                    setError(err, true);
                 }
             }
             catch (e) {
-                console.log(e);
                 setError("Network error.", true);
             }
             finally {

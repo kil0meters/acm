@@ -136,7 +136,8 @@ async fn run_command(
                 message: "Failed to link file".to_string(),
             })?;
 
-        let instance = linker.instantiate(&mut store, &module).map_err(|_| {
+        let instance = linker.instantiate(&mut store, &module).map_err(|e| {
+            println!("error: {e:?}");
             RunnerError::InternalServerError {
                 message: "Failed to instantiate module".to_string(),
             }
