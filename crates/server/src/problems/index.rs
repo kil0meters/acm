@@ -90,7 +90,7 @@ pub async fn problems(
         if has_where {
             query_builder.push(" AND ");
         }
-        query_builder.push("competition_id IS NOT NULL");
+        query_builder.push("TRUE");
     } else if options.competition_id.is_none() {
         if has_where {
             query_builder.push(" AND ");

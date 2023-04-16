@@ -30,7 +30,7 @@ function GridEditor({ type, data, onChange }: GridEditorProps) {
     return (
         <div>
             <span className="text-sm">{type} Grid:</span>
-            <textarea value={gridString} className={`p-2 outline w-full font-mono focus:outline-4 rounded-md ${isValid ? "outline-green-500" : "outline-red-500"}`} onChange={(e) => {
+            <textarea value={gridString} className={`p-2 outline w-full font-mono focus:outline-4 rounded-md dark:bg-neutral-900 ${isValid ? "outline-green-500" : "outline-red-500"}`} onChange={(e) => {
                 setGridString(e.currentTarget.value);
             }} />
         </div>
@@ -63,7 +63,7 @@ function GraphEditor({ type, data, onChange }: GraphEditorProps) {
     return (
         <div>
             <span className="text-sm">{type} Graph (adjacency list):</span>
-            <textarea value={graphString} className={`p-2 outline w-full font-mono focus:outline-4 rounded-md ${isValid ? "outline-green-500" : "outline-red-500"}`} onChange={(e) => {
+            <textarea value={graphString} className={`p-2 outline w-full font-mono focus:outline-4 rounded-md dark:bg-neutral-900 ${isValid ? "outline-green-500" : "outline-red-500"}`} onChange={(e) => {
                 setGraphString(e.currentTarget.value);
             }} />
         </div>
@@ -96,7 +96,7 @@ function ListEditor({ type, data, onChange }: ListEditorProps) {
     return (
         <div>
             <span className="text-sm">{type} List:</span>
-            <input value={listString} className={`w-full outline p-2 focus:outline-4 font-mono rounded-md ${isValid ? "outline-green-500" : "outline-red-500"}`} onChange={(e) => {
+            <input value={listString} className={`w-full outline p-2 focus:outline-4 font-mono rounded-md dark:bg-neutral-900  ${isValid ? "outline-green-500" : "outline-red-500"}`} onChange={(e) => {
                 setListString(e.currentTarget.value);
             }} />
         </div>
@@ -121,7 +121,7 @@ function SingleEditor({ type, value, onChange }: SingleEditorProps) {
         <div>
             <span className="text-sm">{type}:</span>
             <input
-                className="outline focus:outline-4 p-2 w-full rounded-md outline-green-500"
+                className="outline focus:outline-4 p-2 w-full rounded-md outline-green-500 dark:bg-neutral-900"
                 value={data.toString()}
                 onChange={(e) => {
                     try {
