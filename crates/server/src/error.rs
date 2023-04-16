@@ -8,15 +8,28 @@ use serde_json::json;
 use shared::models::runner::RunnerError;
 use validator::ValidationErrors;
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Debug, thiserror::Error)]
 #[serde(tag = "type")]
 pub enum ServerError {
+    #[error("{0}")]
     Auth(AuthError),
+
+    #[error("{0}")]
     Validation(FormValidationError),
+
+    #[error("{0}")]
     User(UserError),
+
+    #[error("{0}")]
     Runner(RunnerError),
+
+    #[error("Internal server error.")]
     InternalError,
+
+    #[error("The requested data was not found")]
     NotFound,
+
+    #[error("You are not allowed to do that.")]
     PermissionDenied,
 }
 
@@ -31,17 +44,17 @@ impl IntoResponse for ServerError {
             }
             ServerError::NotFound => (
                 StatusCode::NOT_FOUND,
-                Json(json!({"error": "The requested data was not found"})),
+                Json(json!({"error": self.to_string()})),
             )
                 .into_response(),
             ServerError::PermissionDenied => (
                 StatusCode::FORBIDDEN,
-                Json(json!({"error": "You are not allowed to do that"})),
+                Json(json!({"error": self.to_string()})),
             )
                 .into_response(),
             ServerError::InternalError => (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({"error": "Internal error"})),
+                Json(json!({"error": self.to_string()})),
             )
                 .into_response(),
         }
@@ -80,34 +93,32 @@ impl From<UserError> for ServerError {
     }
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Debug, thiserror::Error)]
 pub enum UserError {
+    #[error("User {0} not found")]
     NotFound(String),
+
+    #[error("Failed to fetch submissions")]
     InternalError,
 }
 
 impl IntoResponse for UserError {
     fn into_response(self) -> Response {
-        let (status, error_message) = match self {
-            Self::NotFound(username) => (
-                StatusCode::NOT_FOUND,
-                format!("User \"{}\" not found", username),
-            ),
-            Self::InternalError => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Failed to fetch submissions".to_string(),
-            ),
+        let status = match self {
+            Self::NotFound(_) => StatusCode::NOT_FOUND,
+            Self::InternalError => StatusCode::INTERNAL_SERVER_ERROR,
         };
 
         let body = Json(json!({
-            "error": error_message,
+            "error": self.to_string(),
         }));
         (status, body).into_response()
     }
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Debug, thiserror::Error)]
 pub enum FormValidationError {
+    #[error("Invalid field: {0}")]
     InvalidField(String),
 }
 
@@ -127,24 +138,31 @@ impl IntoResponse for FormValidationError {
     }
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Debug, thiserror::Error)]
 pub enum AuthError {
+    #[error("You must be logged in to do that.")]
     WrongCredentials,
+
+    #[error("Token creation error.")]
     TokenCreation,
+
+    #[error("Invalid token.")]
     InvalidToken,
+
+    #[error("Unauthorized.")]
     Unauthorized,
 }
 
 impl IntoResponse for AuthError {
     fn into_response(self) -> Response {
-        let (status, error_message) = match self {
-            AuthError::WrongCredentials => (StatusCode::UNAUTHORIZED, "You must be logged in."),
-            AuthError::TokenCreation => (StatusCode::INTERNAL_SERVER_ERROR, "Token creation error"),
-            AuthError::InvalidToken => (StatusCode::BAD_REQUEST, "Invalid token"),
-            AuthError::Unauthorized => (StatusCode::UNAUTHORIZED, "Unauthorized"),
+        let status = match self {
+            AuthError::WrongCredentials => StatusCode::UNAUTHORIZED,
+            AuthError::TokenCreation => StatusCode::INTERNAL_SERVER_ERROR,
+            AuthError::InvalidToken => StatusCode::BAD_REQUEST,
+            AuthError::Unauthorized => StatusCode::UNAUTHORIZED,
         };
         let body = Json(json!({
-            "error": error_message,
+            "error": self.to_string(),
         }));
         (status, body).into_response()
     }

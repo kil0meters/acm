@@ -52,7 +52,7 @@ function TestResultView({ index, success, problemId }: TestResultDescription): J
 
     if (error) return (
         <ErrorBox>
-            There was a problem fetching this test. (Perhaps its from an old version of the website?)
+            {"There was a problem fetching this test.\n(Perhaps its from an old version of the website?)"}
         </ErrorBox>
     );
 
@@ -86,7 +86,7 @@ export function TestResultInner({ index, input, output, expected_output, error, 
     let containerClasses = success ? "outline-green-200 dark:outline-green-700" : "outline-red-300 dark:outline-red-700";
     let textColor = success ? "text-green-700" : "text-red-900";
 
-    if (error) {
+    if (error && !output) {
         return (
             <div className={`rounded-md outline-red-700 outline outline-4 p-4 flex flex-col gap-4 bg-red-600 box-border`}>
                 <h2 className="text-red-900 font-extrabold text-2xl">Error</h2>
@@ -120,8 +120,14 @@ export function TestResultInner({ index, input, output, expected_output, error, 
                 </div>
             </div>
 
+            {error &&
+                <pre className="bg-red-900 text-red-100 ring-red-700 ring rounded-md overflow-auto p-2">
+                    <code>{error}</code>
+                </pre>
+            }
+
             <div>
-                <label>Input</label>
+                <b>Input</b>
 
                 <div className="flex flex-col gap-4">
                     {input.arguments.map((arg, i) =>
@@ -132,12 +138,12 @@ export function TestResultInner({ index, input, output, expected_output, error, 
 
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label>Expected</label>
+                    <b>Expected</b>
 
                     <FunctionTypeDisplay data={expected_output} />
                 </div>
                 <div>
-                    <label>Output</label>
+                    <b>Output</b>
 
                     <FunctionTypeDiffDisplay output={output} expected={expected_output} />
                 </div>

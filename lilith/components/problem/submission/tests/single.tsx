@@ -17,8 +17,8 @@ export function SingleDiffDisplay({ dataType, output, expected }: { dataType: st
             <span className="text-sm">{dataType}:</span>
             <pre className="bg-blue-50 border-blue-200 dark:border-slate-700 dark:bg-slate-800 rounded p-2 border overflow-auto">
                 {Array.from(output).map((c, i) => expected[i] === c
-                    ? <code>{c}</code>
-                    : <code className="bg-red-300">{c}</code>
+                    ? <code key={i}>{c}</code>
+                    : <code key={i} className="bg-red-300">{c}</code>
                 )}
             </pre>
         </div>

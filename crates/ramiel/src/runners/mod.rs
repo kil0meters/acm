@@ -8,7 +8,6 @@ use shared::models::{
 use std::collections::BTreeSet;
 use wasm_memory::{FunctionValue, WasmFunctionCall};
 
-use wasi_common::pipe::WritePipe;
 use wasmtime::{Config, Engine, Linker, Module, Store, StoreLimits, StoreLimitsBuilder};
 use wasmtime_wasi::{sync::WasiCtxBuilder, WasiCtx};
 
@@ -40,8 +39,7 @@ impl TestResults {
     }
 
     fn insert(&mut self, test: TestResult) {
-        // TODO: seems like there should be a way to not clone here
-        if test.output == Some(test.expected_output.clone()) {
+        if test.success {
             self.passed_tests.insert(test);
         } else {
             self.failed_tests.insert(test);
@@ -72,10 +70,20 @@ struct MyState {
 /// Runs a command with a specified input, returning a RuntimeError if the process returns an
 /// error, otherwise returns the output and the duration
 async fn run_test_timed(command: &str, test: Test) -> Result<TestResult, RunnerError> {
-    let max_runtime = test.max_fuel;
+    // we allow a nice buffer of 20x so the user can more easily debug their program
+    let max_runtime = test.max_fuel.map(|x| x * 20);
 
     match run_command(command, test.input.clone(), max_runtime).await {
-        Ok((output, fuel)) => Ok(test.make_result(output, fuel)),
+        Ok((output, fuel)) => {
+            let mut test_result = test.make_result(output, fuel);
+
+            if fuel > test_result.max_fuel.unwrap_or(MAX_FUEL) as u64 {
+                test_result.success = false;
+                test_result.error = Some("Fuel limit exceeded".to_string())
+            }
+
+            Ok(test_result)
+        }
         Err(RunnerError::RuntimeError { message }) => {
             Ok(test.make_result_error(message, max_runtime.unwrap_or(MAX_FUEL) as u64))
         }

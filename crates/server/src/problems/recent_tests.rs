@@ -60,19 +60,8 @@ pub async fn recent_tests_test(
     claims: Claims,
     Extension(pool): Extension<SqlitePool>,
     Path((problem_id, test_number)): Path<(i64, i64)>,
-) -> Result<Json<Option<TestResult>>, ServerError> {
+) -> Result<Json<TestResult>, ServerError> {
     claims.validate_logged_in()?;
-
-    let (hidden,): (bool,) =
-        sqlx::query_as("SELECT hidden FROM tests WHERE test_number = ? AND problem_id = ?")
-            .bind(test_number)
-            .bind(problem_id)
-            .fetch_one(&pool)
-            .await
-            .map_err(|e| {
-                log::error!("{e}");
-                ServerError::NotFound
-            })?;
 
     let (runtime_multiplier,): (Option<f64>,) =
         sqlx::query_as(r#"SELECT runtime_multiplier FROM problems WHERE id = ?"#)
@@ -92,7 +81,8 @@ pub async fn recent_tests_test(
             tests.max_runtime as max_runtime,
             tests.input as input,
             tests.expected_output as expected_output,
-            tests.test_number as test_number
+            tests.test_number as test_number,
+            tests.hidden as hidden
         FROM
             test_results INNER JOIN tests
             ON test_results.test_id = tests.id
@@ -120,11 +110,7 @@ pub async fn recent_tests_test(
         ServerError::NotFound
     })?;
 
-    if hidden && !test.error.is_some() {
-        Ok(Json(None))
-    } else {
-        test.adjust_runtime(runtime_multiplier);
+    test.adjust_runtime(runtime_multiplier);
 
-        Ok(Json(Some(test)))
-    }
+    Ok(Json(test))
 }

@@ -1,35 +1,21 @@
 export interface RunnerError {
-  type: string;
-  message: string;
-  line?: number;
+    type: string;
+    message: string;
+    line?: number;
 }
 
 export function isRunnerError(
-  result: unknown | RunnerError
+    result: unknown | RunnerError
 ): result is RunnerError {
-  return (result as RunnerError).type !== undefined;
+    return (result as RunnerError).type !== undefined;
 }
 
 export interface ServerError {
-  error: string
+    error: string
 }
 
 export function isServerError(
-  result: unknown | ServerError
+    result: unknown | ServerError
 ): result is ServerError {
-  return (result as ServerError).error !== undefined;
-}
-
-export default function ErrorDisplay({ message }: RunnerError): JSX.Element {
-  console.log(`Displaying error: ${message}`);
-
-  return (
-    <div className="bg-red-500 text-red-50 p-4 my-4 flex flex-col gap-2 rounded-md border-red-600 dark:border-red-500 dark:bg-red-700 border">
-      <h1 className="text-2xl font-bold">{"error."}</h1>
-
-      <pre className="bg-red-700 dark:bg-red-800 overflow-auto p-2 rounded">
-        <code>{message}</code>
-      </pre>
-    </div>
-  );
+    return (result as ServerError).error !== undefined;
 }

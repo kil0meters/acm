@@ -85,10 +85,15 @@ impl Queueable for SubmitJob {
             .json(self)
             .send()
             .await
-            .map_err(|_| ServerError::InternalError)?;
+            .map_err(|e| {
+                log::error!("error fetching from ramiel: {e}");
+                ServerError::InternalError
+            })?;
 
-        let res: Result<RunnerResponse, RunnerError> =
-            res.json().await.map_err(|_| ServerError::InternalError)?;
+        let res: Result<RunnerResponse, RunnerError> = res.json().await.map_err(|e| {
+            log::error!("error converting json from ramiel: {e}");
+            ServerError::InternalError
+        })?;
 
         let (passed, runtime, error, tests) = match res {
             Ok(res) => (res.passed, res.runtime, None, res.tests),
@@ -133,7 +138,10 @@ impl Queueable for SubmitJob {
         .bind(complexity)
         .fetch_one(&mut tx)
         .await
-        .map_err(|_| ServerError::InternalError)?;
+        .map_err(|e| {
+            log::error!("error inserting submission: {e}");
+            ServerError::InternalError
+        })?;
 
         for test in &tests {
             let output = serde_json::to_string(&test.output).unwrap();
@@ -158,10 +166,16 @@ impl Queueable for SubmitJob {
             )
             .execute(&mut tx)
             .await
-            .map_err(|_| ServerError::InternalError)?;
+            .map_err(|e| {
+                log::error!("error inserting test: {e}");
+                ServerError::InternalError
+            })?;
         }
 
-        tx.commit().await.map_err(|_| ServerError::InternalError)?;
+        tx.commit().await.map_err(|e| {
+            log::error!("error committing transaction: {e}");
+            ServerError::InternalError
+        })?;
 
         // Broadcast the submission in the appropriate category
         if submission.success {

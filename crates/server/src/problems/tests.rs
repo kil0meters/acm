@@ -10,6 +10,7 @@ pub struct TestNoInput {
     id: i64,
     #[sqlx(rename = "test_number")]
     index: i64,
+
     hidden: bool,
 }
 

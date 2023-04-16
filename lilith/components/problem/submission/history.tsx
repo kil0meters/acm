@@ -61,11 +61,11 @@ function HistoryEntry({
     if (success) {
         return (
             <div className="flex gap-2 items-center bg-white dark:bg-black p-4 border-neutral-300 dark:border-emerald-700 border-b">
-                <span className="font-bold text-lg text-green-600 dark:text-emerald-200">
+                <span className="font-bold text-lg text-green-600 dark:text-green-400">
                     Passed
                 </span>
 
-                <span className="text-sm text-green-600" title={fuelLong}>{fuelCompact}</span>
+                <span className="text-sm text-green-600 dark:text-green-400" title={fuelLong}>{fuelCompact}</span>
                 <span className="ml-auto text-sm text-neutral-500 dark:text-emerald-200">
                     {timeFormat(time + 'Z')}
                 </span>

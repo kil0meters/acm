@@ -41,11 +41,13 @@ export type Submission = {
 export interface Store {
     vimEnabled: boolean;
     editorTheme: EditorThemeType;
+    editorFontSize: number;
 
     problemImpls: { [key: number]: string };
 
     setVimEnabled: (vimEnabled: boolean) => void;
     setEditorTheme: (editorTheme: EditorThemeType) => void;
+    setEditorFontSize: (fontSize: number) => void;
 
     setProblemImpl: (id: number, impl: string) => void;
 }
@@ -55,6 +57,7 @@ export const useStore = create<Store>()(
         (set) => ({
             vimEnabled: false,
             editorTheme: "system",
+            editorFontSize: 18,
             problemImpls: {},
 
             setProblemImpl: (id, impl) =>
@@ -75,6 +78,13 @@ export const useStore = create<Store>()(
                 set(
                     produce((state: Store) => {
                         state.editorTheme = editorTheme;
+                    })
+                ),
+
+            setEditorFontSize: (fontSize) =>
+                set(
+                    produce((state: Store) => {
+                        state.editorFontSize = fontSize;
                     })
                 ),
         }),

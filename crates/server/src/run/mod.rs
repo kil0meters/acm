@@ -48,7 +48,7 @@ pub struct JobStatus {
     problem_id: i64,
 
     response: Option<Value>,
-    error: Option<Value>,
+    error: Option<String>,
 }
 
 #[async_trait]
@@ -117,7 +117,7 @@ pub async fn check_job(
             if job.id >= processing_job {
                 job.queue_position = job.id - processing_job;
             }
-            Ok(Json(job.to_owned()))
+            Ok(Json(job))
         } else {
             Err(AuthError::Unauthorized.into())
         }
@@ -148,8 +148,7 @@ async fn process_job(
             job.response = Some(res);
         }
         Err(e) => {
-            let body = serde_json::to_value(e).unwrap();
-            job.error = Some(body);
+            job.error = Some(e.to_string());
         }
     }
 

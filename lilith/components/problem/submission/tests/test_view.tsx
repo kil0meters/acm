@@ -68,7 +68,7 @@ function TestView({ index, problemId }: TestDescription): JSX.Element {
                 <span>Max Fuel: </span><span title={long}>{compact}</span>
             </div>}
 
-            <label>Input</label>
+            <b>Input</b>
 
             <div className="flex flex-col gap-4">
                 {data.input.arguments.map((arg, i) =>
@@ -76,7 +76,7 @@ function TestView({ index, problemId }: TestDescription): JSX.Element {
                 )}
             </div>
 
-            <label>Expected</label>
+            <b>Expected</b>
 
             <FunctionTypeDisplay data={data.expected_output} />
         </div>

@@ -20,26 +20,28 @@ import Head from "next/head";
 // });
 
 function ErrorDisplay(): JSX.Element {
-  const [error, shown, setError] = useSession(
-    (state) => [state.error, state.errorShown, state.setError],
-    shallow
-  );
+    const [error, shown, setError] = useSession(
+        (state) => [state.error, state.errorShown, state.setError],
+        shallow
+    );
 
-  return (
-    <Modal shown={shown} onClose={() => setError(error, false)}>
-      <ErrorBox>{error}</ErrorBox>
-    </Modal>
-  );
+    console.log(`displaying error: ${JSON.stringify(error)}`);
+
+    return (
+        <Modal shown={shown} onClose={() => setError(error, false)}>
+            <ErrorBox>{error}</ErrorBox>
+        </Modal>
+    );
 }
 
 export default function MyApp({ Component, pageProps }: AppProps) {
-  return (
-    <>
-      <Head>
-        <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEV0Ysuv/+9LAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==" />
-      </Head>
-      <Component {...pageProps} />
-      <ErrorDisplay />
-    </>
-  );
+    return (
+        <>
+            <Head>
+                <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEV0Ysuv/+9LAAAACklEQVQI12NgAAAAAgAB4iG8MwAAAABJRU5ErkJggg==" />
+            </Head>
+            <Component {...pageProps} />
+            <ErrorDisplay />
+        </>
+    );
 }

@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::{ser::SerializeStruct, Deserialize, Serialize};
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
 use wasm_memory::{FunctionValue, WasmFunctionCall};
 
@@ -53,6 +53,7 @@ impl Test {
             error: None,
             max_fuel: self.max_fuel,
             fuel: fuel as i64,
+            hidden: false,
         }
     }
 
@@ -67,11 +68,12 @@ impl Test {
             error: Some(error),
             max_fuel: self.max_fuel,
             fuel: fuel as i64,
+            hidden: false,
         }
     }
 }
 
-#[derive(Deserialize, Debug, Clone, Serialize, PartialEq)]
+#[derive(Deserialize, Debug, Clone, PartialEq)]
 pub struct TestResult {
     #[serde(default)]
     pub id: i64,
@@ -83,6 +85,41 @@ pub struct TestResult {
     pub fuel: i64,
     pub error: Option<String>,
     pub max_fuel: Option<i64>,
+
+    #[serde(default = "default_hidden")]
+    pub hidden: bool,
+}
+
+fn default_hidden() -> bool {
+    false
+}
+
+impl Serialize for TestResult {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        if self.hidden {
+            let mut s = serializer.serialize_struct("TestResult", 4)?;
+            s.serialize_field("id", &self.id)?;
+            s.serialize_field("index", &self.index)?;
+            s.serialize_field("success", &self.success)?;
+            s.serialize_field("error", &self.error)?;
+            s.end()
+        } else {
+            let mut s = serializer.serialize_struct("TestResult", 9)?;
+            s.serialize_field("id", &self.id)?;
+            s.serialize_field("index", &self.index)?;
+            s.serialize_field("success", &self.success)?;
+            s.serialize_field("input", &self.input)?;
+            s.serialize_field("expected_output", &self.expected_output)?;
+            s.serialize_field("output", &self.output)?;
+            s.serialize_field("fuel", &self.fuel)?;
+            s.serialize_field("error", &self.error)?;
+            s.serialize_field("max_fuel", &self.max_fuel)?;
+            s.end()
+        }
+    }
 }
 
 impl TestResult {
@@ -134,6 +171,7 @@ impl FromRow<'_, SqliteRow> for TestResult {
             fuel: row.try_get("runtime")?,
             error: row.try_get("error")?,
             max_fuel: row.try_get("max_runtime")?,
+            hidden: row.try_get("hidden")?,
         })
     }
 }
