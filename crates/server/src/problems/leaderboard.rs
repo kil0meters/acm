@@ -48,7 +48,7 @@ pub async fn leaderboard_users(
         WHERE problem_id = ?
         AND success = true
         GROUP BY submissions.user_id
-        ORDER BY runtime"#,
+        ORDER BY runtime, submissions.time"#,
     )
     .bind(problem_id)
     .fetch_all(&pool)
