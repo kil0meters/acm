@@ -27,6 +27,12 @@ pub struct RunnerResponse {
     pub runtime: i64,
 }
 
+#[derive(Deserialize, Serialize, Clone)]
+pub struct CustomInputResponse {
+    pub result: TestResult,
+    pub output: String,
+}
+
 #[derive(Deserialize, Serialize, Error, Debug, Clone, PartialEq)]
 #[serde(tag = "type")]
 pub enum RunnerError {

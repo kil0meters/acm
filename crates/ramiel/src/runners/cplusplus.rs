@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use futures::future::join_all;
 use shared::models::{
     forms::{CustomInputJob, GenerateTestsJob, SubmitJob},
-    runner::{Diagnostic, DiagnosticType, RunnerError, RunnerResponse},
+    runner::{CustomInputResponse, Diagnostic, DiagnosticType, RunnerError, RunnerResponse},
     test::{Test, TestResult},
 };
 use std::{
@@ -50,7 +50,8 @@ impl Runner for CPlusPlus {
         let mut tests = vec![];
         for mut test in form.tests {
             test.adjust_runtime(form.runtime_multiplier);
-            tests.push(run_test_timed(&command, test).await);
+            let (test, _) = run_test_timed(&command, test, 50).await?;
+            tests.push(test);
         }
 
         let mut total_runtime = 0;
@@ -58,7 +59,6 @@ impl Runner for CPlusPlus {
         let mut test_results = TestResults::new();
 
         for test in tests {
-            let test = test?;
             total_runtime += test.fuel;
             test_results.insert(test);
         }
@@ -78,7 +78,7 @@ impl Runner for CPlusPlus {
         let mut outputs = Vec::new();
         let mut i = 0;
         for input in form.inputs.into_iter() {
-            let (output, fuel) = run_command(&command, input.clone(), None).await?;
+            let (output, _, fuel) = run_command(&command, input.clone(), None).await?;
             outputs.push(Test {
                 id: 0,
                 index: i,
@@ -93,7 +93,10 @@ impl Runner for CPlusPlus {
         Ok(outputs)
     }
 
-    async fn run_custom_input(&self, form: CustomInputJob) -> Result<TestResult, RunnerError> {
+    async fn run_custom_input(
+        &self,
+        form: CustomInputJob,
+    ) -> Result<CustomInputResponse, RunnerError> {
         let reference_prefix = format!(
             "/tmp/acm/custom_input/{}/{}/reference",
             form.user_id, form.problem_id
@@ -113,7 +116,7 @@ impl Runner for CPlusPlus {
         let implementation_command =
             compile_problem(&implementation_prefix, &implementation).await?;
 
-        let (expected_output, fuel) =
+        let (expected_output, _, fuel) =
             run_command(&reference_command, form.input.clone(), None).await?;
 
         let mut test = Test {
@@ -126,7 +129,13 @@ impl Runner for CPlusPlus {
 
         test.adjust_runtime(form.runtime_multiplier);
 
-        run_test_timed(&implementation_command, test).await
+        // we add a lot of padding so they can potentially print a lot
+        let (test_result, stdout) = run_test_timed(&implementation_command, test, 500).await?;
+
+        Ok(CustomInputResponse {
+            result: test_result,
+            output: stdout,
+        })
     }
 }
 

@@ -12,10 +12,15 @@ import ErrorDisplay, { isRunnerError, RunnerError, ServerError } from "./submiss
 import { Test, TestResult, WasmFunctionCall } from "./submission/tests";
 import { TestResultInner } from "./submission/tests/test_result_view";
 
+type CustomInputResponse = {
+    result: TestResult;
+    output: string;
+};
+
 export default function InputTester() {
     const [loading, setLoading] = useState(false);
     const [queuePosition, setQueuePosition] = useState(0);
-    const [testResult, setTestResult] = useState<TestResult | RunnerError | null>(
+    const [testResult, setTestResult] = useState<CustomInputResponse | RunnerError | null>(
         null
     );
 
@@ -52,7 +57,7 @@ export default function InputTester() {
                 }),
             });
 
-            let job: JobStatus<TestResult, RunnerError> = await res.json();
+            let job: JobStatus<CustomInputResponse, RunnerError> = await res.json();
 
             let [data, err] = await monitorJob(job, (n) => setQueuePosition(n));
 
@@ -75,9 +80,9 @@ export default function InputTester() {
     };
 
     return (
-        <div className="border-t max-h-[40vh] lg:max-h-full border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black flex flex-col lg:flex-row min-h-0">
-            <div className="flex flex-col gap-2 lg:w-96 p-4 lg:h-80 overflow-y-auto">
-                <label>{"Input"}</label>
+        <div className="border-t max-h-[40vh] lg:max-h-full border-neutral-300 dark:border-neutral-700 bg-white dark:bg-black flex flex-col lg:flex-row min-h-0 overflow-y-auto lg:overflow-y-visible">
+            <div className="flex flex-col gap-2 lg:w-96 p-4 lg:h-80 lg:overflow-y-auto">
+                <b>Input</b>
 
                 {problem_id && <TestEditor baseArgs={data.input.arguments} onChange={(args) => {
                     if (input) {
@@ -98,16 +103,27 @@ export default function InputTester() {
                 </div>
             </div>
 
-            <div className="lg:w-96 lg:h-80 overflow-y-auto m-x lg:ml-0 px-4 lg:pl-0">
+            <div className="lg:h-80 lg:w-96 lg:overflow-y-auto m-x lg:ml-0 px-4 lg:pl-0">
                 {testResult &&
                     (isRunnerError(testResult) ? (
                         <ErrorDisplay {...testResult} />
                     ) : (
                         <div className="my-4 mx-1">
-                            <TestResultInner {...testResult} />
+                            <TestResultInner {...testResult.result} />
                         </div>
                     ))}
             </div>
+
+            {testResult !== null && !isRunnerError(testResult) && testResult.output.length > 0 &&
+                <div className="py-2 lg:w-96 flex flex-col gap-2 px-4 lg:px-0 w-full lg:h-80">
+                    <span className="font-bold">Debug Output</span>
+                    <pre
+                        className="rounded-md bg-blue-50 dark:bg-stone-900 p-2 overflow-auto border border-blue-200 dark:border-slate-700"
+                    >
+                        {testResult.output}
+                    </pre>
+                </div>
+            }
         </div>
     );
 }

@@ -12,7 +12,6 @@ use axum::{
 
 use serde::Serialize;
 use serde_json::Value;
-use shared::models::runner::RunnerError;
 use sqlx::SqlitePool;
 use tokio::{
     sync::{

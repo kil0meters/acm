@@ -76,9 +76,7 @@ impl Queueable for CustomInputJob {
 
         let result: Result<Value, RunnerError> = res.json().await.unwrap();
 
-        let result = serde_json::to_value(result?).unwrap();
-
-        Ok(result)
+        Ok(result?)
     }
 
     fn info(&self) -> String {

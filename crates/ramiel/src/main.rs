@@ -1,7 +1,7 @@
 use shared::models::{
     forms::{CustomInputJob, GenerateTestsJob, SubmitJob},
-    runner::{RunnerError, RunnerResponse},
-    test::{Test, TestResult},
+    runner::{CustomInputResponse, RunnerError, RunnerResponse},
+    test::Test,
 };
 
 use actix_web::{middleware::Logger, post, web, web::Json, App, HttpServer};
@@ -26,7 +26,7 @@ async fn cplusplus_generate_tests(
 #[post("/custom-input/c++")]
 async fn cplusplus_custom_input(
     form: Json<CustomInputJob>,
-) -> Json<Result<TestResult, RunnerError>> {
+) -> Json<Result<CustomInputResponse, RunnerError>> {
     Json(CPlusPlus.run_custom_input(form.into_inner()).await)
 }
 

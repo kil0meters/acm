@@ -2,10 +2,11 @@ use actix_web::rt::task;
 use async_trait::async_trait;
 use shared::models::{
     forms::{CustomInputJob, GenerateTestsJob, SubmitJob},
-    runner::{RunnerError, RunnerResponse},
+    runner::{CustomInputResponse, RunnerError, RunnerResponse},
     test::{Test, TestResult},
 };
 use std::collections::BTreeSet;
+use wasi_common::pipe::WritePipe;
 use wasm_memory::{FunctionValue, WasmFunctionCall};
 
 use wasmtime::{Config, Engine, Linker, Module, Store, StoreLimits, StoreLimitsBuilder};
@@ -19,7 +20,10 @@ pub use cplusplus::CPlusPlus;
 pub trait Runner {
     async fn run_tests(&self, form: SubmitJob) -> Result<RunnerResponse, RunnerError>;
     async fn generate_tests(&self, form: GenerateTestsJob) -> Result<Vec<Test>, RunnerError>;
-    async fn run_custom_input(&self, form: CustomInputJob) -> Result<TestResult, RunnerError>;
+    async fn run_custom_input(
+        &self,
+        form: CustomInputJob,
+    ) -> Result<CustomInputResponse, RunnerError>;
 }
 
 struct TestResults {
@@ -69,24 +73,31 @@ struct MyState {
 
 /// Runs a command with a specified input, returning a RuntimeError if the process returns an
 /// error, otherwise returns the output and the duration
-async fn run_test_timed(command: &str, test: Test) -> Result<TestResult, RunnerError> {
-    // we allow a nice buffer of 20x so the user can more easily debug their program
-    let max_runtime = test.max_fuel.map(|x| x * 20);
+///
+/// Padding dictates how much extra fuel should be allotted before we force stop their function.
+/// e.g. A padding value of 10 means it can be 10x slower before we force stop it
+async fn run_test_timed(
+    command: &str,
+    test: Test,
+    padding: i64,
+) -> Result<(TestResult, String), RunnerError> {
+    let max_runtime = test.max_fuel.map(|x| x * padding);
 
     match run_command(command, test.input.clone(), max_runtime).await {
-        Ok((output, fuel)) => {
-            let mut test_result = test.make_result(output, fuel);
+        Ok((result, output, fuel)) => {
+            let mut test_result = test.make_result(result, fuel);
 
             if fuel > test_result.max_fuel.unwrap_or(MAX_FUEL) as u64 {
                 test_result.success = false;
                 test_result.error = Some("Fuel limit exceeded".to_string())
             }
 
-            Ok(test_result)
+            Ok((test_result, output))
         }
-        Err(RunnerError::RuntimeError { message }) => {
-            Ok(test.make_result_error(message, max_runtime.unwrap_or(MAX_FUEL) as u64))
-        }
+        Err(RunnerError::RuntimeError { message }) => Ok((
+            test.make_result_error(message, max_runtime.unwrap_or(MAX_FUEL) as u64),
+            String::new(),
+        )),
         Err(e) => Err(e),
     }
 }
@@ -98,7 +109,7 @@ async fn run_command(
     command: &str,
     input: WasmFunctionCall,
     fuel: Option<i64>,
-) -> Result<(FunctionValue, u64), RunnerError> {
+) -> Result<(FunctionValue, String, u64), RunnerError> {
     let command = command.to_string();
     task::spawn_blocking(move || {
         let mut config = Config::default();
@@ -116,10 +127,14 @@ async fn run_command(
             },
         )?;
 
+        let stdout = WritePipe::new_in_memory();
+
         let mut store = Store::new(
             &engine,
             MyState {
-                wasi: WasiCtxBuilder::new().build(),
+                wasi: WasiCtxBuilder::new()
+                    .stdout(Box::new(stdout.clone()))
+                    .build(),
                 limits: StoreLimitsBuilder::new()
                     .memory_size(MAX_MEMORY)
                     .instances(2)
@@ -153,8 +168,12 @@ async fn run_command(
 
         let result = input.call(&mut store, &instance);
 
+        drop(store);
+        let bytes = stdout.try_into_inner().unwrap().into_inner();
+        let output = String::from_utf8_lossy(&bytes).to_string();
+
         match result {
-            Ok((res, fuel)) => Ok((res, fuel)),
+            Ok((res, fuel)) => Ok((res, output, fuel)),
             Err(e) => Err(RunnerError::RuntimeError {
                 message: e.root_cause().to_string(),
             }),

@@ -9,8 +9,6 @@ import LoadingButton from "../loading-button";
 import Modal from "../modal";
 import QueueStatus from "../queue-status";
 import InputTester from "./input-tester";
-import { isServerError, ServerError } from "./submission/error";
-import { SUBMISSION_TESTS_QUERY } from "./submission/tests";
 
 export default function CodeRunner(): JSX.Element {
     const [dockerShown, setDockerShown] = useState(false);
