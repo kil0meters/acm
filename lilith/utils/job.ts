@@ -6,13 +6,12 @@ export type JobStatus<T, E> = {
 
     response?: T,
     error?: E,
-} | { error: E };
+};
 
 export async function monitorJob<T, E>(job: JobStatus<T, E>, updateQueuePosition: (pos: number) => void): Promise<[T?, E?]> {
     let oldQueuePosition = 0;
 
     if (job.error) {
-        console.log(`heyo: ${JSON.stringify(job)}`)
         return [undefined, job.error];
     }
 

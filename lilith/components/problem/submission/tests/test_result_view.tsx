@@ -111,13 +111,15 @@ export function TestResultInner({ index, input, output, expected_output, error, 
                     </h3>
                 </div>
 
-                {!max_fuel || <div>
-                    <span>Max Fuel: </span><span title={long_max}>{compact_max}</span>
-                </div>}
+                {!fuel ? "HIDDEN TEST" : <>
+                    {!max_fuel || <div>
+                        <span>Max Fuel: </span><span title={long_max}>{compact_max}</span>
+                    </div>}
 
-                <div>
-                    <span>Consumed </span><span title={long}>{compact}.</span>
-                </div>
+                    <div>
+                        <span>Consumed </span><span title={long}>{compact}.</span>
+                    </div>
+                </>}
             </div>
 
             {error &&
@@ -126,7 +128,7 @@ export function TestResultInner({ index, input, output, expected_output, error, 
                 </pre>
             }
 
-            <div>
+            {input && <div>
                 <b>Input</b>
 
                 <div className="flex flex-col gap-4">
@@ -134,9 +136,9 @@ export function TestResultInner({ index, input, output, expected_output, error, 
                         <FunctionTypeDisplay key={i} data={arg} />
                     )}
                 </div>
-            </div>
+            </div>}
 
-            <div className="grid grid-cols-2 gap-4">
+            {output && expected_output && <div className="grid grid-cols-2 gap-4">
                 <div>
                     <b>Expected</b>
 
@@ -147,7 +149,7 @@ export function TestResultInner({ index, input, output, expected_output, error, 
 
                     <FunctionTypeDiffDisplay output={output} expected={expected_output} />
                 </div>
-            </div>
+            </div>}
         </div>
     );
 

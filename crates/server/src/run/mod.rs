@@ -12,6 +12,7 @@ use axum::{
 
 use serde::Serialize;
 use serde_json::Value;
+use shared::models::runner::RunnerError;
 use sqlx::SqlitePool;
 use tokio::{
     sync::{
@@ -148,6 +149,9 @@ async fn process_job(
     match res {
         Ok(res) => {
             job.response = Some(res);
+        }
+        Err(ServerError::Runner(RunnerError::CompilationError { diagnostics })) => {
+            job.error = Some(serde_json::to_string(&diagnostics).unwrap())
         }
         Err(e) => job.error = Some(e.to_string()),
     }

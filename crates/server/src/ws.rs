@@ -36,6 +36,7 @@ pub async fn handler(
     Extension(tx): Extension<Sender<BroadcastMessage>>,
 ) -> Result<Response, ServerError> {
     claims.validate_officer()?;
+    log::info!("Websocket request");
 
     Ok(ws.on_upgrade(|socket| handle_socket(socket, tx)))
 }

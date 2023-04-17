@@ -101,67 +101,58 @@ function DiagnosticDisplay(diagnostic: Diagnostic) {
 
     return <>
         <div className="bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 p-1 border-r border-b last-of-type:border-b-0 border-neutral-300 dark:border-neutral-700 flex">
-            <span className={`ml-auto font-bold ${diagnostic_color}`}>
+            <span className={`ml-auto font-bold font-mono ${diagnostic_color}`}>
                 {diagnostic_text}
             </span>
-            <span>
-                &nbsp;{diagnostic.line}:{diagnostic.col}
+            &nbsp;
+            <span className="font-mono">
+                {diagnostic.line}:{diagnostic.col}
             </span>
         </div>
         <code className="break-all bg-white dark:bg-black text-neutral-900 dark:text-neutral-50 p-1 border-b last-of-type:border-b-0 border-neutral-300 dark:border-neutral-700">{diagnostic.message}</code>
     </>;
 }
 
-function SubmissionFeedbackError({ id, error, inProblemView }: { id: number, error: string, inProblemView: boolean }) {
-    const buttonClass = "bg-red-700 dark:bg-red-800 hover:bg-red-600 dark:hover:bg-red-900 text-red-50 rounded-full px-4 py-2 text-sm transition-colors";
-
+export function DiagnosticsDisplay({ error }: { error: string }) {
     try {
         let diagnostics = JSON.parse(error) as Diagnostic[];
 
         return (
-            <div className="bg-red-500 dark:bg-red-700 text-red-50 flex flex-col h-full">
-                <div className="flex items-start p-4">
-                    <h1 className="text-2xl font-bold my-auto">Compilation Error</h1>
-
-                    {inProblemView &&
-                        <div className="ml-auto flex gap-2">
-                            <ShareButton
-                                path={`/submissions/${id}`}
-                                className={buttonClass}
-                            />
-                            <CloseButton className={buttonClass} />
-                        </div>
-                    }
-                </div>
-
-                <div className="grid grid-cols-min-full bg-red-600 border-red-700 border-t dark:bg-red-800 overflow-x-auto max-h-64">
-                    {diagnostics.map((diagnostic, i) => <DiagnosticDisplay key={i} {...diagnostic} />)}
-                </div>
+            <div className="grid grid-cols-min-full bg-red-600 border-red-700 border-t dark:bg-red-800 overflow-x-auto max-h-64">
+                {diagnostics.map((diagnostic, i) => <DiagnosticDisplay key={i} {...diagnostic} />)}
             </div>
         );
     } catch (e) {
         return (
-            <div className="bg-red-500 dark:bg-red-700 text-red-50 p-4 flex flex-col gap-2 h-full">
-                <div className="flex items-start">
-                    <h1 className="text-2xl font-bold my-auto">Error</h1>
-
-                    {inProblemView &&
-                        <div className="ml-auto flex gap-2">
-                            <ShareButton
-                                path={`/submissions/${id}`}
-                                className={buttonClass}
-                            />
-                            <CloseButton className={buttonClass} />
-                        </div>
-                    }
-                </div>
-
-                <pre className="bg-red-700 dark:bg-red-800 overflow-x-auto p-2 rounded max-h-64">
-                    <code>{error}</code>
-                </pre>
-            </div>
+            <pre className="bg-red-700 dark:bg-red-800 overflow-x-auto p-2 rounded max-h-64">
+                <code>{error}</code>
+            </pre>
         );
     }
+}
+
+function SubmissionFeedbackError({ id, error, inProblemView }: { id: number, error: string, inProblemView: boolean }) {
+    const buttonClass = "bg-red-700 dark:bg-red-800 hover:bg-red-600 dark:hover:bg-red-900 text-red-50 rounded-full px-4 py-2 text-sm transition-colors";
+
+    return (
+        <div className="bg-red-500 dark:bg-red-700 text-red-50 flex flex-col h-full">
+            <div className="flex items-start p-4">
+                <h1 className="text-2xl font-bold my-auto">Error</h1>
+
+                {inProblemView &&
+                    <div className="ml-auto flex gap-2">
+                        <ShareButton
+                            path={`/submissions/${id}`}
+                            className={buttonClass}
+                        />
+                        <CloseButton className={buttonClass} />
+                    </div>
+                }
+            </div>
+
+            <DiagnosticsDisplay error={error} />
+        </div>
+    );
 }
 
 export default function SubmissionFeedback({

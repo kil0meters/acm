@@ -112,7 +112,7 @@ async fn main() {
         let broadcast = broadcast.clone();
         tokio::spawn(async move {
             loop {
-                log::info!("Checking for problems to be made visible");
+                // log::info!("Checking for problems to be made visible");
 
                 let rows = sqlx::query_as!(
                     Problem,
