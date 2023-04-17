@@ -97,7 +97,16 @@ impl Queueable for SubmitJob {
 
         let (passed, runtime, error, tests) = match res {
             Ok(res) => (res.passed, res.runtime, None, res.tests),
-            Err(err) => (false, 0, Some(err.to_string()), vec![]),
+            Err(err) => {
+                let err = match err {
+                    RunnerError::CompilationError { diagnostics } => {
+                        serde_json::to_string(&diagnostics).unwrap()
+                    }
+                    _ => err.to_string(),
+                };
+
+                (false, 0, Some(err), vec![])
+            }
         };
 
         // find the asymptotic complexity

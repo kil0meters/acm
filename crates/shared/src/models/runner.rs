@@ -3,6 +3,21 @@ use thiserror::Error;
 
 use crate::models::test::TestResult;
 
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub enum DiagnosticType {
+    Error,
+    Warning,
+    Note,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct Diagnostic {
+    pub line: usize,
+    pub col: usize,
+    pub diagnostic_type: DiagnosticType,
+    pub message: String,
+}
+
 #[derive(Deserialize, Serialize, PartialEq, Clone, Default)]
 pub struct RunnerResponse {
     pub tests: Vec<TestResult>,
@@ -15,8 +30,8 @@ pub struct RunnerResponse {
 #[derive(Deserialize, Serialize, Error, Debug, Clone, PartialEq)]
 #[serde(tag = "type")]
 pub enum RunnerError {
-    #[error("{message}")]
-    CompilationError { line: u64, message: String },
+    #[error("{diagnostics:?}")]
+    CompilationError { diagnostics: Vec<Diagnostic> },
 
     #[error("encountered a runtime error:\n{message}")]
     RuntimeError { message: String },

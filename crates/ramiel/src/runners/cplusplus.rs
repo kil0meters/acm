@@ -2,10 +2,15 @@ use async_trait::async_trait;
 use futures::future::join_all;
 use shared::models::{
     forms::{CustomInputJob, GenerateTestsJob, SubmitJob},
-    runner::{RunnerError, RunnerResponse},
+    runner::{Diagnostic, DiagnosticType, RunnerError, RunnerResponse},
     test::{Test, TestResult},
 };
-use std::{collections::HashSet, path::Path};
+use std::{
+    collections::HashSet,
+    iter::Peekable,
+    path::Path,
+    str::{Chars, FromStr},
+};
 use tokio::{
     fs::{self, File},
     io::{AsyncReadExt, AsyncWriteExt},
@@ -206,6 +211,9 @@ async fn compile_problem(prefix: &str, implementation: &str) -> Result<String, R
             "-Wall",
             "-Wextra",
             "-Wpedantic",
+            // We should use this, but I don't want to spend a bunch of time parsing the output so *shrug*
+            // "-fdiagnostics-print-source-range-info",
+            "-fno-caret-diagnostics",
             "-fno-exceptions",
             "-std=c++20",
             &implementation_filename,
@@ -226,9 +234,93 @@ async fn compile_problem(prefix: &str, implementation: &str) -> Result<String, R
     Ok(wasm_filename)
 }
 
-fn parse_cplusplus_error(err: String) -> RunnerError {
-    RunnerError::CompilationError {
-        line: 10,
-        message: err,
+fn parse_number(iter: &mut Peekable<Chars>) -> usize {
+    let mut num = 0;
+
+    while let Some(c) = iter.next() {
+        if let Some(d) = c.to_digit(10) {
+            num = num * 10 + d as usize;
+        } else {
+            break;
+        }
     }
+
+    num
+}
+
+/// Returns `None` if the diagnostic is not in the "implementation.cpp" file
+///
+/// Example format (except we don't actually do the brackets thus far):
+/// /tmp/acm/submissions/1/41/implementation.cpp:50:12:{50:16-50:17}: error: no viable conversion from 'int' to 'std::string' (aka 'basic_string<char, char_traits<char>, allocator<char>>')
+fn diagnostic_from_str(s: &str) -> Result<Option<Diagnostic>, RunnerError> {
+    if s.find(".cpp").is_none() || !s.starts_with("/") {
+        return Ok(None);
+    }
+
+    let mut iter = s.chars().peekable();
+
+    // go until we find the first colon
+    while let Some(c) = iter.next() {
+        if c == ':' {
+            break;
+        }
+    }
+
+    // this number comes from the length of the "default_header.h" file +1 for the export attribute
+    // on the function name
+    let mut line = parse_number(&mut iter);
+    if line < 43 {
+        return Ok(None);
+    }
+
+    line -= 43;
+
+    let col = parse_number(&mut iter);
+
+    iter.next();
+
+    let mut error_type = String::new();
+
+    while let Some(c) = iter.next() {
+        if c == ':' {
+            break;
+        }
+
+        error_type.push(c);
+    }
+
+    iter.next();
+
+    let diagnostic_type = match error_type.as_str() {
+        "error" => DiagnosticType::Error,
+        "warning" => DiagnosticType::Warning,
+        _ => DiagnosticType::Note,
+    };
+
+    let message = iter.collect();
+
+    Ok(Some(Diagnostic {
+        line,
+        col,
+        message,
+        diagnostic_type,
+    }))
+}
+
+fn parse_cplusplus_error(err: String) -> RunnerError {
+    let mut diagnostics = vec![];
+
+    println!("{err}");
+
+    for line in err.lines() {
+        match diagnostic_from_str(&line) {
+            Ok(Some(diagnostic)) => diagnostics.push(diagnostic),
+            Ok(None) => {}
+            Err(e) => {
+                return e;
+            }
+        }
+    }
+
+    RunnerError::CompilationError { diagnostics }
 }

@@ -77,21 +77,73 @@ function CloseButton({ className }: { className?: string }) {
     </button >
 }
 
-export default function SubmissionFeedback({
-    inProblemView,
-    id,
-    error,
-    success,
-    runtime,
-    complexity
-}: Submission & { inProblemView: boolean }): JSX.Element {
-    if (error) {
-        const buttonClass = "bg-red-700 dark:bg-red-800 hover:bg-red-600 dark:hover:bg-red-900 text-red-50 rounded-full px-4 py-2 text-sm transition-colors";
+type Diagnostic = {
+    line: number;
+    diagnostic_type: "Error" | "Warning" | "Note";
+    col: number;
+    message: string;
+};
 
+function DiagnosticDisplay(diagnostic: Diagnostic) {
+    let diagnostic_color: string;
+    let diagnostic_text: string;
+
+    if (diagnostic.diagnostic_type == "Error") {
+        diagnostic_text = "ERROR";
+        diagnostic_color = "text-red-600";
+    } else if (diagnostic.diagnostic_type == "Warning") {
+        diagnostic_text = "WARN";
+        diagnostic_color = "text-yellow-500";
+    } else {
+        diagnostic_text = "NOTE";
+        diagnostic_color = "text-cyan-500";
+    }
+
+    return <>
+        <div className="bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50 p-1 border-r border-b last-of-type:border-b-0 border-neutral-300 dark:border-neutral-700 flex">
+            <span className={`ml-auto font-bold ${diagnostic_color}`}>
+                {diagnostic_text}
+            </span>
+            <span>
+                &nbsp;{diagnostic.line}:{diagnostic.col}
+            </span>
+        </div>
+        <code className="break-all bg-white dark:bg-black text-neutral-900 dark:text-neutral-50 p-1 border-b last-of-type:border-b-0 border-neutral-300 dark:border-neutral-700">{diagnostic.message}</code>
+    </>;
+}
+
+function SubmissionFeedbackError({ id, error, inProblemView }: { id: number, error: string, inProblemView: boolean }) {
+    const buttonClass = "bg-red-700 dark:bg-red-800 hover:bg-red-600 dark:hover:bg-red-900 text-red-50 rounded-full px-4 py-2 text-sm transition-colors";
+
+    try {
+        let diagnostics = JSON.parse(error) as Diagnostic[];
+
+        return (
+            <div className="bg-red-500 dark:bg-red-700 text-red-50 flex flex-col h-full">
+                <div className="flex items-start p-4">
+                    <h1 className="text-2xl font-bold my-auto">Compilation Error</h1>
+
+                    {inProblemView &&
+                        <div className="ml-auto flex gap-2">
+                            <ShareButton
+                                path={`/submissions/${id}`}
+                                className={buttonClass}
+                            />
+                            <CloseButton className={buttonClass} />
+                        </div>
+                    }
+                </div>
+
+                <div className="grid grid-cols-min-full bg-red-600 border-red-700 border-t dark:bg-red-800 overflow-x-auto max-h-64">
+                    {diagnostics.map((diagnostic, i) => <DiagnosticDisplay key={i} {...diagnostic} />)}
+                </div>
+            </div>
+        );
+    } catch (e) {
         return (
             <div className="bg-red-500 dark:bg-red-700 text-red-50 p-4 flex flex-col gap-2 h-full">
                 <div className="flex items-start">
-                    <h1 className="text-2xl font-bold">Error</h1>
+                    <h1 className="text-2xl font-bold my-auto">Error</h1>
 
                     {inProblemView &&
                         <div className="ml-auto flex gap-2">
@@ -110,6 +162,19 @@ export default function SubmissionFeedback({
             </div>
         );
     }
+}
+
+export default function SubmissionFeedback({
+    inProblemView,
+    id,
+    error,
+    success,
+    runtime,
+    complexity
+}: Submission & { inProblemView: boolean }): JSX.Element {
+    if (error) {
+        return <SubmissionFeedbackError id={id} inProblemView={inProblemView} error={error} />
+    }
 
     let fuel = <div>
         <span>Consumed </span>
@@ -124,7 +189,7 @@ export default function SubmissionFeedback({
         return (
             <div className="flex-col flex p-4 bg-green-500 dark:bg-green-800 text-green-50 h-full gap-2">
                 <div className="flex items-start">
-                    <span className="font-bold text-2xl">Congratulations!</span>
+                    <span className="font-bold text-2xl my-auto">Congratulations!</span>
 
                     {inProblemView &&
                         <div className="ml-auto flex gap-2">
@@ -149,7 +214,7 @@ export default function SubmissionFeedback({
         return (
             <div className="flex-col flex p-4 bg-white dark:bg-black h-full" >
                 <div className="flex items-start">
-                    <span className="text-red-500 font-bold text-2xl">Failed</span>
+                    <span className="text-red-500 font-bold text-2xl my-auto">Failed</span>
                     {inProblemView &&
                         <div className="ml-auto flex gap-2">
                             <ShareButton

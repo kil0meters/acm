@@ -12,6 +12,7 @@ use axum::{
 
 use serde::Serialize;
 use serde_json::Value;
+use shared::models::runner::RunnerError;
 use sqlx::SqlitePool;
 use tokio::{
     sync::{
@@ -143,13 +144,13 @@ async fn process_job(
     let mut job_map_writer = queued_jobs.write().await;
     let job = job_map_writer.get_mut(&id).expect("Job missing in job map");
 
+    log::info!("{res:?}");
+
     match res {
         Ok(res) => {
             job.response = Some(res);
         }
-        Err(e) => {
-            job.error = Some(e.to_string());
-        }
+        Err(e) => job.error = Some(e.to_string()),
     }
 
     broadcast
