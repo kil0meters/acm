@@ -11,6 +11,7 @@ anyhow.workspace = true
 async-trait = "0.1"
 clap.workspace = true
 env_logger = "0.9"
+log.workspace = true
 futures.workspace = true
 md5 = "0.7"
 serde.workspace = true
