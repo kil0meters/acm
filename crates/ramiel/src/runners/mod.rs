@@ -122,8 +122,11 @@ async fn run_command(
 
         let mut linker = Linker::new(&engine);
         wasmtime_wasi::add_to_linker(&mut linker, |state: &mut MyState| &mut state.wasi).map_err(
-            |_| RunnerError::InternalServerError {
-                message: "Failed to add wasi runtime to linker".to_string(),
+            |e| {
+                log::error!("add_to_linker: {e}");
+                RunnerError::InternalServerError {
+                    message: "Failed to add wasi runtime to linker".to_string(),
+                }
             },
         )?;
 
@@ -148,16 +151,19 @@ async fn run_command(
         store.limiter(|state| &mut state.limits);
 
         // Instantiate our module with the imports we've created, and run it.
-        let module =
-            Module::from_file(&engine, command).map_err(|_| RunnerError::InternalServerError {
+        let module = Module::from_file(&engine, command).map_err(|e| {
+            log::error!("opening: {e}");
+            RunnerError::InternalServerError {
                 message: "Failed to open file".to_string(),
-            })?;
+            }
+        })?;
 
-        linker
-            .module(&mut store, "", &module)
-            .map_err(|_| RunnerError::InternalServerError {
+        linker.module(&mut store, "", &module).map_err(|e| {
+            log::error!("linking: {e}");
+            RunnerError::InternalServerError {
                 message: "Failed to link file".to_string(),
-            })?;
+            }
+        })?;
 
         let instance = linker.instantiate(&mut store, &module).map_err(|e| {
             println!("error: {e:?}");
@@ -181,7 +187,7 @@ async fn run_command(
     })
     .await
     .map_err(|e| {
-        println!("caught error: {e}");
+        log::error!("caught error: {e}");
         return RunnerError::InternalServerError {
             message: "Failed to create thread".to_string(),
         };
