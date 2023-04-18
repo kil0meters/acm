@@ -158,21 +158,23 @@ async fn run_command(
             }
         })?;
 
-        linker.module(&mut store, "", &module).map_err(|e| {
-            log::error!("linking: {e}");
-            RunnerError::InternalServerError {
-                message: "Failed to link file".to_string(),
-            }
-        })?;
+        {
+            const FUEL_DEFAULT: u64 = 100_000_000_000;
+            store.add_fuel(FUEL_DEFAULT).expect("Failed to add fuel");
 
-        let instance = linker.instantiate(&mut store, &module).map_err(|e| {
-            println!("error: {e:?}");
-            RunnerError::InternalServerError {
-                message: "Failed to instantiate module".to_string(),
-            }
-        })?;
+            linker.module(&mut store, "", &module).map_err(|e| {
+                RunnerError::InternalServerError {
+                    message: format!("Failed to initialize module:\n{}", e.root_cause()),
+                }
+            })?;
 
-        let result = input.call(&mut store, &instance);
+            let consumed_for_initialize = store.fuel_consumed().unwrap_or(0);
+            store
+                .consume_fuel(FUEL_DEFAULT - consumed_for_initialize)
+                .expect("Failed consuming fuel");
+        }
+
+        let result = input.call(&mut store, &linker);
 
         drop(store);
         let bytes = stdout.try_into_inner().unwrap().into_inner();

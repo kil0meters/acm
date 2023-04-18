@@ -1,16 +1,10 @@
 use async_trait::async_trait;
-use futures::future::join_all;
 use shared::models::{
     forms::{CustomInputJob, GenerateTestsJob, SubmitJob},
     runner::{CustomInputResponse, Diagnostic, DiagnosticType, RunnerError, RunnerResponse},
-    test::{Test, TestResult},
+    test::Test,
 };
-use std::{
-    collections::HashSet,
-    iter::Peekable,
-    path::Path,
-    str::{Chars, FromStr},
-};
+use std::{collections::HashSet, iter::Peekable, path::Path, str::Chars};
 use tokio::{
     fs::{self, File},
     io::{AsyncReadExt, AsyncWriteExt},

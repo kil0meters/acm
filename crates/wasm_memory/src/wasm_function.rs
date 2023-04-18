@@ -275,11 +275,20 @@ impl WasmFunctionCall {
     pub fn call<S>(
         self,
         mut store: &mut Store<S>,
-        instance: &Instance,
+        linker: &Linker<S>,
     ) -> Result<(FunctionValue, u64)> {
-        let allocator: AllocatorFunc = instance.get_typed_func(&mut store, "alloc")?;
-        let memory = instance
-            .get_memory(&mut store, "memory")
+        let allocator: AllocatorFunc = linker
+            .get(&mut store, "", "alloc")
+            .unwrap()
+            .into_func()
+            .unwrap()
+            .typed(&mut store)
+            .unwrap();
+
+        let memory = linker
+            .get(&mut store, "", "memory")
+            .unwrap()
+            .into_memory()
             .expect("Failed to get memory");
 
         memory.grow(&mut store, Self::PAGE_OFFSET as u64)?;
@@ -311,12 +320,13 @@ impl WasmFunctionCall {
             _ => params.push(Val::I32(0 as i32)),
         }
 
-        const ARG_ALLOC_FUEL_DEFAULT: u64 = 100_000_000_000;
         // because we need to allocate for some args, it's possible to improperly run out of fuel
+        const ARG_ALLOC_FUEL_DEFAULT: u64 = 100_000_000_000;
         store.add_fuel(ARG_ALLOC_FUEL_DEFAULT)?;
+        let start_fuel = store.fuel_consumed().unwrap_or(0);
 
-        let init: TypedFunc<(), ()> = instance.get_typed_func(&mut store, "_initialize")?;
-        init.call(&mut store, ())?;
+        // let init: TypedFunc<(), ()> = instance.get_typed_func(&mut store, "_initialize")?;
+        // init.call(&mut store, ())?;
 
         for arg in self.arguments {
             match arg {
@@ -338,12 +348,14 @@ impl WasmFunctionCall {
             }
         }
 
-        let consumed_for_args = store.fuel_consumed().unwrap_or(0);
+        let consumed_for_args = store.fuel_consumed().unwrap_or(0) - start_fuel;
         let initial_fuel = store.consume_fuel(ARG_ALLOC_FUEL_DEFAULT - consumed_for_args)?;
         println!("remaining fuel: {initial_fuel}");
 
-        instance
-            .get_func(&mut store, &self.name)
+        linker
+            .get(&mut store, "", &self.name)
+            .ok_or_else(|| FunctionError::NameNotFound(self.name.clone()))?
+            .into_func()
             .ok_or_else(|| FunctionError::NameNotFound(self.name))?
             .call(&mut store, &params, &mut results)?;
 
