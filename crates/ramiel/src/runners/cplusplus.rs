@@ -211,6 +211,7 @@ async fn compile_problem(prefix: &str, implementation: &str) -> Result<String, R
             "-O2",
             "-Wl,--no-entry",
             "-mexec-model=reactor",
+            "-msimd128",
             "-Wall",
             "-Wextra",
             "-Wpedantic",
