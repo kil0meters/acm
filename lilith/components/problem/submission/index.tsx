@@ -124,7 +124,7 @@ export function DiagnosticsDisplay({ error }: { error: string }) {
         );
     } catch (e) {
         return (
-            <pre className="bg-red-700 dark:bg-red-800 overflow-x-auto p-2 rounded max-h-64">
+            <pre className="bg-red-700 dark:bg-red-800 overflow-x-auto p-2 max-h-64">
                 <code>{error}</code>
             </pre>
         );

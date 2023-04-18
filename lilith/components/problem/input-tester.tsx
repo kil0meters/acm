@@ -112,7 +112,7 @@ export default function InputTester() {
                     <div className="bg-red-500 dark:bg-red-700 text-red-50 flex flex-col h-full border-x border-red-700">
                         <h1 className="text-2xl font-bold my-auto p-4">Error</h1>
                         <DiagnosticsDisplay error={resultError} />
-                        <div className="flex-grow border-t border-neutral-300 bg-white" />
+                        <div className="flex-grow border-t border-neutral-300 dark:border-neutral-700 dark:bg-black bg-white" />
                     </div>
                 }
 
