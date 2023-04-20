@@ -20,15 +20,7 @@ impl Runner for CPlusPlus {
     async fn run_tests(&self, form: SubmitJob) -> Result<RunnerResponse, RunnerError> {
         let prefix = format!("/tmp/acm/submissions/{}/{}", form.user_id, form.problem_id);
 
-        let function_names = form
-            .tests
-            .iter()
-            .map(|test| test.input.name.as_str())
-            .collect::<HashSet<_>>()
-            .into_iter()
-            .collect::<Vec<_>>();
-
-        let implementation = process_file(&form.implementation, &function_names);
+        let implementation = process_file(&form.implementation);
 
         let command = compile_problem(&prefix, &implementation).await?;
 
@@ -66,7 +58,7 @@ impl Runner for CPlusPlus {
         let prefix = format!("/tmp/acm/problem_editor/{}", form.user_id);
 
         // TODO actually get unique function names from tests
-        let reference = process_file(&form.reference, &[&form.inputs[0].name]);
+        let reference = process_file(&form.reference);
         let command = compile_problem(&prefix, &reference).await?;
 
         let mut outputs = Vec::new();
@@ -100,8 +92,8 @@ impl Runner for CPlusPlus {
             form.user_id, form.problem_id
         );
 
-        let reference = process_file(&form.reference, &[&form.input.name]);
-        let implementation = process_file(&form.implementation, &[&form.input.name]);
+        let reference = process_file(&form.reference);
+        let implementation = process_file(&form.implementation);
 
         // println!("REFERENCE: {reference}");
         // println!("IMPLEMENTATION: {implementation}");
@@ -133,46 +125,14 @@ impl Runner for CPlusPlus {
     }
 }
 
-fn process_file(file: &str, entry_names: &[&str]) -> String {
+fn process_file(file: &str) -> String {
     let bits_cpp = include_str!("default_header.h");
 
     let mut new_file = String::new();
 
     // include headers automatically
     new_file.push_str(bits_cpp);
-
-    let mut attributes_added = String::from(file);
-
-    for entry_name in entry_names {
-        attributes_added = add_attribute(&attributes_added, entry_name);
-    }
-
-    new_file.push_str(&attributes_added);
-
-    new_file
-}
-
-// this is pretty inefficient
-fn add_attribute(file: &str, entry_name: &str) -> String {
-    let mut new_file = String::new();
-
-    let mut found = false;
-
-    // this is far from perfect obviously but it should be more than sufficient for 99% of cases.
-    // we break at the start of the first line that has the entrypoint function name
-    for line in file.lines() {
-        if !found && line.find(entry_name).is_some() {
-            new_file.push_str(&format!(
-                "__attribute__((export_name(\"{}\")))\n",
-                entry_name
-            ));
-
-            found = true;
-        }
-
-        new_file.push_str(line);
-        new_file.push('\n');
-    }
+    new_file.push_str(&file);
 
     new_file
 }
@@ -208,15 +168,15 @@ async fn compile_problem(prefix: &str, implementation: &str) -> Result<String, R
 
     let output = Command::new("/opt/wasi-sdk/bin/clang++")
         .args([
-            "-O2",
+            "-O3",
             "-Wl,--no-entry",
+            "-Wl,--demangle",
+            "-Wl,--export-all",
             "-mexec-model=reactor",
             "-msimd128",
             "-Wall",
             "-Wextra",
             "-Wpedantic",
-            // We should use this, but I don't want to spend a bunch of time parsing the output so *shrug*
-            // "-fdiagnostics-print-source-range-info",
             "-fno-caret-diagnostics",
             "-fno-exceptions",
             "-std=c++20",
@@ -270,14 +230,13 @@ fn diagnostic_from_str(s: &str) -> Result<Option<Diagnostic>, RunnerError> {
         }
     }
 
-    // this number comes from the length of the "default_header.h" file +1 for the export attribute
-    // on the function name
+    // this number comes from the length of the "default_header.h" file
     let mut line = parse_number(&mut iter);
-    if line < 43 {
+    if line < 39 {
         return Ok(None);
     }
 
-    line -= 43;
+    line -= 39;
 
     let col = parse_number(&mut iter);
 

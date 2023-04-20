@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <array>
 #include <bitset>
 #include <complex>
 #include <deque>
@@ -19,24 +20,20 @@
 #include <numeric>
 #include <ostream>
 #include <queue>
+#include <ratio>
 #include <set>
 #include <sstream>
 #include <stack>
 #include <streambuf>
 #include <string>
-#include <utility>
-#include <vector>
-#include <array>
-#include <ratio>
 #include <tuple>
-#include <typeindex>
 #include <type_traits>
+#include <typeindex>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
+#include <vector>
 
 using namespace std;
 
-__attribute__((export_name("alloc")))
-void* alloc(size_t size) {
-    return (void*)malloc(size);
-}
+void *alloc(size_t size) { return (void *)malloc(size); }

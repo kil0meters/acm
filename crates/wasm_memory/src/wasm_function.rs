@@ -275,20 +275,13 @@ impl WasmFunctionCall {
     pub fn call<S>(
         self,
         mut store: &mut Store<S>,
-        linker: &Linker<S>,
+        instance: &Instance,
     ) -> Result<(FunctionValue, u64)> {
-        let allocator: AllocatorFunc = linker
-            .get(&mut store, "", "alloc")
-            .unwrap()
-            .into_func()
-            .unwrap()
-            .typed(&mut store)
-            .unwrap();
-
-        let memory = linker
-            .get(&mut store, "", "memory")
-            .unwrap()
-            .into_memory()
+        let allocator: AllocatorFunc = instance
+            .get_typed_func(&mut store, "malloc")
+            .expect("Failed to get allocator");
+        let memory = instance
+            .get_memory(&mut store, "memory")
             .expect("Failed to get memory");
 
         memory.grow(&mut store, Self::PAGE_OFFSET as u64)?;
@@ -325,8 +318,8 @@ impl WasmFunctionCall {
         store.add_fuel(ARG_ALLOC_FUEL_DEFAULT)?;
         let start_fuel = store.fuel_consumed().unwrap_or(0);
 
-        // let init: TypedFunc<(), ()> = instance.get_typed_func(&mut store, "_initialize")?;
-        // init.call(&mut store, ())?;
+        let init = instance.get_typed_func(&mut store, "_initialize")?;
+        init.call(&mut store, ())?;
 
         for arg in self.arguments {
             match arg {
@@ -350,14 +343,44 @@ impl WasmFunctionCall {
 
         let consumed_for_args = store.fuel_consumed().unwrap_or(0) - start_fuel;
         let initial_fuel = store.consume_fuel(ARG_ALLOC_FUEL_DEFAULT - consumed_for_args)?;
-        println!("remaining fuel: {initial_fuel}");
 
-        linker
-            .get(&mut store, "", &self.name)
-            .ok_or_else(|| FunctionError::NameNotFound(self.name.clone()))?
-            .into_func()
-            .ok_or_else(|| FunctionError::NameNotFound(self.name))?
-            .call(&mut store, &params, &mut results)?;
+        let mut out_params = vec![];
+        match self.return_type {
+            FunctionType::Int(ContainerVariantType::Single) => out_params.push(ValType::I32),
+            FunctionType::Long(ContainerVariantType::Single) => out_params.push(ValType::I64),
+            FunctionType::Float(ContainerVariantType::Single) => out_params.push(ValType::F32),
+            FunctionType::Double(ContainerVariantType::Single) => out_params.push(ValType::F64),
+            FunctionType::Char(ContainerVariantType::Single) => out_params.push(ValType::I32),
+            FunctionType::Bool(ContainerVariantType::Single) => out_params.push(ValType::I32),
+            _ => {}
+        }
+
+        // find name, should match in mangled string
+        let externs = instance
+            .exports(&mut store)
+            .filter(|e| e.name().contains(&self.name))
+            .map(Export::into_extern)
+            .collect::<Vec<_>>();
+
+        let mut found_func = false;
+
+        for ext in &externs {
+            if let Extern::Func(func) = ext {
+                let ty = func.ty(&store);
+
+                if ty.params().eq(params.iter().map(Val::ty))
+                    && ty.results().eq(out_params.iter().cloned())
+                {
+                    func.call(&mut store, &params, &mut results)?;
+                    found_func = true;
+                    break;
+                }
+            }
+        }
+
+        if !found_func {
+            return Err(FunctionError::NameNotFound(self.name.clone()).into());
+        }
 
         let remaining_fuel = store.consume_fuel(0)?;
 
