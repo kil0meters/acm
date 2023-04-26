@@ -25,7 +25,7 @@ export function ListDiffDisplay<T extends ReactNode>({ dataType, output, expecte
                     ? <span className="text-center px-4 py-2 border-l first:border-0 border-blue-200 bg-red-500 whitespace-nowrap">[ EMPTY LIST ]</span>
                     : output.map((element, i) => {
                         if (expected[i] === undefined || expected[i] !== element) {
-                            return <span key={i} className="text-center px-4 py-2 border-l first:border-0 border-blue-200 bg-red-500">output[i]</span>;
+                            return <span key={i} className="text-center px-4 py-2 border-l first:border-0 border-blue-200 bg-red-500">{output[i]}</span>;
                         } else {
                             return <span key={i} className="text-center px-4 py-2 border-l first:border-0 border-blue-200 dark:border-slate-700">{output[i]}</span>
                         }

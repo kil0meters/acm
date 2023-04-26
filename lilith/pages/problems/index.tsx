@@ -165,7 +165,7 @@ function ProblemSearchResults({ query }: { query: string }) {
 
     if (error) return (
         <ErrorBox>
-            Could not fetch problems {JSON.stringify(error)}
+            Could not fetch problems
         </ErrorBox>
     );
 
@@ -237,7 +237,7 @@ const ProblemListPage: NextPage = () => {
                         <input className="outline-0 w-full ml-4 h-full dark:bg-black" value={query} onChange={e => setQuery(e.target.value)} />
 
                         <div className="h-10 aspect-square inline-flex items-center justify-center">
-                            <svg className="w-4 dark:fill-white dark:stroke-white" enable-background="new 0 0 32 32" id="Glyph" version="1.1" viewBox="0 0 32 32"><path d="M27.414,24.586l-5.077-5.077C23.386,17.928,24,16.035,24,14c0-5.514-4.486-10-10-10S4,8.486,4,14  s4.486,10,10,10c2.035,0,3.928-0.614,5.509-1.663l5.077,5.077c0.78,0.781,2.048,0.781,2.828,0  C28.195,26.633,28.195,25.367,27.414,24.586z M7,14c0-3.86,3.14-7,7-7s7,3.14,7,7s-3.14,7-7,7S7,17.86,7,14z" id="XMLID_223_" /></svg>
+                            <svg className="w-4 dark:fill-white dark:stroke-white" enableBackground="new 0 0 32 32" id="Glyph" version="1.1" viewBox="0 0 32 32"><path d="M27.414,24.586l-5.077-5.077C23.386,17.928,24,16.035,24,14c0-5.514-4.486-10-10-10S4,8.486,4,14  s4.486,10,10,10c2.035,0,3.928-0.614,5.509-1.663l5.077,5.077c0.78,0.781,2.048,0.781,2.828,0  C28.195,26.633,28.195,25.367,27.414,24.586z M7,14c0-3.86,3.14-7,7-7s7,3.14,7,7s-3.14,7-7,7S7,17.86,7,14z" id="XMLID_223_" /></svg>
                         </div>
                     </div>
 
