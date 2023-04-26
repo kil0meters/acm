@@ -8,9 +8,10 @@ import { User, useStore } from "../../utils/state";
 import { useContext, useEffect, useRef, useState } from "react";
 import renderLatex from "../../utils/latex";
 import { CompetitionIDContext } from "../competitions/[id]";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import LoadingButton from "../../components/loading-button";
 import Head from "next/head";
+import ErrorBox from "../../components/error-box";
 
 function ProblemLoading(): JSX.Element {
     return (
@@ -152,18 +153,61 @@ export function ProblemList({ problems, show_team_status }: { problems: Problem[
     );
 }
 
-const ProblemListPage: NextPage = () => {
-    const [difficulty, setDifficulty] = useState(0);
-    const [showCompetitionProblems, setShowCompetitionProblems] = useState(false);
-    const [sortBy, setSortBy] = useState("Newest");
+function ProblemSearchResults({ query }: { query: string }) {
+    const { data: problems, error } = useSWR<Problem[]>(
+        "PROBLEMS_QUERY",
+        () => fetcher(api_url(`/problems?query=${query}&count=10`))
+    );
 
+    useEffect(() => {
+        mutate("PROBLEMS_QUERY");
+    }, [query]);
+
+    if (error) return (
+        <ErrorBox>
+            Could not fetch problems {JSON.stringify(error)}
+        </ErrorBox>
+    );
+
+    if (problems) {
+        return <ProblemList problems={problems} />;
+    } else {
+        return <ListLoading />;
+    }
+}
+
+function ProblemInfiniteResults({ difficulty, showCompetitionProblems, sortBy }: { difficulty: number, showCompetitionProblems: boolean, sortBy: string }) {
     const { data, error, isValidating, size, setSize } = useSWRInfinite<Problem[]>(
         (pageIndex, previousProblems) => {
             if (previousProblems && !previousProblems.length) return null;
+
             return api_url(`/problems?offset=${7 * pageIndex}&count=7&difficulty=${difficulty}&show_competition_problems=${showCompetitionProblems}&sort_by=${sortBy}`);
         },
         fetcher
     );
+
+    if (error) return (
+        <ErrorBox>
+            Could not fetch problems
+        </ErrorBox>
+    );
+
+    return <>
+        {!data ? <ListLoading /> : data.map((problems, i) => <ProblemList key={i} problems={problems} />)}
+
+        <LoadingButton
+            loading={isValidating}
+            className="rounded-full bg-neutral-200 hover:bg-neutral-300 px-6 py-3 transition-colors mx-auto dark:hover:bg-neutral-700 dark:bg-neutral-800"
+            onClick={() => setSize(size + 1)}
+        >Load more</LoadingButton>
+    </>;
+}
+
+const ProblemListPage: NextPage = () => {
+    const [difficulty, setDifficulty] = useState(0);
+    const [showCompetitionProblems, setShowCompetitionProblems] = useState(false);
+    const [sortBy, setSortBy] = useState("Newest");
+    const [query, setQuery] = useState("");
     const [isComponentMounted, setIsComponentMounted] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
 
@@ -175,8 +219,6 @@ const ProblemListPage: NextPage = () => {
 
     useEffect(() => setIsComponentMounted(true), []);
 
-    if (error) return <div>Error</div>;
-
     return (
         <>
             <Navbar />
@@ -186,14 +228,23 @@ const ProblemListPage: NextPage = () => {
             </Head>
 
             <div className="max-w-screen-md mx-auto my-4 flex flex-col gap-4">
-                <div className="flex items-center">
-                    <button onClick={() => setShowFilters(!showFilters)} className="bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-neutral-200 px-4 py-2 rounded-full transition-colors">
+                <div className="grid grid-cols-5 gap-4 items-center justify-center">
+                    <button onClick={() => setShowFilters(!showFilters)} className="col-end-2 mr-auto bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 hover:bg-neutral-200 px-4 py-2 rounded-full transition-colors">
                         Filters
                     </button>
+
+                    <div className="col-start-2 col-end-5 focus-within:outline focus-within:outline-2 focus-within:border-neutral-200 focus-within:outline-neutral-200 border-neutral-100 dark:border-neutral-800 border rounded-full bg-white dark:bg-black dark:text-white overflow-hidden h-10 flex">
+                        <input className="outline-0 w-full ml-4 h-full dark:bg-black" value={query} onChange={e => setQuery(e.target.value)} />
+
+                        <div className="h-10 aspect-square inline-flex items-center justify-center">
+                            <svg className="w-4 dark:fill-white dark:stroke-white" enable-background="new 0 0 32 32" id="Glyph" version="1.1" viewBox="0 0 32 32"><path d="M27.414,24.586l-5.077-5.077C23.386,17.928,24,16.035,24,14c0-5.514-4.486-10-10-10S4,8.486,4,14  s4.486,10,10,10c2.035,0,3.928-0.614,5.509-1.663l5.077,5.077c0.78,0.781,2.048,0.781,2.828,0  C28.195,26.633,28.195,25.367,27.414,24.586z M7,14c0-3.86,3.14-7,7-7s7,3.14,7,7s-3.14,7-7,7S7,17.86,7,14z" id="XMLID_223_" /></svg>
+                        </div>
+                    </div>
+
                     {isComponentMounted && user && (user.auth === "OFFICER" || user.auth === "ADMIN") && (
                         <Link href="/problems/new">
-                            <a className="ml-auto text-green-50 text-sm font-bold rounded-full bg-green-700 hover:bg-green-500 transition-colors px-4 py-2 mr-4 md:mr-0">
-                                New Problem
+                            <a className="col-start-5 ml-auto text-green-50 text-sm font-bold rounded-full bg-green-700 hover:bg-green-500 transition-colors px-4 py-2 mr-4 md:mr-0">
+                                New
                             </a>
                         </Link>
                     )}
@@ -243,13 +294,13 @@ const ProblemListPage: NextPage = () => {
                     </div>
                 </div>}
 
-                {!data ? <ListLoading /> : data.map((problems, i) => <ProblemList key={i} problems={problems} />)}
-
-                <LoadingButton
-                    loading={isValidating}
-                    className="rounded-full bg-neutral-200 hover:bg-neutral-300 px-6 py-3 transition-colors mx-auto dark:hover:bg-neutral-700 dark:bg-neutral-800"
-                    onClick={() => setSize(size + 1)}
-                >Load more</LoadingButton>
+                {query === ""
+                    ? <ProblemInfiniteResults
+                        showCompetitionProblems={showCompetitionProblems}
+                        difficulty={difficulty}
+                        sortBy={sortBy}
+                    />
+                    : <ProblemSearchResults query={query} />}
             </div>
         </>
     );

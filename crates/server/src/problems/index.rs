@@ -28,6 +28,8 @@ pub struct ProblemOptions {
     // 0: Hard
     difficulty: Option<u8>,
 
+    query: Option<String>,
+
     #[serde(default)]
     sort_by: ProblemOrdering,
 }
@@ -39,10 +41,37 @@ pub async fn problems(
     claims: Claims,
 ) -> Result<Json<Vec<Problem>>, ServerError> {
     let is_officer = claims.validate_officer().is_ok();
+    let mut query_builder = QueryBuilder::new("");
+    let has_query = options.query.is_some();
 
-    let mut query_builder = QueryBuilder::new(
-        r#"SELECT id, title, description, runner, template, competition_id, visible, runtime_multiplier, difficulty as "difficulty: Difficulty" FROM problems WHERE "#,
-    );
+    if let Some(query) = options.query {
+        // query cleaning
+        let mut new_query = String::new();
+        new_query.push_str("\"");
+        new_query.push_str(&query.replace("\"", "\"\""));
+        new_query.push_str("\"*");
+
+        println!("{new_query}");
+
+        query_builder.push(
+            r#"SELECT
+            id,
+            title,
+            rank,
+            description,
+            runner,
+            template,
+            competition_id,
+            visible,
+            runtime_multiplier,
+            difficulty as "difficulty: Difficulty"
+          FROM problems INNER JOIN (SELECT rowid, rank FROM problems_fts WHERE title MATCH "#,
+        );
+        query_builder.push_bind(new_query);
+        query_builder.push(r#") search ON search.rowid = problems.id WHERE "#); // least confusing string
+    } else {
+        query_builder.push(r#"SELECT id, title, description, runner, template, competition_id, visible, runtime_multiplier, difficulty as "difficulty: Difficulty" FROM problems WHERE "#);
+    }
 
     let mut has_where = false;
 
@@ -86,7 +115,7 @@ pub async fn problems(
         }
     }
 
-    if let Some(true) = options.show_competition_problems {
+    if options.show_competition_problems.unwrap_or(false) || has_query {
         if has_where {
             query_builder.push(" AND ");
         }
@@ -98,12 +127,16 @@ pub async fn problems(
         query_builder.push("competition_id IS NULL");
     }
 
-    match options.sort_by {
-        ProblemOrdering::Newest => {
-            query_builder.push(" ORDER BY create_dt DESC ");
-        }
-        ProblemOrdering::Oldest => {
-            query_builder.push(" ORDER BY create_dt ASC ");
+    if has_query {
+        query_builder.push(" ORDER BY rank ");
+    } else {
+        match options.sort_by {
+            ProblemOrdering::Newest => {
+                query_builder.push(" ORDER BY create_dt DESC ");
+            }
+            ProblemOrdering::Oldest => {
+                query_builder.push(" ORDER BY create_dt ASC ");
+            }
         }
     }
 
@@ -124,6 +157,12 @@ pub async fn problems(
             ServerError::InternalError
         })?
         .iter()
+        .inspect(|row| {
+            if has_query {
+                let val: f64 = row.get_unchecked("rank");
+                println!("rank: {:?}", val);
+            }
+        })
         .map(|row| Problem {
             id: row.get_unchecked("id"),
             competition_id: row.get_unchecked("competition_id"),

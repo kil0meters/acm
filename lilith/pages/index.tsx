@@ -24,7 +24,7 @@ const Home: NextPage = () => {
                 <CompetitionGrid />
             </div>
 
-            <div className="md:container md:h-[80vh] md:shadow md:rounded border-neutral-300 mx-auto border-y md:border-x w-full overflow-auto">
+            <div className="md:container md:h-[80vh] md:shadow md:rounded border-neutral-300 dark:border-neutral-700 mx-auto border-y md:border-x w-full overflow-auto">
                 <ProblemView id={1} />
             </div>
 
