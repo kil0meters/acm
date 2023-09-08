@@ -506,6 +506,16 @@
     },
     "query": "\n        SELECT\n            id,\n            name,\n            username,\n            discord_id,\n            auth as \"auth: Auth\"\n        FROM\n            users\n        WHERE\n            id = ?\n        "
   },
+  "76bdbae9a8cb674f50c74f0ee206f314fa564ea212a17da66af8070de9d5f16b": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "\n                        INSERT INTO users (\n                            name,\n                            username,\n                            discord_id\n                        )\n                        VALUES (?, ?, ?)\n                        "
+  },
   "802c06313ec2af4c1aaf6ccdbf42b4712d840a663f23af980f52861b01d82f88": {
     "describe": {
       "columns": [],
@@ -569,6 +579,16 @@
       }
     },
     "query": "INSERT INTO teams (competition_id, name) VALUES (?, ?) RETURNING id"
+  },
+  "a236e1291ce1ea32943bd79e8be9ede478a543b2d8278b83a993131776720a66": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "\n                INSERT INTO users (\n                    name,\n                    username,\n                    discord_id\n                )\n                VALUES (?, ?, ?)\n                "
   },
   "ab9a8f2580a2ab07b881532d2c6070885d25c4388d835a113cd582f8d80171db": {
     "describe": {

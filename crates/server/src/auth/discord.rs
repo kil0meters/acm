@@ -33,6 +33,33 @@ struct DiscordUser {
     id: String,
 }
 
+async fn get_user(discord_id: &str, pool: &SqlitePool) -> Option<User> {
+    let user = sqlx::query_as!(
+        User,
+        r#"
+        SELECT
+            id,
+            name,
+            username,
+            discord_id,
+            auth as "auth: Auth"
+        FROM
+            users
+        WHERE discord_id = ?
+        "#,
+        discord_id
+    )
+    .fetch_optional(pool)
+    .await
+    .map_err(|e| {
+        log::warn!("Failed to fetch user: {e:?}");
+    })
+    .ok()
+    .flatten();
+
+    user
+}
+
 pub async fn login(
     Extension(pool): Extension<SqlitePool>,
     jar: CookieJar,
@@ -79,24 +106,7 @@ pub async fn login(
         .await
         .map_err(|_| ServerError::InternalError)?;
 
-    let user = sqlx::query_as!(
-        User,
-        r#"
-        SELECT
-            id,
-            name,
-            username,
-            discord_id,
-            auth as "auth: Auth"
-        FROM
-            users
-        WHERE discord_id = ?
-        "#,
-        discord_user.id
-    )
-    .fetch_optional(&pool)
-    .await
-    .map_err(|_| ServerError::InternalError)?;
+    let user = get_user(&discord_user.id, &pool).await;
 
     let user = match user {
         Some(user) => user,
@@ -109,7 +119,7 @@ pub async fn login(
                 .collect();
 
             // Try with base username, if that fails, include the descriminator.
-            let user = sqlx::query_as(
+            sqlx::query!(
                 r#"
                 INSERT INTO users (
                     name,
@@ -117,27 +127,25 @@ pub async fn login(
                     discord_id
                 )
                 VALUES (?, ?, ?)
-                RETURNING
-                    id,
-                    name,
-                    username,
-                    discord_id,
-                    auth as "auth: Auth"
                 "#,
+                sanitized_username,
+                sanitized_username,
+                discord_user.id
             )
-            .bind(&sanitized_username)
-            .bind(&sanitized_username)
-            .bind(&discord_user.id)
-            .fetch_one(&pool)
-            .await;
+            .execute(&pool)
+            .await
+            .ok();
+
+            let user = get_user(&discord_user.id, &pool).await;
 
             match user {
-                Ok(user) => user,
-                Err(_) => {
-                    let username =
-                        format!("{}_{}", discord_user.username, discord_user.discriminator);
+                Some(user) => user,
+                None => {
+                    let username = format!("{}_{}", sanitized_username, discord_user.discriminator);
 
-                    let user = sqlx::query_as(
+                    log::info!("selected username: {username:?}");
+
+                    sqlx::query!(
                         r#"
                         INSERT INTO users (
                             name,
@@ -145,22 +153,18 @@ pub async fn login(
                             discord_id
                         )
                         VALUES (?, ?, ?)
-                        RETURNING
-                            id,
-                            name,
-                            username,
-                            discord_id,
-                            auth as "auth: Auth"
                         "#,
+                        sanitized_username,
+                        username,
+                        discord_user.id
                     )
-                    .bind(discord_user.username)
-                    .bind(username)
-                    .bind(discord_user.id)
-                    .fetch_one(&pool)
+                    .execute(&pool)
                     .await
-                    .expect("Should not happen");
+                    .ok();
 
-                    user
+                    let user = get_user(&discord_user.id, &pool).await;
+
+                    user.unwrap()
                 }
             }
         }
