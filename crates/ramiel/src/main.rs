@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use shared::models::{
     forms::{CustomInputJob, GenerateTestsJob, SubmitJob},
     runner::{CustomInputResponse, RunnerError, RunnerResponse},
@@ -13,21 +15,60 @@ use runners::{CPlusPlus, Runner};
 
 #[post("/run/c++")]
 async fn cplusplus_run(form: Json<SubmitJob>) -> Json<Result<RunnerResponse, RunnerError>> {
-    Json(CPlusPlus.run_tests(form.into_inner()).await)
+    let task = tokio::spawn(async {
+        let res = Json(CPlusPlus.run_tests(form.into_inner()).await);
+        log::info!("The task wasn't cancelled!!!!!");
+        res
+    });
+
+    tokio::select! {
+        _ = tokio::time::sleep(Duration::from_secs(15)) => {
+            return Json(Err(RunnerError::TimeoutError { message: "The tests took too long to run. (process killed)".to_string() }));
+        }
+        res = task => {
+            return res.unwrap();
+        }
+    }
 }
 
 #[post("/generate-tests/c++")]
 async fn cplusplus_generate_tests(
     form: Json<GenerateTestsJob>,
 ) -> Json<Result<Vec<Test>, RunnerError>> {
-    Json(CPlusPlus.generate_tests(form.into_inner()).await)
+    let task = tokio::spawn(async {
+        let res = Json(CPlusPlus.generate_tests(form.into_inner()).await);
+        log::info!("The task wasn't cancelled!!!!!");
+        res
+    });
+
+    tokio::select! {
+        _ = tokio::time::sleep(Duration::from_secs(120)) => {
+            return Json(Err(RunnerError::TimeoutError { message: "The tests took too long to run. (process killed)".to_string() }));
+        }
+        res = task => {
+            return res.unwrap();
+        }
+    }
 }
 
 #[post("/custom-input/c++")]
 async fn cplusplus_custom_input(
     form: Json<CustomInputJob>,
 ) -> Json<Result<CustomInputResponse, RunnerError>> {
-    Json(CPlusPlus.run_custom_input(form.into_inner()).await)
+    let task = tokio::spawn(async {
+        let res = Json(CPlusPlus.run_custom_input(form.into_inner()).await);
+        log::info!("The task wasn't cancelled!!!!!");
+        res
+    });
+
+    tokio::select! {
+        _ = tokio::time::sleep(Duration::from_secs(15)) => {
+            return Json(Err(RunnerError::TimeoutError { message: "The tests took too long to run. (process killed)".to_string() }));
+        }
+        res = task => {
+            return res.unwrap();
+        }
+    }
 }
 
 #[derive(Parser)]
