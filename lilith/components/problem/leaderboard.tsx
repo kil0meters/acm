@@ -86,16 +86,33 @@ function ProblemLeaderboardSubmissions() {
             {data.map((item, i) => <ProblemLeaderboardElement {...item} index={i} key={i} />)}
         </div>
     );
+}
 
+function ProblemLeaderboardSlowSubmissions() {
+    const problemId = useContext(ProblemIDContext);
+
+    const { data } = useSWR<ProblemLeaderboardItem[]>(
+        problemId ? api_url(`/problems/${problemId}/leaderboard/slow-submissions`) : null,
+        fetcher
+    );
+
+    if (!data) return <></>;
+
+    return (
+        <div className="flex flex-col">
+            {data.map((item, i) => <ProblemLeaderboardElement {...item} index={i} key={i} />)}
+        </div>
+    );
 }
 
 export default function ProblemLeaderboard(): JSX.Element {
     return (
         <Tabbed
-            titles={["Users", "Submissions"]}
+            titles={["Users", "Submissions", "🐌"]}
         >
             <ProblemLeaderboardUsers />
             <ProblemLeaderboardSubmissions />
+            <ProblemLeaderboardSlowSubmissions />
         </Tabbed>
     );
 }

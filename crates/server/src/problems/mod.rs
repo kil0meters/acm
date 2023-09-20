@@ -66,6 +66,10 @@ pub fn routes() -> Router {
             get(leaderboard::leaderboard_submissions),
         )
         .route(
+            "/:problem_id/leaderboard/slow-submissions",
+            get(leaderboard::leaderboard_slow_submissions),
+        )
+        .route(
             "/:problem_id/recent-submission",
             get(recent_submission::recent_submission),
         )
