@@ -107,7 +107,7 @@ impl WasmMemory for String {
         allocator: &AllocatorFunc,
         offset: Option<usize>,
     ) -> Result<usize> {
-        let bytes = self.into_bytes();
+        let bytes = self.as_bytes();
         let length = bytes.len();
 
         // the least significant bit of capacity determines whether we're dealing with a "short
@@ -128,7 +128,7 @@ impl WasmMemory for String {
                 .unwrap() as usize
         });
 
-        let buffer_address = allocator.call(&mut store, bytes.len() as i32)? as usize;
+        let buffer_address = allocator.call(&mut store, bytes.len() as i32 + 1)? as usize;
 
         let mut data = [0; 12];
         LittleEndian::write_i32_into(
@@ -142,6 +142,7 @@ impl WasmMemory for String {
 
         memory.write(&mut store, address, &data)?;
         memory.write(&mut store, buffer_address, &bytes)?;
+        memory.write(&mut store, buffer_address + bytes.len(), &[b'\0'])?;
 
         Ok(address)
     }
@@ -149,10 +150,10 @@ impl WasmMemory for String {
     fn from_memory<S>(mut store: &mut Store<S>, memory: &Memory, offset: usize) -> Result<Self> {
         let mut buf = [0; 12];
 
-        memory.read(&mut store, offset, &mut buf)?;
+        memory.read(&mut store, offset, &mut buf).expect("");
 
-        // if small string (most significant bit of capacity)
-        if buf[11] & 7 != 0 {
+        // if small string
+        if buf[11] & 0b1000_0000 == 0 {
             // read bytes until we reach a null terminator in the small string case
             let length = buf.iter().position(|b| *b == '\0' as u8).unwrap();
 
@@ -161,8 +162,6 @@ impl WasmMemory for String {
             let start = LittleEndian::read_u32(&buf);
             let length = LittleEndian::read_u32(&buf[4..]);
 
-            // long string mode
-            // TODO: Support reading short strings
             let mut string_bytes = vec![0; length as usize];
 
             memory.read(&mut store, start as usize, &mut string_bytes)?;
