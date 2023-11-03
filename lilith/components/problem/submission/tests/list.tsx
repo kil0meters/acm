@@ -5,22 +5,32 @@ export function ListDisplay<T extends ReactNode>({ dataType, data }: { dataType:
         return (
             <div>
                 <span className="text-sm">{dataType} list:</span>
-                <div className={`rounded border flex-col whitespace-nowrap w-min bg-blue-50 border-blue-200 max-w-full max-h-[30vh] overflow-auto flex dark:border-slate-700 dark:bg-slate-800`}>
+                <div className={`grid items-center grid-cols-[min-content_min-content] whitespace-nowrap max-w-full max-h-[30vh] overflow-auto`}>
                     {data.length == 0
                         ? <span className="whitespace-nowrap px-4 py-2">[ EMPTY LIST ]</span>
-                        : data.map((element, i) => <span key={i} className="text-center px-4 py-2 border-t first:border-0 border-blue-200 dark:border-slate-700">{element}</span>)
+                        : data.map((element, i) =>
+                            <>
+                                <label key={i} className="dark:text-white text-neutral-700 font-mono pr-3">{i}</label>
+                                <span key={i} className="text-center bg-blue-50  px-4 py-2 border-t border-x last-of-type:rounded-b last-of-type:border-b first-of-type:rounded-t border-blue-200 dark:border-slate-700">{element}</span>
+                            </>
+                        )
                     }
                 </div>
             </div>
         );
     } else {
         return (
-            <div>
+            <div className="w-min overflow-auto max-w-full">
                 <span className="text-sm">{dataType} list:</span>
-                <div className={`rounded border w-min bg-blue-50 border-blue-200 max-w-full max-h-[30vh] overflow-auto flex dark:border-slate-700 dark:bg-slate-800`}>
+                <div className={`grid grid-flow-col-dense justify-items-center grid-rows-[min-content_min-content] whitespace-nowrap max-w-full max-h-[30vh] overflow-auto`}>
                     {data.length == 0
                         ? <span className="whitespace-nowrap px-4 py-2">[ EMPTY LIST ]</span>
-                        : data.map((element, i) => <span key={i} className="text-center px-4 py-2 border-l first:border-0 border-blue-200 dark:border-slate-700">{element}</span>)
+                        : data.map((element, i) =>
+                            <>
+                                <label key={i} className="dark:text-white text-neutral-700 font-mono pb-3">{i}</label>
+                                <span key={i} className="text-center bg-blue-50  px-4 py-2 border-l border-y last-of-type:border-r last-of-type:rounded-r first-of-type:rounded-l border-blue-200 dark:border-slate-700">{element}</span>
+                            </>
+                        )
                     }
                 </div>
             </div>
