@@ -37,7 +37,7 @@ export type Problem = {
     template: string;
 
     visible: boolean;
-    difficulty: string;
+    difficulty?: string;
 };
 
 type ProblemStatus = "Complete" | "InProgress" | "NotStarted";
@@ -107,7 +107,7 @@ function ProblemListing({ id, title, description, show_team_status, difficulty }
                     <h1 className="text-2xl font-extrabold">{title}</h1>
 
                     <div className="flex ml-auto gap-4">
-                        <DifficultyBadge difficulty={difficulty} />
+                        {difficulty !== undefined && <DifficultyBadge difficulty={difficulty} />}
                         {show_team_status && <ProblemTeamStatus problem_id={id} />}
                     </div>
                 </div>
@@ -133,7 +133,7 @@ function ListLoading(): JSX.Element {
     );
 }
 
-export function ProblemList({ problems, show_team_status }: { problems: Problem[], show_team_status?: boolean }): JSX.Element {
+export function ProblemList({ problems, show_team_status, show_difficulty }: { problems: Problem[], show_team_status?: boolean, show_difficulty?: boolean }): JSX.Element {
     return (
         <>
             {problems.map(({ id, title, description, difficulty, visible }) => (
@@ -145,7 +145,7 @@ export function ProblemList({ problems, show_team_status }: { problems: Problem[
                     runtime_multiplier={0.0}
                     description={description}
                     show_team_status={show_team_status}
-                    difficulty={difficulty}
+                    difficulty={(show_difficulty ?? true) ? difficulty : undefined}
                     visible={visible}
                 />
             ))}

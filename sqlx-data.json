@@ -220,6 +220,42 @@
     },
     "query": "\n        SELECT\n            id,\n            title,\n            description,\n            meeting_time\n        FROM\n            meetings\n        WHERE\n            DATETIME('now', 'localtime', 'start of day') < DATETIME(meeting_time)\n        ORDER BY\n            DATETIME(meeting_time) ASC\n        "
   },
+  "3888fc58797b5644eb6d727635efaa83538a31d061e1e6a2c5278c85664e9af5": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "start",
+          "ordinal": 2,
+          "type_info": "Datetime"
+        },
+        {
+          "name": "end",
+          "ordinal": 3,
+          "type_info": "Datetime"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "SELECT * FROM competitions ORDER BY start DESC"
+  },
   "3a6f4d995b699c571a5ed893a66008dfa74c233714776e623269e9c999aec254": {
     "describe": {
       "columns": [
@@ -691,42 +727,6 @@
       }
     },
     "query": "INSERT INTO competitions (name, start, end) VALUES (?, ?, ?) RETURNING id"
-  },
-  "c2d158b5abdfe9187cc6145284813027d990b9b29b9cfbfbab0bde3d324514ee": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "name",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "start",
-          "ordinal": 2,
-          "type_info": "Datetime"
-        },
-        {
-          "name": "end",
-          "ordinal": 3,
-          "type_info": "Datetime"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "SELECT * FROM competitions"
   },
   "e144a362b64a00e9b312f7e0ce2d17b4b6a6752dea408726a7c4fcf10f009550": {
     "describe": {

@@ -130,12 +130,16 @@ pub async fn problems(
     if has_query {
         query_builder.push(" ORDER BY rank ");
     } else {
-        match options.sort_by {
-            ProblemOrdering::Newest => {
-                query_builder.push(" ORDER BY create_dt DESC ");
-            }
-            ProblemOrdering::Oldest => {
-                query_builder.push(" ORDER BY create_dt ASC ");
+        if options.competition_id.is_some() {
+            query_builder.push(" ORDER BY title ");
+        } else {
+            match options.sort_by {
+                ProblemOrdering::Newest => {
+                    query_builder.push(" ORDER BY create_dt DESC ");
+                }
+                ProblemOrdering::Oldest => {
+                    query_builder.push(" ORDER BY create_dt ASC ");
+                }
             }
         }
     }
