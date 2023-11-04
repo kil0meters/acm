@@ -22,7 +22,7 @@ async fn cplusplus_run(form: Json<SubmitJob>) -> Json<Result<RunnerResponse, Run
     });
 
     tokio::select! {
-        _ = tokio::time::sleep(Duration::from_secs(15)) => {
+        _ = tokio::time::sleep(Duration::from_secs(90)) => {
             return Json(Err(RunnerError::TimeoutError { message: "The tests took too long to run. (process killed)".to_string() }));
         }
         res = task => {
@@ -62,7 +62,7 @@ async fn cplusplus_custom_input(
     });
 
     tokio::select! {
-        _ = tokio::time::sleep(Duration::from_secs(15)) => {
+        _ = tokio::time::sleep(Duration::from_secs(60)) => {
             return Json(Err(RunnerError::TimeoutError { message: "The tests took too long to run. (process killed)".to_string() }));
         }
         res = task => {
