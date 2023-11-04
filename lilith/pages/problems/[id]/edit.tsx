@@ -54,7 +54,7 @@ const ProblemEditor: NextPage = () => {
             setTitle(data.title);
             setTemplate(data.template);
             setVisible(data.visible);
-            setDifficulty(data.difficulty);
+            setDifficulty(data.difficulty!);
             setRuntimeMultiplier(data.runtime_multiplier);
         }
     }, [data]);
