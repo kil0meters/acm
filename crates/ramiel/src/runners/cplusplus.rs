@@ -177,6 +177,7 @@ async fn compile_problem(prefix: &str, implementation: &str) -> Result<String, R
             "-Wall",
             "-Wextra",
             "-Wpedantic",
+            "-Werror=return-type",
             "-fno-caret-diagnostics",
             "-fno-exceptions",
             "-std=c++20",
