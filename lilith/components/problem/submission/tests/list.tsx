@@ -11,7 +11,7 @@ export function ListDisplay<T extends ReactNode>({ dataType, data }: { dataType:
                         : data.map((element, i) =>
                             <>
                                 <label key={i} className="dark:text-white text-neutral-700 font-mono pr-3">{i}</label>
-                                <span key={i} className="text-center bg-blue-50  px-4 py-2 border-t border-x last-of-type:rounded-b last-of-type:border-b first-of-type:rounded-t border-blue-200 dark:border-slate-700">{element}</span>
+                                <span key={i} className="text-center bg-blue-50 dark:bg-slate-800 px-4 py-2 border-t border-x last-of-type:rounded-b last-of-type:border-b first-of-type:rounded-t border-blue-200 dark:border-slate-700">{element}</span>
                             </>
                         )
                     }
@@ -28,7 +28,7 @@ export function ListDisplay<T extends ReactNode>({ dataType, data }: { dataType:
                         : data.map((element, i) =>
                             <>
                                 <label key={i} className="dark:text-white text-neutral-700 font-mono pb-3">{i}</label>
-                                <span key={i} className="text-center bg-blue-50  px-4 py-2 border-l border-y last-of-type:border-r last-of-type:rounded-r first-of-type:rounded-l border-blue-200 dark:border-slate-700">{element}</span>
+                                <span key={i} className="text-center bg-blue-50 dark:bg-slate-800 px-4 py-2 border-l border-y last-of-type:border-r last-of-type:rounded-r first-of-type:rounded-l border-blue-200 dark:border-slate-700">{element}</span>
                             </>
                         )
                     }
