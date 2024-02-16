@@ -117,21 +117,36 @@ function SingleEditor({ type, value, onChange }: SingleEditorProps) {
         onChange(data);
     }, [data, onChange]);
 
-    return (
-        <div>
-            <span className="text-sm">{type}:</span>
-            <input
-                className="outline focus:outline-4 p-2 w-full rounded-md outline-green-500 dark:bg-neutral-900"
-                value={data.toString()}
-                onChange={(e) => {
-                    try {
-                        setData(JSON.parse(e.target.value));
-                    } catch {
+    if (type === "String") {
+        return (
+            <div>
+                <span className="text-sm">{type}:</span>
+                <textarea
+                    className="outline focus:outline-4 p-2 w-full rounded-md outline-green-500 dark:bg-neutral-900 resize-y"
+                    value={data.toString()}
+                    onChange={(e) => {
                         setData(e.target.value);
-                    }
-                }} />
-        </div>
-    );
+                    }} />
+            </div>
+        );
+    }
+    else {
+        return (
+            <div>
+                <span className="text-sm">{type}:</span>
+                <input
+                    className="outline focus:outline-4 p-2 w-full rounded-md outline-green-500 dark:bg-neutral-900"
+                    value={data.toString()}
+                    onChange={(e) => {
+                        try {
+                            setData(JSON.parse(e.target.value));
+                        } catch {
+                            setData(e.target.value);
+                        }
+                    }} />
+            </div>
+        );
+    }
 }
 
 type FunctionArgumentEditorProps = {
